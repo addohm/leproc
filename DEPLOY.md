@@ -24,11 +24,22 @@ To install by hand instead, copy the `Leproc` folder (not the repo root) into
 1. Run the tests (`.venv/bin/python tests/run_tests.py`), commit and push.
 2. On Windows, run `tools\install_forever.cmd`, then `/reload` (or restart the
    game if it says so).
-3. For a release: bump `## Version` in `Leproc/Leproc.toc`, move the
-   CHANGELOG's Unreleased entries under the new version, and commit. Then
-   `python3 tools/make_release.py` writes `release/Leproc-<version>.zip` from the
-   committed `Leproc/` folder (it refuses if `Leproc/` has uncommitted changes);
-   commit the zip, tag (`git tag v1.0.0`) and push with `--tags`.
+3. For a release (the owner's rule: every release ships its whole kit):
+   - bump `## Version` in `Leproc/Leproc.toc` (betas: `0.9.0-beta`), move the
+     CHANGELOG's Unreleased entries under the new version;
+   - update the pitch page `LISTING.md` (feature list in step with README.md,
+     release notes) and redraw the art if needed: `python3 art/make_logo.py`
+     draws the icons and the 1600x500 banner (the banner needs Inter in
+     `.scratch/fonts/`: copy `inter-700.ttf` and `inter-600.ttf` as
+     `Inter-Bold.ttf` and `Inter-SemiBold.ttf`, or set `LEPROC_FONT_BOLD` and
+     `LEPROC_FONT_SEMI`);
+   - commit, then `python3 tools/make_release.py` writes
+     `release/Leproc-<version>.zip` from the committed `Leproc/` folder (it
+     refuses if `Leproc/` has uncommitted changes); commit the zip, tag
+     (`git tag v0.9.0-beta`) and push with `--tags`.
+   - Players unzip it into `<WoW>\_forever_\Interface\AddOns\` (the zip holds
+     the `Leproc` folder). The listing's images are `art/leproc-icon-400.png`
+     (avatar) and `art/leproc-banner.png`.
 
 ### The install script
 

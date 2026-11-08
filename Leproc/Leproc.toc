@@ -2,7 +2,7 @@
 ## Title: Leproc
 ## Notes: Glows your action buttons when Revenge, Overpower and other reactive abilities are ready, in any stance or form.
 ## Author: addohm
-## Version: 0.1.0
+## Version: 0.9.0-beta
 ## IconTexture: Interface\AddOns\Leproc\Media\Icon
 ## SavedVariables: LeprocDB
 ## AddonCompartmentFunc: Leproc_OnAddonCompartmentClick

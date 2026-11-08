@@ -6,8 +6,17 @@ All notable changes to leproc. The format follows
 
 ## [Unreleased]
 
+## [0.9.0-beta] - 2026-11-08
+
+The first beta: reactive abilities and procs glow on your action buttons in any stance or form.
+Exact in the ability's own stance (the game's answer), Leproc's own window elsewhere (corrected
+for how late the game reports blocks, dodges and parries); proc buffs through Blizzard's aura
+containers; any bar addon; macros by their text; Also glow; profiles; diagnostics. Everything
+built on 2026-11-08, in the order below (newest first).
+
 ### Added
 
+- The release kit: LISTING.md (the CurseForge / Wago pitch page), the 1600x500 banner (`art/leproc-banner.png`, drawn by `art/make_logo.py`), and `release/Leproc-0.9.0-beta.zip` (2026-11-08).
 - `/leproc log` (`off`, `show`, `clear`): every trigger, glow, cast, stance and target change, and what the game says about your abilities being usable (by spell and by button, "secret" when hidden), timestamped; the last 300 lines kept, copyable from a window (2026-11-08).
 - Class procs, shown by the game the same way: Eclipse → Starfire (in any form), Cutthroat → Ambush, Shadow Trance → Shadow Bolt, Decimation → Soul Fire, Heating Up / Hot Streak → Pyroblast, Missile Barrage → Arcane Missiles, Fingers of Frost → Ice Lance, Maelstrom Weapon → Lightning Bolt, Infusion of Light → Holy Light. Only Shadow Trance's buff ID is confirmed (2026-11-08).
 - Proc buffs: Bloodthrill lights Overpower, Victorious lights Victory Rush (new), Expose Prey lights Mongoose Bite, in any stance and in combat. The game shows these glows itself through Blizzard's aura containers (a slot per proc buff, the glow a child of its button, placed over the action buttons out of combat); Leproc never reads the buffs (2026-11-08).

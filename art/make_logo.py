@@ -1,12 +1,17 @@
 """Draws the Leproc icon into art/ (512, 400, 256 and 128 px PNGs; 400 is the CurseForge and Wago
-avatar) and the in-game icon Leproc/Media/Icon.tga (128 px; the game reads TGA with power-of-two
-sizes; the .toc's IconTexture uses it for the AddOns list and the addon compartment).
+avatar), the in-game icon Leproc/Media/Icon.tga (128 px; the game reads TGA with power-of-two
+sizes; the .toc's IconTexture uses it for the AddOns list and the addon compartment), and the
+listing banner art/leproc-banner.png (1600x500: the icon, the name, the tagline and a sample row
+of action buttons, one of them lit).
 
 The design: a glowing gold square (an action button lit up) with a gold lightning bolt in it (a
 proc), on a dark ember-red rounded square. The same build as Leboof's icon, our own art.
 
-Needs Pillow. Run: python3 art/make_logo.py
+Needs Pillow, and the Inter font for the banner (bold and semibold): it looks in .scratch/fonts/
+(Inter-Bold.ttf, Inter-SemiBold.ttf), or point LEPROC_FONT_BOLD and LEPROC_FONT_SEMI at the files.
+Run: python3 art/make_logo.py
 """
+import os
 import pathlib
 
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
@@ -80,6 +85,58 @@ def draw_icon():
     return img
 
 
+FONTS = ROOT / ".scratch" / "fonts"
+BOLD = os.environ.get("LEPROC_FONT_BOLD", str(FONTS / "Inter-Bold.ttf"))
+SEMI = os.environ.get("LEPROC_FONT_SEMI", str(FONTS / "Inter-SemiBold.ttf"))
+TAGLINE = "Reactive abilities glow, whatever your stance."
+
+
+def tile(icon, size, lit):
+    """A sample action button for the banner: the icon dimmed, or bright with a gold glow."""
+    pad = size // 4
+    out = Image.new("RGBA", (size + 2 * pad, size + 2 * pad), (0, 0, 0, 0))
+    ic = icon.resize((size, size), Image.LANCZOS)
+    if lit:
+        ring = Image.new("L", out.size, 0)
+        ImageDraw.Draw(ring).rounded_rectangle([pad - 6, pad - 6, pad + size + 6, pad + size + 6], radius=size // 5, outline=255, width=8)
+        ring = ring.filter(ImageFilter.GaussianBlur(6))
+        for _ in range(2):  # twice, for a strong glow
+            out.paste(Image.new("RGBA", out.size, GLOW + (255,)), (0, 0), ring)
+    else:
+        r, g, b, a = ic.split()
+        dim = Image.merge("RGB", (r, g, b)).point(lambda v: int(v * 0.35))
+        ic = Image.merge("RGBA", (*dim.split(), a))
+    out.alpha_composite(ic, (pad, pad))
+    return out
+
+
+def banner(icon):
+    from PIL import ImageFont
+    W, H = 1600, 500
+    img = vgrad(W, H, EMBER_TOP, EMBER_BOT).convert("RGBA")
+    light = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(light).ellipse([-200, -500, 1100, 300], fill=50)
+    light = light.filter(ImageFilter.GaussianBlur(120))
+    img = Image.composite(Image.new("RGBA", (W, H), (255, 255, 255, 255)), img, light)
+    img.alpha_composite(icon.resize((380, 380), Image.LANCZOS), (60, 60))
+    d = ImageDraw.Draw(img)
+    title = ImageFont.truetype(BOLD, 140)
+    tag = ImageFont.truetype(SEMI, 46)
+    d.text((500, 52), "Leproc", font=title, fill=GOLD_TOP)
+    d.line([(506, 228), (1530, 228)], fill=GOLD_BOT + (255,), width=3)
+    d.text((506, 244), TAGLINE, font=tag, fill=(240, 222, 210))
+    # A sample bar: four buttons, the third lit.
+    x = 506
+    for lit in (False, False, True, False):
+        img.alpha_composite(tile(icon, 104, lit), (x - 26, 318))
+        x += 104 + 22
+    img.convert("RGB").save(ART / "leproc-banner.png")
+    # Checks without looking at it: the text fits, the tiles sit inside the canvas.
+    tb = d.textbbox((500, 52), "Leproc", font=title)
+    tg = d.textbbox((506, 244), TAGLINE, font=tag)
+    print("title", tb, "tagline", tg, "fits:", tg[2] < W - 40 and tb[3] < 228, "tiles end at x", x, "y", 318 + 156)
+
+
 def main():
     big = draw_icon()
     for px in (512, 400, 256, 128):
@@ -87,6 +144,11 @@ def main():
     GAME_ICON.parent.mkdir(exist_ok=True)
     big.resize((128, 128), Image.LANCZOS).save(GAME_ICON)
     print(f"Wrote art/leproc-icon-{{512,400,256,128}}.png and {GAME_ICON.relative_to(ROOT)}")
+    if os.path.exists(BOLD) and os.path.exists(SEMI):
+        banner(big)
+        print("Wrote art/leproc-banner.png")
+    else:
+        print("No Inter font files (.scratch/fonts, or LEPROC_FONT_BOLD and LEPROC_FONT_SEMI): skipped the banner")
 
 
 if __name__ == "__main__":

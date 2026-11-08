@@ -10,8 +10,9 @@ other addons (and the game's own highlight) stay dark otherwise. Leproc watches
 for the trigger itself (your block, dodge or parry, or your target's dodge) and
 lights the button for the 5 s the ability is up.
 
-Status: 0.1.0, not yet tried in game. It covers the abilities that follow a
-block, dodge or parry:
+Status: **0.9.0-beta** (2026-11-08), the first beta: `release/Leproc-0.9.0-beta.zip`.
+Tried in game on a warrior; the rest is tested against a fake client. It covers the abilities
+that follow a block, dodge or parry:
 
 - **Warrior:** Revenge (after you block, dodge or parry; needs Defensive Stance)
   and Overpower (after your target dodges; needs Battle Stance).
@@ -144,6 +145,7 @@ it.
 - [CHANGELOG.md](CHANGELOG.md): what changed in each version
 - [DEPLOY.md](DEPLOY.md): how it's deployed
 - [TESTING.md](TESTING.md): what to check in game
+- [LISTING.md](LISTING.md): the CurseForge / Wago page text, and the release notes
 - [SECURITY.md](SECURITY.md): secrets, access, reporting problems
 - [ROADMAP.md](ROADMAP.md): what's done and what's next
 - [CLAUDE.md](CLAUDE.md): notes for Claude working on it

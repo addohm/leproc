@@ -100,8 +100,15 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     `UI/Pages.lua`: the Abilities, Glow, General and Profiles tabs.
   - `Media/Icon.tga`: the in-game icon, drawn by `art/make_logo.py`. Never edit
     by hand.
-- `art/`: `make_logo.py` (Pillow) and the icon PNGs it draws (512, 400 for a
-  listing avatar, 256, 128).
+- `art/`: `make_logo.py` (Pillow) and what it draws: the icon PNGs (512, 400
+  for the listing avatar, 256, 128) and `leproc-banner.png` (1600x500; needs
+  Inter in `.scratch/fonts/`, see DEPLOY.md).
+- `LISTING.md`: the CurseForge / Wago pitch page (basics, summary,
+  description, screenshot list, release notes). Keep its feature list in step
+  with README.md.
+- `release/`: `Leproc-<version>.zip` packages for players, built by
+  `tools/make_release.py`; committed with each release (tagged
+  `v<version>`).
 - `tools/gen_data.py`: fetches Forever's SpellName table from wago.tools and
   writes `Data.lua` (every ID for each ability and stance name).
 - `tools/forever_tooltips.py <names>`: Wowhead's Forever tooltip for every ID
@@ -133,10 +140,14 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
    - SECURITY.md: when secrets, access or permissions change
    - ROADMAP.md: when something on it is done, or new plans are made
    - TESTING.md: what needs checking in game, and results the owner reports
+   - LISTING.md: when a feature players see changes
    - this file: when the layout, workflow or conventions change
 4. Run the checks: `.venv/bin/python tests/run_tests.py` (set up with
    `python3 -m venv .venv && .venv/bin/pip install lupa`). Then commit and push,
    and say "Pushed: <commit>" so the owner can run the install script.
+5. **A release ships its whole kit** (the owner, 2026-11-08, for this and every
+   future package): the version bump, the zip from `tools/make_release.py`, the
+   tag, LISTING.md up to date, and the art. Steps in DEPLOY.md.
 
 ## Conventions
 

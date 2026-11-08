@@ -5,6 +5,8 @@ change.
 
 ## Done
 
+- **0.9.0-beta released** (2026-11-08): `release/Leproc-0.9.0-beta.zip`, tag
+  `v0.9.0-beta`, with LISTING.md (the pitch page), the icon and the banner.
 - Standard docs (2026-11-08).
 - Install and release tools from Leboof (2026-11-08).
 - 0.1.0: block, dodge and parry abilities glow in any stance (Revenge, Overpower,
@@ -32,7 +34,7 @@ change.
 
 Picked on 2026-11-08 from the ProcGlow comparison, in this order:
 
-1. Check 0.1.0 in game (TESTING.md).
+1. Check the beta in game (TESTING.md), with the log on.
 2. Check the new timing in game (TESTING.md item 19), and whether the measured
    delay settles (`/leproc why revenge`).
 3. Confirm the class procs' buff IDs in game (only Shadow Trance is sure).
