@@ -1,14 +1,23 @@
 # leproc
 
-TODO: one or two sentences on what this is and who it's for.
+The project is just starting: so far the repo holds only the standard docs, no
+code.
+
+TODO: what is leproc, and who is it for?
 
 ## Getting started
 
-TODO: what you need installed, and how to set it up and run it locally.
+Clone it:
+
+```sh
+git clone git@github.com:addohm/leproc.git
+```
+
+TODO: what needs installing, and how to run it locally (once there's code).
 
 ## Usage
 
-TODO: how to use it.
+TODO: how to use it (once there's code).
 
 ## Docs
 

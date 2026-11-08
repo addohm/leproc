@@ -1,6 +1,9 @@
 # Deploying leproc
 
-TODO: where it runs (host, service, URL).
+Nothing is deployed yet: the repo has no code.
+
+TODO: where will it run (host, service, URL), or is it shipped some other way
+(a release download, say)?
 
 ## First-time setup
 
@@ -12,7 +15,8 @@ TODO: how a change gets from `main` to live, and how to roll back.
 
 ## Configuration
 
-TODO: the settings it needs (names only, never the values) and where they live.
+None yet. TODO: the settings it needs (names only, never the values) and
+where they live.
 
 ## Troubleshooting
 

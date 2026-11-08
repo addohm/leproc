@@ -9,3 +9,7 @@ All notable changes to leproc. The format follows
 ### Added
 
 - Standard docs: README, CLAUDE, CHANGELOG, DEPLOY, SECURITY and ROADMAP (2026-11-08).
+
+### Changed
+
+- Docs filled in with what's known so far; open questions left as TODOs (2026-11-08).
