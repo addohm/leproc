@@ -1,8 +1,7 @@
 # Deploying leproc
 
-Leproc will be a World of Warcraft addon: it runs inside the game client (WoW:
-Forever), and there's no server. There's no addon code yet, so the steps below
-work once `Leproc/Leproc.toc` exists.
+Leproc is a World of Warcraft addon: it runs inside the game client (WoW:
+Forever, Interface 16001), and there's no server.
 
 TODO: where will releases be published (CurseForge, Wago, GitHub Releases)?
 
@@ -22,7 +21,7 @@ To install by hand instead, copy the `Leproc` folder (not the repo root) into
 
 ## Shipping a change
 
-1. Run the checks (none yet), commit and push.
+1. Run the tests (`.venv/bin/python tests/run_tests.py`), commit and push.
 2. On Windows, run `tools\install_forever.cmd`, then `/reload` (or restart the
    game if it says so).
 3. For a release: bump `## Version` in `Leproc/Leproc.toc`, move the
@@ -57,9 +56,16 @@ over the installed folder, then `git checkout main -- Leproc` to return.
 
 ## Configuration
 
-None yet. TODO: the settings it needs (names only, never the values) and
-where they live.
+There are no secrets or environment settings. In-game settings are profiles,
+saved in `WTF/Account/<account>/SavedVariables/Leproc.lua` with which profile
+each character uses.
 
 ## Troubleshooting
 
-TODO: logs, health checks, common problems.
+- `/leproc help` shows the build installed. If it's old, the install didn't
+  copy (check `WOW` in the script) or the game needs a restart.
+- Nothing glows: `/leproc test` lights every tracked ability's buttons. If
+  that shows nothing, the ability isn't on a Blizzard bar you can see
+  (`/leproc list` says), or a bar addon (Bartender, Dominos, ElvUI) replaced
+  the bars, which isn't supported yet.
+- Lua errors: turn them on with `/console scriptErrors 1` and send the text.

@@ -1,0 +1,52 @@
+# Testing in game
+
+What to check after installing a build (`tools\install_forever.cmd`, then
+`/reload`). Note the build `/leproc help` shows. Results go in Confirmed or
+Problems below.
+
+## To check (0.1.0)
+
+0. First install: fully restart the game. The AddOns list and the addon
+   compartment show Leproc's icon: a glowing gold square with a lightning bolt,
+   on dark red.
+1. No Lua errors on login. `/leproc help` prints the commands with a build
+   number.
+2. **The main point**, on a warrior with Revenge on a bar that doesn't change
+   with stance (bar 2, say):
+   - 2a. In Battle Stance, fight something until you block, dodge or parry.
+     Revenge's button glows for about 5 s. Most blocks are partial (some damage
+     still gets through): those should light it too.
+   - 2b. Switch to Defensive Stance while it glows and use Revenge: the glow goes.
+   - 2c. Block again right after using it: it stays dark until its 5 s
+     cooldown ends.
+   - 2d. Overpower: when your target dodges, Overpower glows in Defensive and
+     Berserker Stance too.
+   - 2e. In a group, does Overpower also light when your target dodges someone
+     else's attack? (Expected: yes. The game only says that the target dodged.)
+   - 2f. All of this inside a dungeon, in combat.
+3. Revenge on the main bar's Defensive Stance page only: in Battle Stance it
+   can't glow, and the Abilities tab says "(not on a bar you can see)".
+4. Abilities tab: Revenge and Overpower with icons. The arrows switch Any
+   stance / Only in Defensive Stance / Off, and changed ones say "(changed)".
+   With "Only in Defensive Stance", a block in Battle Stance doesn't light it,
+   and switching to Defensive inside the 5 s does.
+5. Glow tab: each style shows on the sample and on the buttons (Test). Do Modern
+   and Classic line up with the button? Pick a sound, block: it plays once per
+   lighting, in combat too.
+6. Macros: a macro that casts Revenge glows like the spell does.
+7. Minimap button: click opens the window, right-click runs the test, drag
+   moves it, clear of Nothing Wasted's, Ticky's and Leboof's buttons.
+8. Profiles tab: as Leboof's. Each character's own profile is named by first and
+   last name, and a second character can share it.
+9. Other classes: a rogue's Riposte after a parry; a hunter's Counterattack
+   (parry) and Mongoose Bite (your dodge).
+10. Other bar addons (Bartender, Dominos, ElvUI) aren't supported yet: with
+    them, nothing glows.
+
+## Confirmed
+
+Nothing yet.
+
+## Problems
+
+None reported yet.

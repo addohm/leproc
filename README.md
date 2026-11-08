@@ -1,32 +1,80 @@
 # leproc
 
-A World of Warcraft: Forever addon for usable abilities, styled like Leboof. The
-project is just starting: there's no addon code yet. `ProcGlow/` (someone
-else's addon) is a design example, kept locally and git-ignored.
+Leproc is a World of Warcraft: Forever addon for every class. It glows an
+ability's action button when the ability is ready, **whatever stance or form
+you're in**. Block an attack in Battle Stance and Revenge glows, so you know
+it's worth switching to Defensive Stance.
 
-TODO: what exactly will leproc do, and who is it for?
+The game only shows reactive abilities as usable in the stance they need, so
+other addons (and the game's own highlight) stay dark otherwise. Leproc watches
+for the trigger itself (your block, dodge or parry, or your target's dodge) and
+lights the button for the 5 s the ability is up.
+
+Status: 0.1.0, not yet tried in game. It covers the abilities that follow a
+block, dodge or parry:
+
+- **Warrior:** Revenge (after you block, dodge or parry; needs Defensive Stance)
+  and Overpower (after your target dodges; needs Battle Stance).
+- **Rogue:** Riposte (after you parry).
+- **Hunter:** Counterattack (after you parry) and Mongoose Bite (after you
+  dodge).
+
+Buff procs (Clearcasting, Eclipse) and health-based abilities (Execute) are
+next: see [ROADMAP.md](ROADMAP.md).
 
 ## Getting started
 
-Clone it:
+Copy the `Leproc` folder into `<WoW>\_forever_\Interface\AddOns\` and start the
+game. To install straight from this repo on Windows, see
+[DEPLOY.md](DEPLOY.md) (`tools\install_forever.cmd`).
 
-```sh
-git clone git@github.com:addohm/leproc.git
-```
-
-Once the `Leproc` addon folder exists, copy it into
-`<WoW>\_forever_\Interface\AddOns\` and start the game. To install straight
-from this repo on Windows, see [DEPLOY.md](DEPLOY.md)
-(`tools\install_forever.cmd`).
+**Put the abilities on a bar that doesn't change with stance.** A button can
+only glow while it's on screen. A warrior's main bar swaps with stance, so
+Revenge kept only on the Defensive Stance page has no button to light in Battle
+Stance. Bars 2 to 8 stay the same in every stance. The Abilities tab and
+`/leproc list` say when an ability isn't on a bar you can see.
 
 ## Usage
 
-TODO: how to use it (once there's code).
+**The options window** opens with `/leproc` (or `/lpr`), the minimap button, or
+the game's addon menu by the minimap. It has four tabs:
+
+- **Abilities:** your class's abilities, each set to:
+  - **Any stance** (the default): lights after its trigger in any stance or
+    form.
+  - **Only in its stance:** lights only when you're in the stance the game
+    needs, like other addons do.
+  - **Off.**
+
+  An ability that isn't on a bar you can see says so.
+- **Glow:** the glow style (Pixel, Action button, Auto-cast, GCD, Modern,
+  Classic, Pulse), its colour, and a sound for when an ability lights up (off
+  by default). **Test** lights your abilities' buttons for 5 s.
+- **General:** the minimap button, and how Leproc works.
+- **Profiles:** each character starts with its own profile (by first and last
+  name); share, copy, rename, delete or reset them.
+
+**How long it lights:** 5 s after the trigger, or until you use it. After you
+use it, it stays dark for its cooldown (Revenge 5 s) even if you block again.
+
+**Chat commands:**
+
+- `/leproc help` lists them.
+- `/leproc list` shows your abilities, their modes and whether they're on
+  screen.
+- `/leproc <ability> any|stance|off|default`, for example `/leproc revenge
+  stance`.
+- `/leproc test` lights the buttons for 5 s.
+- `/leproc minimap`, `/leproc profile`, `/leproc reset`.
+
+**Minimap button:** click for the window, right-click for the test, drag to move
+it.
 
 ## Docs
 
 - [CHANGELOG.md](CHANGELOG.md): what changed in each version
 - [DEPLOY.md](DEPLOY.md): how it's deployed
+- [TESTING.md](TESTING.md): what to check in game
 - [SECURITY.md](SECURITY.md): secrets, access, reporting problems
 - [ROADMAP.md](ROADMAP.md): what's done and what's next
 - [CLAUDE.md](CLAUDE.md): notes for Claude working on it

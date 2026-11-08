@@ -7,14 +7,15 @@ vulnerability.
 
 ## Secrets
 
-None yet: there's no code or config. TODO: which secrets leproc uses, where
-each one lives, and how to rotate it, once it has any. Never commit them.
+None. Leproc is an addon with no servers or keys. Its settings are saved by the
+game in `WTF/Account/<account>/SavedVariables/Leproc.lua`. Never commit
+secrets.
 
 ## Access
 
 - The code lives at `addohm/leproc` on GitHub.
 - The Claude workspace pushes over SSH through its own host alias
   (`deploy-ws-leproc`), not a personal key.
-- Nothing runs in production yet.
+- Nothing runs on a server: players install the addon themselves.
 
 TODO: who else can push or deploy, and how is that granted?

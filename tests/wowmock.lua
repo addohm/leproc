@@ -1,0 +1,261 @@
+-- A small fake WoW client for Leproc's tests. Frames accept any method call. Blizzard's action
+-- buttons exist (ActionButton1-12, MultiBarBottomLeftButton1-12), each with an `action` slot; the
+-- test puts spells on slots (WM.SetAction), flips stance, and fires combat events.
+local M = { printed = {}, combat = false, class = "WARRIOR", known = {}, frames = {}, actions = {} }
+
+-- Unknown methods (capitalised names) do nothing; unknown fields are nil, as on a real frame.
+local function Permissive(t)
+	return setmetatable(t, { __index = function(_, k)
+		if type(k) == "string" and k:match("^%u") then return function() return nil end end
+	end })
+end
+
+local function NewFrame(kind, name, parent)
+	local f = { kind = kind, name = name, parent = parent, shown = true, points = {}, scripts = {}, events = {}, level = 1, w = 0, h = 0 }
+	function f:Show()
+		local was = self.shown
+		self.shown = true
+		if not was and self.scripts.OnShow then self.scripts.OnShow(self) end
+	end
+	function f:Hide() self.shown = false end
+	function f:SetShown(v) self.shown = v and true or false end
+	function f:IsShown() return self.shown end
+	-- Visible: shown, and so is every parent.
+	function f:IsVisible()
+		local p = self
+		while p do
+			if not p.shown then return false end
+			p = p.parent
+		end
+		return true
+	end
+	function f:SetParent(p) self.parent = p end
+	function f:SetSize(w, h) self.w, self.h = w, h end
+	function f:GetSize() return self.w, self.h end
+	function f:SetWidth(w) self.w = w end
+	function f:SetHeight(h) self.h = h end
+	function f:GetWidth() return self.w end
+	function f:GetHeight() return self.h end
+	function f:GetCenter() return 0, 0 end
+	function f:GetEffectiveScale() return 1 end
+	function f:GetChecked() return self.checked end
+	function f:SetText(t) self.text = t end
+	function f:GetText() return self.text end
+	function f:SetChecked(v) self.checked = v end
+	function f:ClearAllPoints() self.points = {} end
+	function f:SetPoint(...) table.insert(self.points, { ... }) end
+	function f:GetPoint() local p = self.points[1] or {} return p[1], nil, p[3], p[4], p[5] end
+	function f:GetFrameLevel() return self.level end
+	function f:SetFrameLevel(l) self.level = l end
+	function f:SetScript(event, fn) self.scripts[event] = fn end
+	function f:RegisterEvent(e) self.events[e] = true end
+	function f:RegisterUnitEvent(e, ...) self.events[e] = { ... } end
+	function f:CreateTexture() return Permissive({}) end
+	function f:CreateAnimationGroup()
+		local g = Permissive({ animations = {}, playing = false })
+		function g:CreateAnimation(kind)
+			local a = Permissive({ kind = kind })
+			table.insert(self.animations, a)
+			return a
+		end
+		function g:Play() self.playing = true end
+		function g:Stop() self.playing = false end
+		function g:IsPlaying() return self.playing end
+		return g
+	end
+	function f:CreateFontString()
+		local fs = Permissive({})
+		function fs:SetText(t) self.text = t end
+		function fs:GetText() return self.text end
+		return fs
+	end
+	table.insert(M.frames, f)
+	return Permissive(f)
+end
+
+function CreateFrame(kind, name, parent, template)
+	local f = NewFrame(kind, name, parent)
+	if kind == "DropdownButton" then
+		function f:SetupMenu(generator) self.generator = generator end
+	end
+	if name then _G[name] = f end
+	return f
+end
+
+UIParent = NewFrame("Frame", "UIParent")
+Minimap = NewFrame("Frame", "Minimap")
+Minimap:SetSize(140, 140)
+GameTooltip = NewFrame("GameTooltip", "GameTooltip")
+function GameTooltip_Hide() end
+
+-- Two of Blizzard's bars. The main bar's slots page with stance: WM.SetStance moves its buttons
+-- to that stance's page (Battle 73-84, Defensive 85-96, as on a warrior); the second bar is fixed
+-- at 61-72 (MultiBarBottomLeft).
+M.mainBar = NewFrame("Frame", "MainActionBar")
+M.bottomLeft = NewFrame("Frame", "MultiBarBottomLeft")
+for i = 1, 12 do
+	local b = NewFrame("CheckButton", "ActionButton" .. i, M.mainBar)
+	b:SetSize(45, 45)
+	b.action = 72 + i
+	_G["ActionButton" .. i] = b
+	local c = NewFrame("CheckButton", "MultiBarBottomLeftButton" .. i, M.bottomLeft)
+	c:SetSize(40, 40)
+	c.action = 60 + i
+	_G["MultiBarBottomLeftButton" .. i] = c
+end
+
+-- Action slots: WM.SetAction(slot, spellID) or WM.SetAction(slot, spellID, "macro").
+function M.SetAction(slot, spellID, kind)
+	M.actions[slot] = spellID and { kind or "spell", spellID } or nil
+end
+function GetActionInfo(slot)
+	local a = M.actions[slot]
+	if not a then return nil end
+	if a[1] == "macro" then return "macro", a[2], "spell" end
+	return "spell", a[2]
+end
+
+-- Stances: index 1 Battle (2457), 2 Defensive (71). WM.SetStance(1 or 2, or 0 for none).
+M.stance = 1
+M.forms = { { spellID = 2457, page = 73 }, { spellID = 71, page = 85 } }
+function GetShapeshiftForm() return M.stance end
+function GetShapeshiftFormInfo(i)
+	local f = M.forms[i]
+	if not f then return nil end
+	return 1000 + i, i == M.stance, true, f.spellID
+end
+function M.SetStance(i)
+	M.stance = i
+	local page = M.forms[i] and M.forms[i].page or 1
+	for n = 1, 12 do _G["ActionButton" .. n].action = page + n - 1 end
+	M.Fire("UPDATE_SHAPESHIFT_FORM")
+	M.Fire("UPDATE_BONUS_ACTIONBAR")
+end
+
+-- True if Leproc's overlay on this button has a glow playing.
+function M.Glowing(button)
+	for _, f in ipairs(M.frames) do
+		if f.parent == button and f.glows then
+			for _, built in pairs(f.glows) do
+				for _, g in ipairs(built.groups) do
+					if g.playing then return true end
+				end
+			end
+		end
+	end
+	return false
+end
+
+UISpecialFrames = {}
+tinsert = table.insert
+function wipe(t) for k in pairs(t) do t[k] = nil end return t end
+function GetCursorPosition() return 0, 0 end
+M.name, M.surname, M.realm = "Tester", "Smith", "Realm"
+-- On Forever the second value is the surname.
+function UnitName() return M.name, M.surname end
+function GetRealmName() return M.realm end
+YES, NO = "Yes", "No"
+StaticPopupDialogs = {}
+-- The test accepts popups with WM.Accept().
+function StaticPopup_Show(which, text, _, data) M.popup = { which = which, text = text, data = data } end
+function M.Accept()
+	local p = assert(M.popup, "no popup shown")
+	M.popup = nil
+	StaticPopupDialogs[p.which].OnAccept(nil, p.data)
+end
+SlashCmdList = {}
+
+C_AddOns = {
+	IsAddOnLoaded = function() return true end,
+	LoadAddOn = function() return true end,
+	GetAddOnMetadata = function(_, field) if field == "Version" then return "0.0.0" end end,
+}
+-- A clock the tests move (WM.Advance). C_Timer.After runs at once; NewTimer and NewTicker wait
+-- for WM.Advance.
+M.now = 1000
+function GetTime() return M.now end
+M.timers = {}
+C_Timer = {
+	After = function(_, fn) fn() end,
+	NewTimer = function(seconds, fn)
+		local t = { at = M.now + seconds, fn = fn }
+		function t:Cancel() self.cancelled = true end
+		table.insert(M.timers, t)
+		return t
+	end,
+	NewTicker = function(seconds, fn)
+		local t = { at = M.now + seconds, every = seconds, fn = fn }
+		function t:Cancel() self.cancelled = true end
+		table.insert(M.timers, t)
+		return t
+	end,
+}
+function M.Advance(seconds)
+	local target = M.now + seconds
+	while true do
+		local next
+		for _, t in ipairs(M.timers) do
+			if not t.cancelled and t.at <= target and (not next or t.at < next.at) then next = t end
+		end
+		if not next then break end
+		M.now = next.at
+		if next.every then next.at = next.at + next.every else next.cancelled = true end
+		next.fn()
+	end
+	M.now = target
+end
+-- Sounds played, by sound kit ID; SOUNDKIT maps each name to a made-up ID.
+M.sounds = {}
+SOUNDKIT = setmetatable({ READY_CHECK = 8960 }, { __index = function(_, name) return "kit:" .. name end })
+function PlaySound(id) table.insert(M.sounds, id) end
+function M.Played(name)
+	for _, id in ipairs(M.sounds) do if id == SOUNDKIT[name] then return true end end
+	return false
+end
+MenuUtil = { CreateContextMenu = function(owner, generator) M.contextMenu = { owner = owner, generator = generator } end }
+C_SpellBook = { IsSpellKnown = function(id) return M.known[id] == true end }
+C_Spell = { GetSpellTexture = function(id) return 100000 + id end }
+function UnitClass() return "Class", M.class end
+function InCombatLockdown() return M.combat end
+function print(...)
+	local parts = {}
+	for i = 1, select("#", ...) do parts[i] = tostring(select(i, ...)) end
+	table.insert(M.printed, table.concat(parts, " "))
+end
+function strtrim(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
+function strsplit(sep, s, limit)
+	local out, start = {}, 1
+	while true do
+		if limit and #out == limit - 1 then break end
+		local i = s:find(sep, start, true)
+		if not i then break end
+		table.insert(out, s:sub(start, i - 1))
+		start = i + #sep
+	end
+	table.insert(out, s:sub(start))
+	return unpack(out)
+end
+
+-- Fires an event at every frame that registered it. Unit events reach a frame only for the units
+-- it registered, as with RegisterUnitEvent.
+function M.Fire(event, ...)
+	local unit = ...
+	for _, f in ipairs(M.frames) do
+		local reg = f.events[event]
+		if reg and f.scripts.OnEvent then
+			local wanted = reg == true
+			if type(reg) == "table" then
+				for _, u in ipairs(reg) do if u == unit then wanted = true end end
+			end
+			if wanted then f.scripts.OnEvent(f, event, ...) end
+		end
+	end
+end
+
+-- Combat events as the game sends them: UNIT_COMBAT (unit, event, flagText, amount, schoolMask).
+function M.Combat(unit, event, flags) M.Fire("UNIT_COMBAT", unit, event, flags or "", 0, 1) end
+function M.Cast(spellID) M.Fire("UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-GUID", spellID) end
+
+function M.Slash(msg) SlashCmdList.LEPROC(msg) end
+
+return M
