@@ -4,7 +4,9 @@ Orientation for Claude working on leproc. Read this first.
 
 ## What this is
 
-No code yet: the repo (`addohm/leproc` on GitHub) holds only the standard docs.
+A WoW: Forever addon for usable abilities, in the same style as Leboof. No
+addon code yet. `ProcGlow/` (by Troy) is the user's design example: read it for
+ideas, don't copy its code.
 
 TODO: what the project does, its main parts, and how they fit together.
 
@@ -16,6 +18,12 @@ TODO: what the project does, its main parts, and how they fit together.
 - `SECURITY.md`: secrets, access, reporting problems
 - `ROADMAP.md`: done, next, ideas
 - `CLAUDE.md`: this file
+- `ProcGlow/`: someone else's addon, a design example only
+- `tools/install_forever.cmd`: Windows; pulls, mirrors `Leproc/` into the
+  client, stamps `Build.lua`, packs a zip on the desktop (CRLF, see
+  `.gitattributes`)
+- `tools/make_release.py`: builds `release/Leproc-<version>.zip` from the
+  committed `Leproc/` folder
 
 Add the code's folders here as they appear.
 

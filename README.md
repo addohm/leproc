@@ -1,9 +1,10 @@
 # leproc
 
-The project is just starting: so far the repo holds only the standard docs, no
-code.
+A World of Warcraft: Forever addon for usable abilities, styled like Leboof. The
+project is just starting: there's no addon code yet. `ProcGlow/` is someone
+else's addon, kept here as a design example only.
 
-TODO: what is leproc, and who is it for?
+TODO: what exactly will leproc do, and who is it for?
 
 ## Getting started
 
@@ -13,7 +14,10 @@ Clone it:
 git clone git@github.com:addohm/leproc.git
 ```
 
-TODO: what needs installing, and how to run it locally (once there's code).
+Once the `Leproc` addon folder exists, copy it into
+`<WoW>\_forever_\Interface\AddOns\` and start the game. To install straight
+from this repo on Windows, see [DEPLOY.md](DEPLOY.md)
+(`tools\install_forever.cmd`).
 
 ## Usage
 
