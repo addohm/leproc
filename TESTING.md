@@ -77,6 +77,12 @@ Problems below.
     Rogue: Cutthroat lights Ambush out of Stealth. Warlock: Shadow Trance and
     Decimation. Mage, shaman, paladin as in the README. Note which never
     light: their buff IDs are guesses from Forever's data.
+17. `/leproc log`, for the Overpower problem below: turn it on, fight a few
+    mobs in Battle and in Defensive Stance (solo, and in a group if you can),
+    note when Overpower glows but isn't usable, then `/leproc log show`,
+    Ctrl+C, and paste it to me. The lines to look for: "your target dodged
+    (target DODGE) -> window Overpower" and what "game says usable" right
+    after, and "game: Overpower ... usable" changes.
 
 ## Confirmed
 
@@ -84,6 +90,10 @@ Problems below.
   Abilities tab lists Revenge and Overpower for a warrior.
 
 ## Problems
+
+- 0ddf9ba / 118bbe5: Overpower glows when it isn't usable, on the spell and on
+  a macro. No Bloodthrill talent, so it's the "your target dodged" window.
+  Being looked into with `/leproc log` (item 17).
 
 - 9f623d4: with EllesmereUI's action bars, Revenge and Overpower said "not on a
   bar you can see" although both were on its bars: Leproc only looked at

@@ -213,10 +213,13 @@ function GetActionInfo(slot)
 	end
 	return "spell", a[2]
 end
-C_ActionBar = { GetActionText = function(slot)
-	local a = M.actions[slot]
-	return a and a.name or nil
-end }
+C_ActionBar = {
+	GetActionText = function(slot)
+		local a = M.actions[slot]
+		return a and a.name or nil
+	end,
+	IsUsableAction = function(slot) return M.slotUsable[slot] or false, false end,
+}
 -- GetMacroInfo(index or name): name, icon, body.
 function GetMacroInfo(which)
 	for index, m in pairs(M.macros) do
@@ -366,10 +369,17 @@ function M.Played(name)
 end
 MenuUtil = { CreateContextMenu = function(owner, generator) M.contextMenu = { owner = owner, generator = generator } end }
 C_SpellBook = { IsSpellKnown = function(id) return M.known[id] == true end }
+function date() return "12:00:00" end
+ChatFontNormal = {}
+-- What the game says is usable: WM.spellUsable[name] (C_Spell.IsSpellUsable) and
+-- WM.slotUsable[slot] (C_ActionBar.IsUsableAction).
+M.spellUsable, M.slotUsable = {}, {}
+
 -- Spell names: the stances, and every ID in the addon's Data.lua by its name.
 M.spellNames = { [2458] = "Berserker Stance" }
 C_Spell = {
 	GetSpellTexture = function(id) return 100000 + id end,
+	IsSpellUsable = function(spell) return M.spellUsable[spell] or false, false end,
 	GetSpellName = function(id)
 		if M.spellNames[id] then return M.spellNames[id] end
 		for name, ids in pairs(ns and ns.SpellIDs or {}) do

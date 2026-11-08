@@ -54,6 +54,11 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   - `Track.lua`: the trigger windows (`UNIT_COMBAT`), casts and cooldowns
     (`UNIT_SPELLCAST_SUCCEEDED`), the stance check (`GetShapeshiftFormInfo`),
     `Track.IsLit(e)`, `Track.Update()` (also plays the sound), `Track.Test()`.
+  - `Log.lua`: `/leproc log`: triggers (`Log.Trigger`), glows (`Log.Glow`),
+    casts (`Log.Cast`), stance and target changes, and the game's own usable
+    answers (`C_Spell.IsSpellUsable`, `C_ActionBar.IsUsableAction`,
+    `ACTION_USABLE_CHANGED`, `SPELL_UPDATE_USABLE`; only changes). Kept in
+    `LeprocDB.log` (last 300, account-wide); `LeprocLog` is its copy window.
   - `Procs.lua`: proc buffs (`buff`, `buffIds` in the catalogue). An
     AuraContainer (`CustomAuraContainerTemplate`) with a slot per proc buff;
     the game shows a slot's button only while you have the buff
@@ -123,8 +128,8 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
 ## Conventions
 
 - **Never ask the game whether an ability is usable** (`IsUsableAction`,
-  `C_Spell.IsSpellUsable`): outside the right stance it says no, which is the
-  gap Leproc closes. Lit comes from the trigger window, the cooldown from the
+  `C_Spell.IsSpellUsable`) for a glow: outside the right stance it says no,
+  which is the gap Leproc closes. (`Log.lua` asks, to log the answer only.) Lit comes from the trigger window, the cooldown from the
   player's own cast, and the stance (mode `stance` only) from
   `GetShapeshiftFormInfo`.
 - **Check what's secret** in Blizzard's API docs, `forever` branch
@@ -165,7 +170,7 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   run `tools/gen_data.py`; it reports names with no IDs.
 - **Keep it simple:** a button glows or it doesn't. Nothing else animates.
 - Lua 5.1, no libraries (Ace, LibStub). Every file starts `local _, ns = ...`;
-  shared state goes on `ns`. Globals: `LeprocDB`, `LeprocFrame`,
+  shared state goes on `ns`. Globals: `LeprocDB`, `LeprocFrame`, `LeprocLog`,
   `LeprocMinimapButton`, `SLASH_LEPROC1/2`, `Leproc_OnAddonCompartmentClick`
   (the tests enforce this).
 - No code copied from other addons (ProcGlow included). Code shared with

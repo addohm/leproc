@@ -68,6 +68,7 @@ each character uses.
   that shows nothing, the ability isn't on a bar you can see. `/leproc why
   <ability>` says why it isn't lit (window, cooldown, stance, buttons),
   `/leproc bars` what Leproc found on the bars, `/leproc macros` what it read
-  from each macro. A bar addon that builds its buttons late is noticed for 30 s
+  from each macro, `/leproc log` every trigger and glow as it happens (and what
+  the game says), to copy with `/leproc log show`. A bar addon that builds its buttons late is noticed for 30 s
   after entering the world; `/reload` scans again too.
 - Lua errors: turn them on with `/console scriptErrors 1` and send the text.

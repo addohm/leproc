@@ -168,6 +168,7 @@ local function CurrentForm()
 	local ok, i = pcall(GetShapeshiftForm)
 	if ok and Number(i) then return FormName(i) end
 end
+Bars.CurrentForm = CurrentForm
 
 -- Your stances, by name, for the "Also glow" picker.
 function Bars.Forms()
@@ -378,6 +379,23 @@ function Bars.Where(e)
 		end
 	end
 	return where
+end
+
+-- The action slots of the buttons you can see holding the ability (each once), for /leproc log.
+function Bars.Slots(e)
+	local slots, seen = {}, {}
+	for _, button in ipairs(buttons) do
+		local slot = Slot(button)
+		if slot and not seen[slot] and button:IsVisible() then
+			for _, held in ipairs(EntriesOn(button)) do
+				if held == e then
+					seen[slot] = true
+					slots[#slots + 1] = slot
+				end
+			end
+		end
+	end
+	return slots
 end
 
 -- Every button found: how many, how many on screen, the ones on screen holding a tracked

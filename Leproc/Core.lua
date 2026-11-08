@@ -198,6 +198,7 @@ local function Help()
 	ns.Print("/leproc bars - the action buttons Leproc found, and which hold your abilities")
 	ns.Print("/leproc macros - the macros on your bars, and the abilities each counts for")
 	ns.Print("/leproc why <ability> - why it is or isn't glowing right now")
+	ns.Print("/leproc log [off | show | clear] - log every trigger, glow and cast, and what the game says about your abilities")
 	ns.Print("/leproc minimap - show or hide the minimap button")
 	ns.Print("/leproc profile - the profile in use and the others (the Profiles tab manages them)")
 	ns.Print("/leproc reset - default modes, glow and sound")
@@ -215,6 +216,11 @@ SlashCmdList.LEPROC = function(msg)
 		List()
 	elseif cmd == "test" then
 		ns.Track.Test()
+	elseif cmd == "log" then
+		if arg == "off" then ns.Log.SetOn(false)
+		elseif arg == "show" then ns.Log.Show()
+		elseif arg == "clear" then ns.Log.Clear()
+		else ns.Log.SetOn(true) end
 	elseif cmd == "bars" then
 		Lines(ns.Bars.Report())
 	elseif cmd == "macros" then

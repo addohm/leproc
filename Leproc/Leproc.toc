@@ -13,6 +13,7 @@ Abilities.lua
 Core.lua
 Profiles.lua
 Glow.lua
+Log.lua
 Track.lua
 Procs.lua
 Bars.lua

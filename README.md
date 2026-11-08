@@ -112,6 +112,11 @@ use it, it stays dark for its cooldown (Revenge 5 s) even if you block again.
   your abilities; `/leproc macros` shows what it read from each macro;
   `/leproc why revenge` explains why Revenge is or isn't glowing right now
   (its window, cooldown, stance and buttons).
+- `/leproc log` logs, with timestamps, every trigger (who dodged, blocked or
+  parried), every glow turning on or off, every cast, stance and target
+  changes, and what the game itself says about your abilities being usable.
+  `/leproc log show` opens it in a window to copy (Ctrl+C), `/leproc log off`
+  stops it, `/leproc log clear` empties it. It keeps the last 300 lines.
 - `/leproc minimap`, `/leproc profile`, `/leproc reset`.
 
 **Minimap button:** click for the window, right-click for the test, drag to move

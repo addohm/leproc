@@ -45,6 +45,7 @@ function Track.Update()
 	for _, e in ipairs(ns.Catalogue) do
 		local on = Track.IsLit(e)
 		if on and not lit[e.key] and test <= GetTime() then newly = true end
+		if on ~= (lit[e.key] or false) then ns.Log.Glow(e, on) end
 		lit[e.key] = on
 	end
 	ns.Bars.Update()
@@ -55,15 +56,16 @@ local function UpdateAt(seconds)
 	C_Timer.NewTimer(seconds + 0.05, Track.Update)
 end
 
-local function Open(trigger)
-	local now, changed = GetTime(), false
+local function Open(trigger, unit, event, flags)
+	local now, opened = GetTime(), {}
 	for _, e in ipairs(ns.Catalogue) do
 		if e.triggers[trigger] then
 			open[e.key] = now + ns.WINDOW
-			changed = true
+			opened[#opened + 1] = e
 		end
 	end
-	if changed then
+	if #opened > 0 then
+		ns.Log.Trigger(trigger, unit, event, flags, opened)
 		Track.Update()
 		UpdateAt(ns.WINDOW)
 	end
@@ -73,20 +75,23 @@ end
 -- BLOCK_REDUCED (most Classic blocks are partial); a full block is BLOCK, or a WOUND flagged BLOCK.
 function Track.OnUnitCombat(unit, event, flags)
 	if Secret(unit) or Secret(event) or Secret(flags) then return end
+	local trigger
 	if unit == "player" then
-		if event == "DODGE" then Open("dodge")
-		elseif event == "PARRY" then Open("parry")
-		elseif event == "BLOCK" or (event == "WOUND" and (flags == "BLOCK_REDUCED" or flags == "BLOCK")) then Open("block")
+		if event == "DODGE" then trigger = "dodge"
+		elseif event == "PARRY" then trigger = "parry"
+		elseif event == "BLOCK" or (event == "WOUND" and (flags == "BLOCK_REDUCED" or flags == "BLOCK")) then trigger = "block"
 		end
 	elseif unit == "target" and event == "DODGE" then
-		Open("targetdodge")
+		trigger = "targetdodge"
 	end
+	if trigger then Open(trigger, unit, event, flags) end
 end
 
 function Track.OnCast(spellID)
 	if Secret(spellID) then return end
 	local e = ns.bySpell[spellID]
 	if not e then return end
+	ns.Log.Cast(e)
 	open[e.key] = nil
 	ready[e.key] = GetTime() + e.cooldown
 	Track.Update()

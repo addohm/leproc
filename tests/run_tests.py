@@ -14,7 +14,7 @@ except ImportError:
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ADDON = ROOT / "Leproc"
 TESTS = ROOT / "tests"
-ALLOWED_GLOBALS = {"LeprocDB", "LeprocFrame", "LeprocMinimapButton", "SLASH_LEPROC1", "SLASH_LEPROC2",
+ALLOWED_GLOBALS = {"LeprocDB", "LeprocFrame", "LeprocLog", "LeprocMinimapButton", "SLASH_LEPROC1", "SLASH_LEPROC2",
                    "Leproc_OnAddonCompartmentClick"}
 
 failed = False

@@ -451,6 +451,44 @@ ns.Window.Hide()
 WM.SetAction(67, nil)
 ns.Refresh()
 
+-- /leproc log: triggers, glows, casts, and what the game says, with secret values shown as such.
+out = PrintedNow(function() WM.Slash("log") end)
+Check(out:find("log on") and out:find("Overpower now: game says usable: spell no, button slot 73 no, in Battle Stance"), "log on: " .. out)
+out = PrintedNow(function() WM.Combat("target", "DODGE") end)
+Check(out:find("your target dodged %(target DODGE%) %-> window Overpower, in Battle Stance"), "log: the trigger: " .. out)
+Check(out:find("Overpower: game says usable: spell no, button slot 73 no"), "log: the game's answer at the trigger: " .. out)
+Check(out:find("Overpower glow ON %(Battle Stance%)"), "log: the glow: " .. out)
+out = PrintedNow(function() WM.Fire("ACTION_USABLE_CHANGED", { { slot = 73, usable = true, noMana = false } }) end)
+Check(out:find("game: Overpower button %(slot 73%) usable: yes"), "log: the game changing its mind: " .. out)
+out = PrintedNow(function() WM.Fire("ACTION_USABLE_CHANGED", { { slot = 73, usable = true, noMana = true } }) end)
+Check(out == "", "log: no line when only the power changes: " .. out)
+WM.spellUsable.Overpower = true
+out = PrintedNow(function() WM.Fire("SPELL_UPDATE_USABLE") end)
+Check(out:find("game: Overpower spell usable: yes") and not out:find("Revenge spell"), "log: by spell, only changes: " .. out)
+issecretvalue = function(v) return v == "SECRET" end
+WM.spellUsable.Overpower = "SECRET"
+out = PrintedNow(function() WM.Fire("SPELL_UPDATE_USABLE") end)
+Check(out:find("game: Overpower spell usable: secret"), "log: secret values: " .. out)
+issecretvalue = nil
+WM.spellUsable.Overpower = nil
+out = PrintedNow(function() WM.Cast(OVERPOWER) end)
+Check(out:find("you cast Overpower %-> its window closes, dark for its 5 s cooldown") and out:find("Overpower glow off"), "log: the cast: " .. out)
+out = PrintedNow(function() WM.Fire("PLAYER_TARGET_CHANGED") end)
+Check(out:find("new target"), "log: target change: " .. out)
+WM.Slash("log show")
+Check(LeprocLog and LeprocLog:IsShown(), "log show should open the window")
+Check(#LeprocDB.log.entries > 5, "the log should be kept")
+WM.Slash("log off")
+out = PrintedNow(function() WM.Fire("PLAYER_TARGET_CHANGED") end)
+Check(out == "", "log off: nothing logged: " .. out)
+LeprocDB.log.on = true
+for i = 1, 310 do ns.Log.Add("line " .. i) end
+Check(#LeprocDB.log.entries == 300 and LeprocDB.log.entries[300]:find("line 310"), "the log keeps the last 300 lines")
+LeprocDB.log.on = false
+WM.Slash("log clear")
+Check(#LeprocDB.log.entries == 0, "log clear")
+WM.Advance(6)
+
 -- Other classes: a rogue sees Riposte, a priest sees none.
 WM.class = "ROGUE"
 Check(#ns.ClassEntries() == 2 and ns.ClassEntries()[1].key == "riposte" and ns.ClassEntries()[2].key == "ambush" and ns.Mode(ns.byKey.riposte) == "any", "a rogue's abilities")
