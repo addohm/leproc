@@ -8,9 +8,11 @@ change.
 - Standard docs (2026-11-08).
 - Install and release tools from Leboof (2026-11-08).
 - 0.1.0: block, dodge and parry abilities glow in any stance (Revenge, Overpower,
-  Riposte, Counterattack, Mongoose Bite) on Blizzard's action bars, with the
+  Riposte, Counterattack, Mongoose Bite) on the action bars, with the
   options window, profiles, glow styles, a sound and the minimap button
-  (2026-11-08). Not yet tried in game.
+  (2026-11-08). Tried in game: the window opens; abilities on EllesmereUI's
+  bars weren't found.
+- Buttons from any bar addon, found by scanning (2026-11-08).
 
 ## Next
 
@@ -22,7 +24,6 @@ change.
 3. Execute and Hammer of Wrath: target health is secret in Forever. Probe
    whether the game can fade a glow by health percent (`UnitHealthPercent` with
    a curve); if not, they stay tied to their stance.
-4. Other bar addons: Bartender, Dominos, ElvUI.
 
 ## Ideas
 

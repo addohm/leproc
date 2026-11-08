@@ -15,13 +15,13 @@ How: the game reports blocks, dodges and parries to addons even in combat
 (`UNIT_COMBAT`: only the amount is secret). `Track.lua` opens a 5 s window on the
 trigger, closes it when the player casts the ability, and keeps it dark for the
 ability's cooldown. `Bars.lua` draws the glow on Leproc's own overlay frames on
-Blizzard's action buttons. The options window, profiles, glow styles and minimap
+the action buttons of any bar addon (the owner uses EllesmereUI's). The options window, profiles, glow styles and minimap
 button are Leboof's (the owner's other addon, `addohm/leboof`), adapted.
 
 Scope agreed on 2026-11-08: for every class, glowing the action buttons (not
 icons of its own), "Any stance" by default with "Only in its stance" as an
 option. The first chunk is the block/dodge/parry abilities; next are buff procs,
-a health probe for Execute, and other bar addons (ROADMAP.md).
+and a health probe for Execute (ROADMAP.md).
 
 `ProcGlow/` (by Troy) is the owner's design example: read it for ideas, don't
 copy its code. It's git-ignored; never commit it.
@@ -54,9 +54,14 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   - `Track.lua`: the trigger windows (`UNIT_COMBAT`), casts and cooldowns
     (`UNIT_SPELLCAST_SUCCEEDED`), the stance check (`GetShapeshiftFormInfo`),
     `Track.IsLit(e)`, `Track.Update()` (also plays the sound), `Track.Test()`.
-  - `Bars.lua`: the overlays on Blizzard's action buttons (made at login), what
-    each button holds (`GetActionInfo(button.action)`: a spell, or a macro that
-    casts one), `Bars.Update()`, `Bars.OnScreen(e)`.
+  - `Bars.lua`: finds action buttons from any bar addon (`Bars.Scan`: every
+    frame via `EnumerateFrames` that's a Button/CheckButton holding a slot, out
+    of combat, at login, on entering the world and 3 s later, after combat if
+    it had to wait), gives each an overlay, reads what it holds
+    (`GetActionInfo(slot)`: a spell, or a macro that casts one),
+    `Bars.Update()`, `Bars.OnScreen(e)`. A button's slot: `_state_action`
+    (paging buttons, EllesmereUI's `EABButton`s), else `action` (Blizzard's),
+    else the "action" attribute (secure action template).
   - `UI/Widgets.lua`, `UI/Window.lua`, `UI/Minimap.lua`: Leboof's, adapted.
     `UI/Pages.lua`: the Abilities, Glow, General and Profiles tabs.
   - `Media/Icon.tga`: the in-game icon, drawn by `art/make_logo.py`. Never edit
@@ -71,6 +76,7 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
 - `tools/make_release.py`: builds `release/Leproc-<version>.zip` from the
   committed `Leproc/` folder
 - `tests/`: `wowmock.lua` (a fake client: action buttons with stance pages,
+  bar addons' buttons (`WM.AddonBar`), `EnumerateFrames`,
   combat events, a clock), `smoke.lua` (scenarios), `run_tests.py`.
 - `ProcGlow/`: someone else's addon, a design example only (git-ignored, local)
 - `.scratch/`: git-ignored downloads (Blizzard UI source, the wago.tools CSV).
@@ -107,7 +113,10 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
 - **A partial block is a `WOUND` flagged `BLOCK_REDUCED`** (most Classic blocks
   are partial); a full block is `BLOCK`, or a `WOUND` flagged `BLOCK`
   (CombatFeedback.lua).
-- **Glows go on Leproc's own overlay frames**, never on Blizzard's buttons:
+- **Find buttons by what they hold, not by name.** No list of bar addons'
+  frame names: any button with an action slot counts, and hidden ones (Blizzard's
+  under EllesmereUI) never glow because they aren't visible.
+- **Glows go on Leproc's own overlay frames**, never on the buttons themselves:
   don't set fields or scripts on the buttons, and don't call protected functions.
   Display only: never automate anything.
 - **Check an ability against Forever before adding it** (Wowhead's Forever

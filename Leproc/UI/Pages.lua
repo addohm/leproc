@@ -68,7 +68,7 @@ end
 
 -- Abilities: one row per ability of your class, with its mode, and whether it's on a bar you can
 -- see right now (it can only glow there).
-local MODE_X, MODE_BOX = 250, 150
+local MODE_X, MODE_BOX = 300, 140
 
 local function ModeChoices(e)
 	local list = { { "any", "Any stance" } }
@@ -99,7 +99,7 @@ local function AbilityRow(parent, e)
 			tooltip = function() return AbilityTooltip(e) end,
 			sync = function(r)
 				local changed = ns.db.modes[e.key] and "  |cff999999(changed)|r" or ""
-				local where = ns.Bars.OnScreen(e) and "" or "  |cffff8040(not on a bar you can see)|r"
+				local where = ns.Bars.OnScreen(e) and "" or "  |cffff8040(not on screen)|r"
 				r.label:SetText(Icon(e) .. e.label .. changed .. where)
 			end,
 		})

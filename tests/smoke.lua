@@ -157,7 +157,7 @@ Check(panel.rows[1].box.text == "Only in Defensive Stance", "the picker should n
 WM.SetStance(2)
 WM.SetAction(73, nil)
 ns.Window.Refresh()
-Check(panel.rows[2].label.text:find("not on a bar you can see"), "Overpower should be flagged as not on screen")
+Check(panel.rows[2].label.text:find("not on screen"), "Overpower should be flagged as not on screen")
 WM.SetAction(73, OVERPOWER)
 WM.SetStance(1)
 for _, id in ipairs({ "abilities", "glow", "general", "profiles" }) do
@@ -222,6 +222,40 @@ Check(ns.Profiles.Current() == "Tester", "without a surname the key is the first
 WM.surname = "Smith"
 ns.Profiles.Init()
 Check(ns.Profiles.Current() == "Tester Smith" and LeprocDB.profiles.Tester == nil, "the first-name profile should be dropped")
+
+-- Bar addons: EllesmereUI hides Blizzard's bars and builds its own buttons (EABButton1...),
+-- which hold their slot in `_state_action`, possibly after login. Leproc finds them by scanning.
+WM.mainBar:Hide()
+WM.bottomLeft:Hide()
+local eab = WM.AddonBar("EAB", { 73, 61 }, "state")
+Check(not ns.Bars.OnScreen(ns.byKey.revenge), "Blizzard's bars are hidden and the EAB bar isn't scanned yet")
+WM.Fire("PLAYER_ENTERING_WORLD")
+Check(ns.Bars.OnScreen(ns.byKey.revenge) and ns.Bars.OnScreen(ns.byKey.overpower), "the EAB buttons should be found")
+WM.Combat("player", "PARRY")
+Check(WM.Glowing(EABButton2) and not WM.Glowing(EABButton1), "Revenge should glow on EllesmereUI's button")
+Check(not WM.Glowing(Fixed1), "Blizzard's hidden button shouldn't glow")
+WM.Advance(6)
+EABButton1._state_action = 85 -- the bar addon pages to Defensive Stance
+WM.Fire("UPDATE_BONUS_ACTIONBAR")
+WM.Combat("player", "BLOCK")
+Check(WM.Glowing(EABButton1) and WM.Glowing(EABButton2), "a paged EAB button holding Revenge should glow")
+WM.Advance(6)
+-- Buttons on the secure action template hold their slot in the "action" attribute. One built in
+-- combat is found once combat ends.
+WM.combat = true
+local bt = WM.AddonBar("BT4Bar", { 62 }, "attribute")
+WM.Fire("PLAYER_ENTERING_WORLD")
+WM.Combat("player", "DODGE")
+Check(not WM.Glowing(BT4BarButton1), "no overlay can be made in combat")
+WM.combat = false
+WM.Fire("PLAYER_REGEN_ENABLED")
+Check(WM.Glowing(BT4BarButton1), "after combat the attribute button should be found, and glow")
+WM.Advance(6)
+eab:Hide()
+bt:Hide()
+WM.mainBar:Show()
+WM.bottomLeft:Show()
+EABButton1._state_action = 73
 
 -- Other classes: a rogue sees Riposte, a priest sees none.
 WM.class = "ROGUE"

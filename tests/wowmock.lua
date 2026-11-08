@@ -11,7 +11,7 @@ local function Permissive(t)
 end
 
 local function NewFrame(kind, name, parent)
-	local f = { kind = kind, name = name, parent = parent, shown = true, points = {}, scripts = {}, events = {}, level = 1, w = 0, h = 0 }
+	local f = { kind = kind, name = name, parent = parent, shown = true, points = {}, scripts = {}, events = {}, level = 1, w = 0, h = 0, attributes = {} }
 	function f:Show()
 		local was = self.shown
 		self.shown = true
@@ -30,6 +30,10 @@ local function NewFrame(kind, name, parent)
 		return true
 	end
 	function f:SetParent(p) self.parent = p end
+	function f:IsObjectType(t) return self.kind == t end
+	function f:IsForbidden() return false end
+	function f:SetAttribute(k, v) self.attributes[k] = v end
+	function f:GetAttribute(k) return self.attributes[k] end
 	function f:SetSize(w, h) self.w, self.h = w, h end
 	function f:GetSize() return self.w, self.h end
 	function f:SetWidth(w) self.w = w end
@@ -70,7 +74,13 @@ local function NewFrame(kind, name, parent)
 		return fs
 	end
 	table.insert(M.frames, f)
+	f.order = #M.frames
 	return Permissive(f)
+end
+
+-- Every frame, in the order made, as the game's EnumerateFrames walks them.
+function EnumerateFrames(prev)
+	return M.frames[(prev and prev.order or 0) + 1]
 end
 
 function CreateFrame(kind, name, parent, template)
@@ -102,6 +112,23 @@ for i = 1, 12 do
 	c:SetSize(40, 40)
 	c.action = 60 + i
 	_G["MultiBarBottomLeftButton" .. i] = c
+end
+
+-- Bar addons' buttons, made by the test after login (as an addon building its bars late):
+-- WM.AddonBar(name, slots, how) makes a bar of CheckButtons holding those slots, the way
+-- EllesmereUI's EABButtons (how = "state": `_state_action`) or secure-template buttons
+-- (how = "attribute": the "action" attribute) do.
+function M.AddonBar(name, slots, how)
+	local bar = NewFrame("Frame", name)
+	bar.buttons = {}
+	for i, slot in ipairs(slots) do
+		local b = NewFrame("CheckButton", name .. "Button" .. i, bar)
+		b:SetSize(38, 38)
+		if how == "attribute" then b:SetAttribute("action", slot) else b._state_action = slot end
+		_G[name .. "Button" .. i] = b
+		bar.buttons[i] = b
+	end
+	return bar
 end
 
 -- Action slots: WM.SetAction(slot, spellID) or WM.SetAction(slot, spellID, "macro").

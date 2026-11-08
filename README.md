@@ -31,8 +31,11 @@ game. To install straight from this repo on Windows, see
 **Put the abilities on a bar that doesn't change with stance.** A button can
 only glow while it's on screen. A warrior's main bar swaps with stance, so
 Revenge kept only on the Defensive Stance page has no button to light in Battle
-Stance. Bars 2 to 8 stay the same in every stance. The Abilities tab and
-`/leproc list` say when an ability isn't on a bar you can see.
+Stance. Bars 2 to 8 stay the same in every stance. The Abilities tab ("not on
+screen") and `/leproc list` say when an ability isn't on a bar you can see.
+
+**Bar addons work too:** Leproc finds action buttons from any addon
+(EllesmereUI, Bartender, Dominos, ElvUI...), not only Blizzard's.
 
 ## Usage
 

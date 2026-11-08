@@ -25,7 +25,7 @@ Problems below.
      else's attack? (Expected: yes. The game only says that the target dodged.)
    - 2f. All of this inside a dungeon, in combat.
 3. Revenge on the main bar's Defensive Stance page only: in Battle Stance it
-   can't glow, and the Abilities tab says "(not on a bar you can see)".
+   can't glow, and the Abilities tab says "(not on screen)" on one line.
 4. Abilities tab: Revenge and Overpower with icons. The arrows switch Any
    stance / Only in Defensive Stance / Off, and changed ones say "(changed)".
    With "Only in Defensive Stance", a block in Battle Stance doesn't light it,
@@ -40,13 +40,19 @@ Problems below.
    last name, and a second character can share it.
 9. Other classes: a rogue's Riposte after a parry; a hunter's Counterattack
    (parry) and Mongoose Bite (your dodge).
-10. Other bar addons (Bartender, Dominos, ElvUI) aren't supported yet: with
-    them, nothing glows.
+10. With EllesmereUI's action bars: the Abilities tab no longer says "not on
+    screen" for abilities on its bars, and they glow there (2a to 2f again).
+    Also with no bar addon. Bartender, Dominos or ElvUI, if you have one.
 
 ## Confirmed
 
-Nothing yet.
+- 9f623d4: loads, `/leproc` opens the window with the build and icon, and the
+  Abilities tab lists Revenge and Overpower for a warrior.
 
 ## Problems
 
-None reported yet.
+- 9f623d4: with EllesmereUI's action bars, Revenge and Overpower said "not on a
+  bar you can see" although both were on its bars: Leproc only looked at
+  Blizzard's buttons, which EllesmereUI hides. The label also wrapped onto the
+  next row. Fixed in the next build (any addon's buttons; shorter label): check
+  item 10.
