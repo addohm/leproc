@@ -72,6 +72,11 @@ Problems below.
     - `/leproc why overpower` has a "buff:" line; if it says "unavailable",
       send the text.
     - Hunters: Expose Prey lights Mongoose Bite.
+16. Class procs (any of your characters): the ability glows while the proc is
+    up, in combat too. Druid: Eclipse lights Starfire in Bear and Cat Form.
+    Rogue: Cutthroat lights Ambush out of Stealth. Warlock: Shadow Trance and
+    Decimation. Mage, shaman, paladin as in the README. Note which never
+    light: their buff IDs are guesses from Forever's data.
 
 ## Confirmed
 

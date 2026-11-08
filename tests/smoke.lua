@@ -453,7 +453,7 @@ ns.Refresh()
 
 -- Other classes: a rogue sees Riposte, a priest sees none.
 WM.class = "ROGUE"
-Check(#ns.ClassEntries() == 1 and ns.ClassEntries()[1].key == "riposte" and ns.Mode(ns.byKey.riposte) == "any", "a rogue's abilities")
+Check(#ns.ClassEntries() == 2 and ns.ClassEntries()[1].key == "riposte" and ns.ClassEntries()[2].key == "ambush" and ns.Mode(ns.byKey.riposte) == "any", "a rogue's abilities")
 WM.SetAction(64, 14251)
 WM.Combat("player", "PARRY")
 Check(WM.Glowing(MultiBarBottomLeftButton4), "Riposte should light after a parry")
@@ -473,3 +473,18 @@ WM.SetAura(1310726, true) -- Expose Prey
 Check(WM.ProcGlowing(MultiBarBottomLeftButton5), "Expose Prey should light Mongoose Bite")
 WM.SetAura(1310726, false)
 Check(not WM.ProcGlowing(MultiBarBottomLeftButton5), "Expose Prey gone")
+-- Class procs: Eclipse lights a druid's Starfire (in any form); a warlock's Shadow Trance lights
+-- Shadow Bolt.
+WM.class = "DRUID"
+WM.SetAction(68, ns.SpellIDs["Starfire"][1])
+ns.Refresh()
+WM.SetAura(1286115, true)
+Check(WM.ProcGlowing(MultiBarBottomLeftButton8), "Eclipse should light Starfire")
+WM.SetAura(1286115, false)
+Check(not WM.ProcGlowing(MultiBarBottomLeftButton8), "Eclipse gone")
+WM.class = "WARLOCK"
+WM.SetAction(69, ns.SpellIDs["Shadow Bolt"][1])
+ns.Refresh()
+WM.SetAura(17941, true)
+Check(WM.ProcGlowing(MultiBarBottomLeftButton9), "Shadow Trance should light Shadow Bolt")
+WM.SetAura(17941, false)

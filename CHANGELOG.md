@@ -8,6 +8,7 @@ All notable changes to leproc. The format follows
 
 ### Added
 
+- Class procs, shown by the game the same way: Eclipse → Starfire (in any form), Cutthroat → Ambush, Shadow Trance → Shadow Bolt, Decimation → Soul Fire, Heating Up / Hot Streak → Pyroblast, Missile Barrage → Arcane Missiles, Fingers of Frost → Ice Lance, Maelstrom Weapon → Lightning Bolt, Infusion of Light → Holy Light. Only Shadow Trance's buff ID is confirmed (2026-11-08).
 - Proc buffs: Bloodthrill lights Overpower, Victorious lights Victory Rush (new), Expose Prey lights Mongoose Bite, in any stance and in combat. The game shows these glows itself through Blizzard's aura containers (a slot per proc buff, the glow a child of its button, placed over the action buttons out of combat); Leproc never reads the buffs (2026-11-08).
 - Also glow: per ability, a stance whose button also glows (on the stance bar, and any action button holding it) while the ability is lit and you're not in that stance, e.g. Revenge → Defensive Stance. Off by default (2026-11-08).
 - Optional countdown: the seconds left in the window, in the middle of a lit button (Glow tab; off by default) (2026-11-08).

@@ -134,8 +134,11 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   shows the glow with the buff. Don't touch a slot's button or its children in
   combat (closed to addons while auras are secret); place them out of combat.
   Proc buff IDs are explicit (`buffIds`), checked on Wowhead's Forever
-  tooltips: the talent that grants a proc shares its name, and a talent's ID
-  would match all the time.
+  tooltips (`.scratch/probe/tips.py` prints them for names): keep only the
+  "Instant" auras, never a "Talent" or a rune's "Gain the ... ability" (a
+  talent's ID could match a passive aura all the time). Forever-new spells
+  have IDs around 1,2xx,xxx-1,3xx,xxx; Season of Discovery's around 400,000.
+  The wiki rate-limits scripted reads.
 - **A partial block is a `WOUND` flagged `BLOCK_REDUCED`** (most Classic blocks
   are partial); a full block is `BLOCK`, or a `WOUND` flagged `BLOCK`
   (CombatFeedback.lua).

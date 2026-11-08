@@ -81,7 +81,8 @@ local function AbilityTooltip(e)
 	local lines = { e.label }
 	if Triggers(e) then lines[#lines + 1] = "Lights for " .. ns.WINDOW .. " s after " .. Triggers(e) .. ", or until you use it." end
 	if e.buff then
-		lines[#lines + 1] = "Also lights while you have " .. e.buff .. ". The game shows that glow itself, in combat too (no sound or countdown for it)."
+		lines[#lines + 1] = (Triggers(e) and "Also lights" or "Lights") .. " while you have " .. e.buff
+			.. ". The game shows that glow itself, in combat too (no sound or countdown for it)."
 	end
 	if e.stance then
 		lines[#lines + 1] = "The game needs " .. e.stance .. " to use it. In Any stance it lights anyway, so you know it's worth switching."
@@ -141,7 +142,7 @@ Page({
 		local list = ns.ClassEntries()
 		panel.rows = {}
 		if #list == 0 then
-			stack:Add(UI.OptionText(stack.inner, "Your class has no abilities Leproc tracks yet. So far it covers the ones that light after a block, dodge or parry: Revenge and Overpower (warrior), Riposte (rogue), Counterattack and Mongoose Bite (hunter).", 60))
+			stack:Add(UI.OptionText(stack.inner, "Your class has no abilities Leproc tracks yet.", 30))
 			return
 		end
 		local forms = #ns.Bars.Forms() > 0
@@ -150,7 +151,7 @@ Page({
 			panel.rows[#panel.rows + 1] = stack:Add(AbilityRow(stack.inner, e))
 			if forms then panel.also[#panel.also + 1] = stack:Add(AlsoRow(stack.inner, e)) end
 		end
-		stack:Add(UI.OptionText(stack.inner, "Leproc watches the blocks, dodges and parries the game reports, which addons can see in combat too. It never asks the game whether a button is usable, since that's what says no outside the right stance.", 54))
+		stack:Add(UI.OptionText(stack.inner, "Leproc watches the blocks, dodges and parries the game reports, which addons can see in combat too, and lets the game show the glow for proc buffs. It never asks the game whether a button is usable, since that's what says no outside the right stance or form.", 54))
 	end,
 	defaults = function()
 		ns.ResetModes()

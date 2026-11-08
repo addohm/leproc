@@ -32,8 +32,21 @@ countdown, and ignores "Only in its stance". It's placed over your buttons out
 of combat, so in combat it stays on the button it was on, even if a stance
 change flips that bar's page.
 
-Other classes' procs (Eclipse, Shadow Trance and the like) and health-based
-abilities (Execute) are next: see [ROADMAP.md](ROADMAP.md).
+Other classes' procs work the same way, lighting the ability they speed up or
+make free:
+
+- **Druid:** Eclipse → Starfire (in Bear and Cat Form too).
+- **Rogue:** Cutthroat → Ambush (without Stealth).
+- **Warlock:** Shadow Trance → Shadow Bolt; Decimation → Soul Fire.
+- **Mage:** Heating Up or Hot Streak → Pyroblast; Missile Barrage → Arcane
+  Missiles; Fingers of Frost → Ice Lance.
+- **Shaman:** Maelstrom Weapon → Lightning Bolt.
+- **Paladin:** Infusion of Light → Holy Light.
+
+Except Shadow Trance, these proc buffs' IDs come from Forever's spell data and
+haven't been seen in game yet; their tooltips say so.
+
+Health-based abilities (Execute) are next: see [ROADMAP.md](ROADMAP.md).
 
 ## Getting started
 
