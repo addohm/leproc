@@ -88,6 +88,8 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   listing avatar, 256, 128).
 - `tools/gen_data.py`: fetches Forever's SpellName table from wago.tools and
   writes `Data.lua` (every ID for each ability and stance name).
+- `tools/forever_tooltips.py <names>`: Wowhead's Forever tooltip for every ID
+  with each name, to check a spell or proc buff before adding it.
 - `tools/install_forever.cmd`: Windows; pulls, mirrors `Leproc/` into the
   client, stamps `Build.lua`, packs a zip on the desktop (CRLF, see
   `.gitattributes`)
@@ -134,7 +136,7 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   shows the glow with the buff. Don't touch a slot's button or its children in
   combat (closed to addons while auras are secret); place them out of combat.
   Proc buff IDs are explicit (`buffIds`), checked on Wowhead's Forever
-  tooltips (`.scratch/probe/tips.py` prints them for names): keep only the
+  tooltips (`tools/forever_tooltips.py <names>` prints them): keep only the
   "Instant" auras, never a "Talent" or a rune's "Gain the ... ability" (a
   talent's ID could match a passive aura all the time). Forever-new spells
   have IDs around 1,2xx,xxx-1,3xx,xxx; Season of Discovery's around 400,000.
