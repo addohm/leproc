@@ -76,6 +76,10 @@ for _, e in ipairs(ns.Catalogue) do
 	e.ids, e.idList = IDs(e.names)
 	for _, id in ipairs(e.idList) do ns.bySpell[id] = e end
 	if e.stance then e.stanceIds = IDs({ e.stance }) end
+	if e.buffIds then
+		e.buffSet = {}
+		for _, id in ipairs(e.buffIds) do e.buffSet[id] = true end
+	end
 	e.label = e.label or e.names[1]
 	e.triggers = {}
 	for _, t in ipairs(e.after) do e.triggers[t] = true end
@@ -164,8 +168,14 @@ local function Why(e)
 	local lines = { e.label .. ": " .. MODE_WORDS[ns.Mode(e)] .. (ns.db.modes[e.key] and " (changed)" or " (default)")
 		.. (e.class ~= class and (", not your class (" .. e.class:lower() .. ")") or "") }
 	lines[#lines + 1] = "lit now: " .. (ns.Track.IsLit(e) and "yes" or "no") .. (s.test and " (the test is on)" or "")
-	lines[#lines + 1] = "window: " .. (s.window and string.format("open, %.1f s left", s.window)
-		or ("closed (opens " .. ns.WINDOW .. " s after " .. table.concat(e.after, ", ") .. ")"))
+	if #e.after > 0 then
+		lines[#lines + 1] = "window: " .. (s.window and string.format("open, %.1f s left", s.window)
+			or ("closed (opens " .. ns.WINDOW .. " s after " .. table.concat(e.after, ", ") .. ")"))
+	end
+	if e.buff then
+		lines[#lines + 1] = "buff: also lights while you have " .. e.buff .. " (the game shows that glow; Leproc can't see the buff)"
+			.. (ns.Procs.why and (" |cffff8040unavailable: " .. ns.Procs.why .. "|r") or "")
+	end
 	lines[#lines + 1] = "cooldown: " .. (s.cooldown and string.format("%.1f s left (from your cast)", s.cooldown) or "ready")
 	if e.stance then
 		lines[#lines + 1] = "stance: needs " .. e.stance .. ", you're " .. (s.inStance and "in it" or "not in it")

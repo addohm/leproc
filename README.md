@@ -19,8 +19,21 @@ block, dodge or parry:
 - **Hunter:** Counterattack (after you parry) and Mongoose Bite (after you
   dodge).
 
-Buff procs (Clearcasting, Eclipse) and health-based abilities (Execute) are
-next: see [ROADMAP.md](ROADMAP.md).
+And the Forever procs that make an ability usable, whatever your stance:
+
+- **Bloodthrill** (warrior talent): Overpower.
+- **Victorious** (after a kill): Victory Rush.
+- **Expose Prey** (hunter talent): Mongoose Bite.
+
+The game hides your buffs from addons in combat, so for these Leproc doesn't
+read the buff: it places its glow on one of Blizzard's aura containers, and the
+game shows it while you have the buff, in combat too. That glow has no sound or
+countdown, and ignores "Only in its stance". It's placed over your buttons out
+of combat, so in combat it stays on the button it was on, even if a stance
+change flips that bar's page.
+
+Other classes' procs (Eclipse, Shadow Trance and the like) and health-based
+abilities (Execute) are next: see [ROADMAP.md](ROADMAP.md).
 
 ## Getting started
 

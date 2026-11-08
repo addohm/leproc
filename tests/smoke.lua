@@ -149,7 +149,7 @@ WM.Slash("")
 Check(ns.Window.IsShown(), "/leproc didn't open the window")
 ns.Window.Select("abilities")
 local panel = ns.Window.CurrentPanel()
-Check(panel.rows and #panel.rows == 2, "a warrior should have 2 ability rows")
+Check(panel.rows and #panel.rows == 3, "a warrior should have 3 ability rows")
 Check(panel.rows[1].label.text:find("Revenge"), "the first row should be Revenge")
 panel.rows[1].next.scripts.OnClick()
 Check(ns.db.modes.revenge == "stance", "the arrow should step to Only in its stance")
@@ -380,7 +380,7 @@ WM.Advance(6)
 ns.Window.Show()
 ns.Window.Select("abilities")
 local apanel = ns.Window.CurrentPanel()
-Check(apanel.also and #apanel.also == 2, "each ability should have an Also glow row")
+Check(apanel.also and #apanel.also == 3, "each ability should have an Also glow row")
 local alsoRev = apanel.also[1]
 alsoRev.box.scripts.OnClick() -- Nothing else -> Battle Stance
 alsoRev.box.scripts.OnClick() -- -> Defensive Stance
@@ -407,6 +407,50 @@ WM.Slash("reset")
 Check(ns.db.also.revenge == nil, "reset clears Also glow")
 WM.SetAction(66, nil)
 
+-- Proc buffs: Bloodthrill makes Overpower usable, Victorious Victory Rush. The game shows the
+-- glow (a slot button in Blizzard's aura container) while you have the buff; Leproc only places
+-- it over the buttons, out of combat, and never reads the buff.
+local VICTORY, VICTORIOUS, BLOODTHRILL = 402927, 402975, 1289681
+WM.SetAction(67, VICTORY)
+local VRButton = MultiBarBottomLeftButton7
+ns.Refresh()
+Check(not WM.ProcGlowing(VRButton), "no Victorious, no glow")
+WM.SetAura(VICTORIOUS, true)
+Check(WM.ProcGlowing(VRButton), "Victorious should light Victory Rush")
+WM.SetAura(VICTORIOUS, false)
+Check(not WM.ProcGlowing(VRButton), "Victorious gone, glow gone")
+-- In combat the game does it alone: Leproc runs no code and places nothing new.
+WM.combat = true
+WM.SetAura(BLOODTHRILL, true)
+Check(WM.ProcGlowing(Main1), "Bloodthrill should light Overpower in combat")
+WM.SetAura(VICTORIOUS, true)
+Check(WM.ProcGlowing(VRButton), "Victorious in combat")
+WM.SetAura(BLOODTHRILL, false)
+WM.SetAura(VICTORIOUS, false)
+Check(not WM.ProcGlowing(Main1) and not WM.ProcGlowing(VRButton), "both gone in combat")
+WM.combat = false
+-- Out of combat the glows follow the bars: in Defensive Stance the main bar holds Revenge, so
+-- Bloodthrill's glow leaves it.
+WM.SetStance(2)
+WM.SetAura(BLOODTHRILL, true)
+Check(not WM.ProcGlowing(Main1), "Overpower isn't on the main bar in Defensive Stance")
+WM.SetStance(1)
+Check(WM.ProcGlowing(Main1), "back in Battle Stance the glow is on Overpower again")
+-- Off: no proc glow.
+WM.Slash("overpower off")
+Check(not WM.ProcGlowing(Main1), "off: no proc glow")
+WM.Slash("overpower default")
+Check(WM.ProcGlowing(Main1), "back on")
+WM.SetAura(BLOODTHRILL, false)
+local out3 = PrintedNow(function() WM.Slash("why victory rush") end)
+Check(out3:find("buff: also lights while you have Victorious") and not out3:find("window:"), "why for a buff-only ability: " .. out3)
+ns.Window.Show()
+ns.Window.Select("abilities")
+Check(#ns.Window.CurrentPanel().rows == 3, "a warrior now has Victory Rush too")
+ns.Window.Hide()
+WM.SetAction(67, nil)
+ns.Refresh()
+
 -- Other classes: a rogue sees Riposte, a priest sees none.
 WM.class = "ROGUE"
 Check(#ns.ClassEntries() == 1 and ns.ClassEntries()[1].key == "riposte" and ns.Mode(ns.byKey.riposte) == "any", "a rogue's abilities")
@@ -424,3 +468,8 @@ WM.Combat("target", "DODGE")
 Check(not WM.Glowing(MultiBarBottomLeftButton5), "Mongoose Bite follows your own dodge, not the target's")
 WM.Combat("player", "DODGE")
 Check(WM.Glowing(MultiBarBottomLeftButton5), "Mongoose Bite should light after you dodge")
+WM.Advance(6)
+WM.SetAura(1310726, true) -- Expose Prey
+Check(WM.ProcGlowing(MultiBarBottomLeftButton5), "Expose Prey should light Mongoose Bite")
+WM.SetAura(1310726, false)
+Check(not WM.ProcGlowing(MultiBarBottomLeftButton5), "Expose Prey gone")

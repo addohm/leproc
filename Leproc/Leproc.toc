@@ -14,6 +14,7 @@ Core.lua
 Profiles.lua
 Glow.lua
 Track.lua
+Procs.lua
 Bars.lua
 
 UI\Widgets.lua

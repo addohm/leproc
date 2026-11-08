@@ -15,7 +15,7 @@ end
 local function Triggers(e)
 	local parts = {}
 	for _, t in ipairs(e.after) do parts[#parts + 1] = TRIGGER_TEXT[t] end
-	if #parts == 1 then return parts[1] end
+	if #parts <= 1 then return parts[1] end
 	return table.concat(parts, ", ", 1, #parts - 1) .. " or " .. parts[#parts]
 end
 
@@ -78,12 +78,16 @@ local function ModeChoices(e)
 end
 
 local function AbilityTooltip(e)
-	local lines = { e.label, "Lights for " .. ns.WINDOW .. " s after " .. Triggers(e) .. ", or until you use it." }
+	local lines = { e.label }
+	if Triggers(e) then lines[#lines + 1] = "Lights for " .. ns.WINDOW .. " s after " .. Triggers(e) .. ", or until you use it." end
+	if e.buff then
+		lines[#lines + 1] = "Also lights while you have " .. e.buff .. ". The game shows that glow itself, in combat too (no sound or countdown for it)."
+	end
 	if e.stance then
 		lines[#lines + 1] = "The game needs " .. e.stance .. " to use it. In Any stance it lights anyway, so you know it's worth switching."
 	end
 	if e.note then lines[#lines + 1] = e.note end
-	lines[#lines + 1] = "Cooldown after you use it: " .. e.cooldown .. " s."
+	if e.cooldown > 0 then lines[#lines + 1] = "Cooldown after you use it: " .. e.cooldown .. " s." end
 	if not ns.Bars.OnScreen(e) then
 		lines[#lines + 1] = "|cffff8040Not on a bar you can see now.|r A warrior's main bar changes with stance: put it on a bar that doesn't (bars 2 to 8) to see it light in every stance."
 	end

@@ -282,9 +282,13 @@ local function Tick()
 	for _, l in ipairs(lit) do Count(l[1], l[3], Left(l[2])) end
 end
 
-local function Show(button, left, entries)
+local function Size(button)
 	local size = math.floor((button:GetWidth() or 0) + 0.5)
-	if size <= 0 then size = 36 end
+	return size > 0 and size or 36
+end
+
+local function Show(button, left, entries)
+	local size = Size(button)
 	local overlay = overlays[button]
 	ns.Glow.Show(overlay, left and ns.db.glow or "none", ns.db.color, size)
 	if (ns.db.countdown and left) or overlay.count then Count(overlay, size, ns.db.countdown and left or nil) end
@@ -305,9 +309,16 @@ function Bars.Update()
 	wipe(lit)
 	local wanted = Wanted()
 	local anyWanted = next(wanted) ~= nil
+	local holders = {} -- key -> { button, size } for abilities a proc buff lights (Procs.lua)
 	for _, button in ipairs(buttons) do
 		local visible = button:IsVisible()
 		local entries = visible and EntriesOn(button) or NONE
+		for _, e in ipairs(entries) do
+			if e.buffSet then
+				holders[e.key] = holders[e.key] or {}
+				table.insert(holders[e.key], { button, Size(button) })
+			end
+		end
 		local left = Left(entries)
 		local stance = anyWanted and visible and SpellOn(button)
 		if stance and wanted[stance] then
@@ -320,6 +331,7 @@ function Bars.Update()
 		local stance = anyWanted and s[1]:IsVisible() and FormName(s[2])
 		Show(s[1], stance and wanted[stance] or nil, stance and Pointing(stance) or NONE)
 	end
+	ns.Procs.Place(holders)
 	local want = ns.db.countdown and #lit > 0
 	if want and not ticker then
 		ticker = C_Timer.NewTicker(0.1, Tick)

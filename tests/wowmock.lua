@@ -86,7 +86,53 @@ function EnumerateFrames(prev)
 	return M.frames[(prev and prev.order or 0) + 1]
 end
 
+-- Blizzard's aura containers: AddAuraSlot checks its arguments like Blizzard's and returns the
+-- slot's button, hidden. WM.SetAura(spellID, on) is the game showing or hiding every slot button
+-- whose spell IDs include it (as CustomAuraButton's ApplyVisibility does, in combat too).
+M.slots = {}
+local function NewContainer(parent)
+	local c = NewFrame("AuraContainer", nil, parent)
+	c.keys = {}
+	function c:SetUnit(u) self.unit = u end
+	function c:AddAuraSlot(key, filter, options)
+		assert(filter == "HELPFUL" or filter == "HARMFUL", "bad filter string")
+		assert(not self.keys[key], "aura slot '" .. key .. "' already exists with this key.")
+		assert(options.candidateFilters and options.candidateFilters.includeSpellIDs, "no spell IDs")
+		local b = NewFrame("AuraButton", nil, self)
+		b.shown = false
+		if options.initializeFrame then options.initializeFrame(b) end
+		self.keys[key] = b
+		table.insert(M.slots, { button = b, ids = options.candidateFilters.includeSpellIDs })
+		return b
+	end
+	return c
+end
+function M.SetAura(id, on)
+	for _, s in ipairs(M.slots) do
+		if s.ids[id] then s.button.shown = on and true or false end
+	end
+end
+
+-- True if a proc glow (Procs.lua) shows over this button: a visible frame placed on it with a
+-- glow playing.
+function M.ProcGlowing(button)
+	for _, f in ipairs(M.frames) do
+		if f.button == button and f.glows and f:IsVisible() then
+			for _, built in pairs(f.glows) do
+				for _, g in ipairs(built.groups) do
+					if g.playing then return true end
+				end
+			end
+		end
+	end
+	return false
+end
+
 function CreateFrame(kind, name, parent, template)
+	if kind == "AuraContainer" then
+		assert(template == "CustomAuraContainerTemplate")
+		return NewContainer(parent)
+	end
 	local f = NewFrame(kind, name, parent)
 	if kind == "DropdownButton" then
 		function f:SetupMenu(generator) self.generator = generator end

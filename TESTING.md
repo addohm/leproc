@@ -62,6 +62,16 @@ Problems below.
     bar (EllesmereUI's stance bar too? `/leproc bars` says how many stance
     buttons it found) and on any action button holding it. Switch to
     Defensive: only Revenge still glows.
+15. Proc buffs, the game showing the glow:
+    - Victory Rush glows after a kill (Victorious) and stops when you use it
+      or it runs out, in and out of combat.
+    - With Bloodthrill talented, keep Rend up and hit: when it procs,
+      Overpower glows, also in Defensive Stance, in combat, inside a dungeon.
+    - Does the glow move (Pixel's dashes march) or sit still? Only the game
+      runs it in combat, so motion is the thing to watch.
+    - `/leproc why overpower` has a "buff:" line; if it says "unavailable",
+      send the text.
+    - Hunters: Expose Prey lights Mongoose Bite.
 
 ## Confirmed
 

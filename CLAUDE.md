@@ -54,6 +54,12 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   - `Track.lua`: the trigger windows (`UNIT_COMBAT`), casts and cooldowns
     (`UNIT_SPELLCAST_SUCCEEDED`), the stance check (`GetShapeshiftFormInfo`),
     `Track.IsLit(e)`, `Track.Update()` (also plays the sound), `Track.Test()`.
+  - `Procs.lua`: proc buffs (`buff`, `buffIds` in the catalogue). An
+    AuraContainer (`CustomAuraContainerTemplate`) with a slot per proc buff;
+    the game shows a slot's button only while you have the buff
+    (`ApplyVisibility`), in combat too. `Procs.Place(holders)` (from
+    `Bars.Update`, out of combat only) puts glow frames, children of the slot
+    button, over each visible action button holding the ability.
   - `Bars.lua`: finds action buttons from any bar addon (`Bars.Scan`: every
     frame via `EnumerateFrames` that's a Button/CheckButton holding a slot, out
     of combat: at login, on entering the world, after combat if it had to
@@ -89,7 +95,8 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   committed `Leproc/` folder
 - `tests/`: `wowmock.lua` (a fake client: action buttons with stance pages,
   bar addons' buttons (`WM.AddonBar`, `WM.Button`), macros with text
-  (`WM.SetMacro`), `EnumerateFrames`,
+  (`WM.SetMacro`), aura containers (`WM.SetAura`, `WM.ProcGlowing`),
+  `EnumerateFrames`,
   combat events, a clock), `smoke.lua` (scenarios), `run_tests.py`.
 - `ProcGlow/`: someone else's addon, a design example only (git-ignored, local)
 - `.scratch/`: git-ignored downloads (Blizzard UI source, the wago.tools CSV).
@@ -123,6 +130,12 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   https://github.com/Gethe/wow-ui-source/tree/forever. Skip secret values with
   `issecretvalue`, never compare them. `UNIT_COMBAT`'s event and flagText aren't
   secret; health (`UnitHealth`) is, so Execute can't be done this way.
+- **Never read buffs for a glow.** Proc buffs go through `Procs.lua`: the game
+  shows the glow with the buff. Don't touch a slot's button or its children in
+  combat (closed to addons while auras are secret); place them out of combat.
+  Proc buff IDs are explicit (`buffIds`), checked on Wowhead's Forever
+  tooltips: the talent that grants a proc shares its name, and a talent's ID
+  would match all the time.
 - **A partial block is a `WOUND` flagged `BLOCK_REDUCED`** (most Classic blocks
   are partial); a full block is `BLOCK`, or a `WOUND` flagged `BLOCK`
   (CombatFeedback.lua).
@@ -142,7 +155,8 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   `<Class>_abilities_(Forever)` pages). Forever's spell data also holds spells
   that aren't in the game. Mongoose Bite follows the hunter's own dodge, not the
   target's (ProcGlow has it the other way round).
-- Spell IDs come from `Data.lua`, by name. Add an ability to `Abilities.lua` and
+- Ability and stance spell IDs come from `Data.lua`, by name (proc buffs
+  excepted, above). Add an ability to `Abilities.lua` and
   run `tools/gen_data.py`; it reports names with no IDs.
 - **Keep it simple:** a button glows or it doesn't. Nothing else animates.
 - Lua 5.1, no libraries (Ace, LibStub). Every file starts `local _, ns = ...`;
