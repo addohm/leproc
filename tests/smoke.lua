@@ -344,6 +344,31 @@ Check(out:find("not your class %(hunter%)"), "why for another class's ability: "
 out = PrintedNow(function() WM.Slash("why") end)
 Check(out:find("why which%? revenge, overpower"), "why without an ability lists them: " .. out)
 
+-- The countdown: off by default; on, a lit button shows the whole seconds left, ticking down,
+-- and nothing once the window closes.
+WM.Combat("player", "BLOCK")
+Check(WM.Countdown(Fixed1) == nil, "the countdown is off by default")
+WM.Advance(6)
+ns.db.countdown = true
+WM.Combat("player", "BLOCK")
+Check(WM.Countdown(Fixed1) == "5", "the countdown should start at 5: " .. tostring(WM.Countdown(Fixed1)))
+WM.Advance(2.05)
+Check(WM.Countdown(Fixed1) == "3", "the countdown should tick down: " .. tostring(WM.Countdown(Fixed1)))
+WM.Advance(3)
+Check(WM.Countdown(Fixed1) == nil and not WM.Glowing(Fixed1), "the countdown should go when the window closes")
+WM.Slash("test")
+Check(WM.Countdown(Main1) == "5", "the test shows the countdown too")
+WM.Advance(6)
+ns.db.countdown = false
+
+-- Options > AddOns: Leproc is listed, and its button opens Leproc's window.
+local cat = WM.settings[1]
+Check(cat and cat.name == "Leproc" and cat.addon, "Leproc should be in Options > AddOns")
+SettingsPanel:Show()
+cat.frame.open.scripts.OnClick(cat.frame.open)
+Check(ns.Window.IsShown() and not SettingsPanel:IsShown(), "the AddOns entry's button should open Leproc's window")
+ns.Window.Hide()
+
 -- Other classes: a rogue sees Riposte, a priest sees none.
 WM.class = "ROGUE"
 Check(#ns.ClassEntries() == 1 and ns.ClassEntries()[1].key == "riposte" and ns.Mode(ns.byKey.riposte) == "any", "a rogue's abilities")

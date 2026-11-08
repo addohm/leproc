@@ -175,18 +175,56 @@ function Bars.Init()
 	Bars.Scan()
 end
 
+-- The countdown: the seconds left, in the middle of a lit button (if switched on). While
+-- anything is lit, a ticker redraws just those buttons' numbers.
+local lit = {}       -- the buttons lit at the last Update: { overlay, entries, size }
+local ticker
+
+local function Left(entries)
+	local left
+	for _, e in ipairs(entries) do
+		local l = ns.Track.Left(e)
+		if l and (not left or l > left) then left = l end
+	end
+	return left
+end
+
+local function Count(overlay, size, left)
+	if not overlay.count then
+		overlay.count = overlay:CreateFontString(nil, "OVERLAY")
+		overlay.count:SetPoint("CENTER")
+		overlay.count:SetTextColor(1, 0.95, 0.6)
+	end
+	if left then
+		overlay.count:SetFont(STANDARD_TEXT_FONT, math.max(10, math.floor(size * 0.42)), "THICKOUTLINE")
+		overlay.count:SetText(tostring(math.max(1, math.ceil(left - 0.01))))
+	end
+	overlay.count:SetShown(left ~= nil)
+end
+
+local function Tick()
+	for _, l in ipairs(lit) do Count(l[1], l[3], Left(l[2])) end
+end
+
 function Bars.Update()
 	Bars.CheckLate()
+	wipe(lit)
 	for _, button in ipairs(buttons) do
-		local on = false
-		if button:IsVisible() then
-			for _, e in ipairs(EntriesOn(button)) do
-				if ns.Track.IsLit(e) then on = true end
-			end
-		end
+		local entries = button:IsVisible() and EntriesOn(button) or NONE
+		local left = Left(entries)
 		local size = math.floor((button:GetWidth() or 0) + 0.5)
 		if size <= 0 then size = 36 end
-		ns.Glow.Show(overlays[button], on and ns.db.glow or "none", ns.db.color, size)
+		local overlay = overlays[button]
+		ns.Glow.Show(overlay, left and ns.db.glow or "none", ns.db.color, size)
+		if (ns.db.countdown and left) or overlay.count then Count(overlay, size, ns.db.countdown and left or nil) end
+		if left then lit[#lit + 1] = { overlay, entries, size } end
+	end
+	local want = ns.db.countdown and #lit > 0
+	if want and not ticker then
+		ticker = C_Timer.NewTicker(0.1, Tick)
+	elseif not want and ticker then
+		ticker:Cancel()
+		ticker = nil
 	end
 end
 

@@ -192,6 +192,33 @@ local function Build()
 	frame:SetScript("OnShow", function() Window.Select(current or ns.db.window.tab) end)
 end
 
+-- An entry in the game's Options > AddOns list: a short page with a button that opens Leproc's
+-- own window (the options live there).
+function Window.Register()
+	if Window.category or not (Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory) then return end
+	local panel = CreateFrame("Frame")
+	panel.name = "Leproc"
+	local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	title:SetPoint("TOPLEFT", 16, -16)
+	title:SetText("Leproc " .. ns.Version())
+	local text = panel:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	text:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -10)
+	text:SetPoint("RIGHT", -16, 0)
+	text:SetJustifyH("LEFT")
+	text:SetText("Glows Revenge, Overpower and other reactive abilities when they're ready, in any stance or form. The options have their own window: /leproc, or the minimap button.")
+	local open = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+	open:SetSize(200, 26)
+	open:SetPoint("TOPLEFT", text, "BOTTOMLEFT", 0, -14)
+	open:SetText("Open Leproc's options")
+	open:SetScript("OnClick", function()
+		if SettingsPanel and SettingsPanel:IsShown() then HideUIPanel(SettingsPanel) end
+		Window.Show()
+	end)
+	panel.open = open
+	Window.category = Settings.RegisterCanvasLayoutCategory(panel, panel.name)
+	Settings.RegisterAddOnCategory(Window.category)
+end
+
 -- The panel of the page being shown (used by the tests).
 function Window.CurrentPanel()
 	return current and pages[current] and pages[current].panel

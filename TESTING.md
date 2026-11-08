@@ -52,6 +52,11 @@ Problems below.
     `/leproc macros` shows each macro and what it counts for; `/leproc why
     revenge` right after a block says lit, the window's seconds left, and the
     buttons. Send the output if anything looks off.
+12. Countdown (Glow tab, "Show the seconds left on the button"): a lit button
+    shows 5, 4, 3... in its middle, readable at your button size, and it goes
+    when the glow goes. Off by default.
+13. Options > AddOns lists Leproc; its button closes the game's options and
+    opens Leproc's window.
 
 ## Confirmed
 

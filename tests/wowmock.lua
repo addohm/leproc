@@ -69,9 +69,11 @@ local function NewFrame(kind, name, parent)
 		return g
 	end
 	function f:CreateFontString()
-		local fs = Permissive({})
+		local fs = Permissive({ shown = true })
 		function fs:SetText(t) self.text = t end
 		function fs:GetText() return self.text end
+		function fs:SetShown(v) self.shown = v and true or false end
+		function fs:IsShown() return self.shown end
 		return fs
 	end
 	table.insert(M.frames, f)
@@ -192,6 +194,33 @@ function M.SetStance(i)
 	M.Fire("UPDATE_SHAPESHIFT_FORM")
 	M.Fire("UPDATE_BONUS_ACTIONBAR")
 end
+
+-- Leproc's overlay on a button.
+function M.Overlay(button)
+	for _, f in ipairs(M.frames) do
+		if f.parent == button and f.glows ~= nil then return f end
+	end
+end
+
+-- The countdown on a button: its text if shown, else nil.
+function M.Countdown(button)
+	local o = M.Overlay(button)
+	return o and o.count and o.count:IsShown() and o.count:GetText() or nil
+end
+
+-- The game's Options > AddOns list.
+M.settings = {}
+Settings = {
+	RegisterCanvasLayoutCategory = function(frame, name)
+		local c = { frame = frame, name = name }
+		table.insert(M.settings, c)
+		return c
+	end,
+	RegisterAddOnCategory = function(c) c.addon = true end,
+}
+SettingsPanel = NewFrame("Frame", "SettingsPanel")
+function HideUIPanel(f) f:Hide() end
+STANDARD_TEXT_FONT = "Fonts\\FRIZQT__.TTF"
 
 -- True if Leproc's overlay on this button has a glow playing.
 function M.Glowing(button)

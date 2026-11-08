@@ -47,8 +47,8 @@ Stance, even though pressing it there would switch stance first.
 
 ## Usage
 
-**The options window** opens with `/leproc` (or `/lpr`), the minimap button, or
-the game's addon menu by the minimap. It has four tabs:
+**The options window** opens with `/leproc` (or `/lpr`), the minimap button,
+the game's addon menu by the minimap, or Options > AddOns > Leproc. It has four tabs:
 
 - **Abilities:** your class's abilities, each set to:
   - **Any stance** (the default): lights after its trigger in any stance or
@@ -59,8 +59,9 @@ the game's addon menu by the minimap. It has four tabs:
 
   An ability that isn't on a bar you can see says so.
 - **Glow:** the glow style (Pixel, Action button, Auto-cast, GCD, Modern,
-  Classic, Pulse), its colour, and a sound for when an ability lights up (off
-  by default). **Test** lights your abilities' buttons for 5 s.
+  Classic, Pulse), its colour, an optional countdown (the seconds left, in the
+  middle of a lit button; off by default), and a sound for when an ability
+  lights up (off by default). **Test** lights your abilities' buttons for 5 s.
 - **General:** the minimap button, and how Leproc works.
 - **Profiles:** each character starts with its own profile (by first and last
   name); share, copy, rename, delete or reset them.

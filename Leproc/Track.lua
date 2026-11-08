@@ -93,6 +93,14 @@ function Track.OnCast(spellID)
 	UpdateAt(e.cooldown)
 end
 
+-- Seconds left on a lit ability (its window, or the test's), for the countdown; nil if not lit.
+function Track.Left(e)
+	if not Track.IsLit(e) then return nil end
+	local now = GetTime()
+	if test > now then return test - now end
+	return open[e.key] - now
+end
+
 -- What Leproc knows about an ability right now, for /leproc why: seconds left in its window and
 -- on its cooldown (nil if none), whether you're in its stance, whether the test is on.
 function Track.State(e)

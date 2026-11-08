@@ -138,6 +138,10 @@ Page({
 		stack:Add(UI.OptionSelect(stack.inner, "Glow colour", ns.Glow.COLORS,
 			function() return ns.db.color end,
 			function(v) ns.db.color = v; ns.Refresh() end))
+		stack:Add(UI.OptionCheck(stack.inner, "Show the seconds left on the button",
+			function() return ns.db.countdown end,
+			function(v) ns.db.countdown = v; ns.Refresh() end,
+			{ "Seconds left", "A number in the middle of a lit button, counting down to the end of its window." }))
 		stack:Add(UI.OptionHeading(stack.inner, "Sound"))
 		stack:Add(UI.OptionSound(stack.inner, "When an ability lights up",
 			function() return ns.db.sound end,
@@ -148,7 +152,7 @@ Page({
 			{ "Test", "Lights every tracked ability's buttons for " .. ns.WINDOW .. " s, without the sound. Only buttons on a bar you can see glow." }))
 	end,
 	defaults = function()
-		ns.db.glow, ns.db.color, ns.db.sound = ns.DEFAULTS.glow, ns.DEFAULTS.color, ns.DEFAULTS.sound
+		ns.db.glow, ns.db.color, ns.db.sound, ns.db.countdown = ns.DEFAULTS.glow, ns.DEFAULTS.color, ns.DEFAULTS.sound, ns.DEFAULTS.countdown
 	end,
 })
 

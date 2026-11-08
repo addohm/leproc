@@ -8,6 +8,7 @@ local DEFAULTS = {
 	modes = {},                         -- key -> "any" / "stance" / "off", only where changed
 	glow = "pixel", color = "gold",     -- the glow on a lit button (Glow.STYLES, Glow.COLORS)
 	sound = "none",                     -- played when an ability lights up (ns.SOUNDS)
+	countdown = false,                  -- the seconds left, on a lit button
 	window = {},                        -- the options window: pos, size, tab
 	minimap = { angle = 275, hide = false }, -- clear of Nothing Wasted (200), Ticky (225), Leboof (250)
 }
@@ -128,6 +129,7 @@ events:SetScript("OnEvent", function(_, event, arg)
 		ns.Profiles.Init() -- again: the surname may only be known now
 		ns.Bars.Init()
 		ns.Minimap.Init()
+		ns.Window.Register()
 		ns.Refresh()
 	end
 end)
@@ -218,7 +220,7 @@ SlashCmdList.LEPROC = function(msg)
 		ns.Print("profile: " .. ns.Profiles.Current() .. ". All: " .. table.concat(ns.Profiles.Names(), ", "))
 	elseif cmd == "reset" then
 		ns.ResetModes()
-		ns.db.glow, ns.db.color, ns.db.sound = DEFAULTS.glow, DEFAULTS.color, DEFAULTS.sound
+		ns.db.glow, ns.db.color, ns.db.sound, ns.db.countdown = DEFAULTS.glow, DEFAULTS.color, DEFAULTS.sound, DEFAULTS.countdown
 		ns.Refresh()
 		ns.Print("reset.")
 	elseif ns.byKey[cmd] then
