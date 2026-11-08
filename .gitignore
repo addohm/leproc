@@ -15,3 +15,6 @@ __pycache__/
 .idea/
 Thumbs.db
 .DS_Store
+
+# Design example (someone else's addon): kept locally, never committed
+ProcGlow/

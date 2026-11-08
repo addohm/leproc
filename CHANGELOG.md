@@ -9,9 +9,9 @@ All notable changes to leproc. The format follows
 ### Added
 
 - `tools/install_forever.cmd` and `tools/make_release.py`, copied from Leboof for a `Leproc` addon folder, plus `.gitattributes` and `.gitignore` (2026-11-08).
-- `ProcGlow/`: an existing addon, added as a design example (2026-11-08).
 - Standard docs: README, CLAUDE, CHANGELOG, DEPLOY, SECURITY and ROADMAP (2026-11-08).
 
 ### Changed
 
+- `ProcGlow/` (the design example, someone else's addon) is no longer tracked, and is git-ignored (2026-11-08).
 - Docs filled in with what's known so far; open questions left as TODOs (2026-11-08).

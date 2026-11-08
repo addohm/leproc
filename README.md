@@ -1,8 +1,8 @@
 # leproc
 
 A World of Warcraft: Forever addon for usable abilities, styled like Leboof. The
-project is just starting: there's no addon code yet. `ProcGlow/` is someone
-else's addon, kept here as a design example only.
+project is just starting: there's no addon code yet. `ProcGlow/` (someone
+else's addon) is a design example, kept locally and git-ignored.
 
 TODO: what exactly will leproc do, and who is it for?
 
