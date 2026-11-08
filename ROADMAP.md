@@ -15,6 +15,8 @@ change.
 - Buttons from any bar addon, found by scanning (2026-11-08).
 - Diagnostics: `/leproc bars`, `/leproc macros`, `/leproc why` (2026-11-08).
 - Optional countdown on lit buttons; Leproc in Options > AddOns (2026-11-08).
+- The game decides in an ability's own stance; elsewhere a window shortened by
+  the measured report delay (from the owner's logs) (2026-11-08).
 - Proc buffs through Blizzard's aura containers: Bloodthrill (Overpower),
   Victorious (Victory Rush), Expose Prey (Mongoose Bite) (2026-11-08).
 - Class procs on the same mechanism: Eclipse, Cutthroat, Shadow Trance,
@@ -31,10 +33,8 @@ change.
 Picked on 2026-11-08 from the ProcGlow comparison, in this order:
 
 1. Check 0.1.0 in game (TESTING.md).
-2. Overpower glowing after the game says it's over (TESTING.md, Problems).
-   If the next log shows the window really ends early: in an ability's stance
-   let the game decide (as ProcGlow does; "short of power" still glows), and
-   close a window once the game has said yes and then a plain no.
+2. Check the new timing in game (TESTING.md item 19), and whether the measured
+   delay settles (`/leproc why revenge`).
 3. Confirm the class procs' buff IDs in game (only Shadow Trance is sure).
 4. Execute and Hammer of Wrath: target health is secret in Forever. Probe
    whether the game can fade a glow by health percent (`UnitHealthPercent` with

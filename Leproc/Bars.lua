@@ -274,7 +274,7 @@ local function Count(overlay, size, left)
 	end
 	if left then
 		overlay.count:SetFont(STANDARD_TEXT_FONT, math.max(10, math.floor(size * 0.42)), "THICKOUTLINE")
-		overlay.count:SetText(tostring(math.max(1, math.ceil(left - 0.01))))
+		overlay.count:SetText(left > 0.05 and tostring(math.max(1, math.ceil(left - 0.01))) or "")
 	end
 	overlay.count:SetShown(left ~= nil)
 end

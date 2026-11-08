@@ -84,6 +84,18 @@ Problems below.
     "no (short of power)" or a plain "no", and what you cast just before.
 18. Death and combat end: after dying, or once combat ends, nothing glows
     (the log says "windows cleared").
+19. The new timing (the build after the second log, 2026-11-08):
+    - Defensive Stance: Revenge glows the instant you block (before, it came
+      about half a second late) and goes dark exactly when the game says, never
+      after.
+    - Battle Stance: Overpower glows when the game says, and stops when the
+      game stops it (the PvP case).
+    - Revenge in Battle Stance (a guess): `/leproc why revenge` shows the
+      measured delay; the glow ends that much before 5 s.
+    - A false Overpower glow in Defensive Stance goes out when you switch to
+      Battle Stance (the log says "no longer usable -> its window closes").
+    - With `/leproc log` on, "the block/dodge/parry report came 0.x s after the
+      game" lines show the delay being measured.
 
 ## Confirmed
 
@@ -102,6 +114,13 @@ Problems below.
   on death and at the end of combat); once, the game said Revenge was usable
   on switching to Defensive Stance with no block, dodge or parry logged
   before it (watch for this again).
+- e4280bc+a89b890 second log (party, Defensive Stance tanking): Leproc's rules
+  matched the game's (5 s windows, cast closes, cooldown), but the game made
+  Revenge usable 0.2-0.9 s before the block/dodge/parry report arrived (e.g.
+  t939.4 vs t940.1), and ended it 5 s after its own start, so Leproc lit late
+  and stayed lit ~0.5 s too long. That also explains the first log's
+  "usable before any trigger". Fixed in the next build: the game decides in
+  the stance, the delay is measured and taken off elsewhere (item 19).
 
 - 9f623d4: with EllesmereUI's action bars, Revenge and Overpower said "not on a
   bar you can see" although both were on its bars: Leproc only looked at

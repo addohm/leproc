@@ -1,5 +1,5 @@
 -- Leproc: /leproc log, for finding out why an ability lights when it shouldn't (or the other way
--- round). While it's on, it prints and keeps (the last 300 lines, account-wide in LeprocDB.log):
+-- round). While it's on, it prints and keeps (the last 2000 lines, account-wide in LeprocDB.log):
 --   every trigger the game reports (UNIT_COMBAT), the windows it opens, the stance you're in;
 --   every glow turning on or off, every spell you cast, stance and target changes, deaths;
 --   what the game itself says about your class's abilities being usable: at each trigger, and
@@ -11,7 +11,7 @@ local _, ns = ...
 local Log = {}
 ns.Log = Log
 
-local MAX = 300
+local MAX = 2000
 
 local TRIGGERS = {
 	block = "you blocked", dodge = "you dodged", parry = "you parried", targetdodge = "your target dodged",
@@ -79,14 +79,15 @@ local function Mine(e)
 end
 
 -- Track.lua calls these.
-function Log.Trigger(trigger, unit, event, flags, opened)
+function Log.Trigger(trigger, unit, event, flags, opened, length)
 	if not Log.IsOn() then return end
 	local names = {}
 	for _, e in ipairs(opened) do
 		if Mine(e) then names[#names + 1] = e.label end
 	end
 	Log.Add(TRIGGERS[trigger] .. " (" .. tostring(unit) .. " " .. tostring(event) .. (flags ~= "" and (" " .. tostring(flags)) or "")
-		.. ") -> " .. (#names > 0 and ("window " .. table.concat(names, ", ")) or "nothing of yours") .. ", in " .. Stance())
+		.. ") -> " .. (#names > 0 and ("window " .. table.concat(names, ", ") .. string.format(" (%.1f s, allowing for the delay)", length)) or "nothing of yours")
+		.. ", in " .. Stance())
 	for _, e in ipairs(opened) do
 		if Mine(e) then Log.Add("  " .. e.label .. ": " .. Usable(e)) end
 	end
@@ -94,6 +95,19 @@ end
 
 function Log.Cast(e)
 	Log.Add("you cast " .. e.label .. " -> its window closes" .. (e.cooldown > 0 and (", dark for its " .. e.cooldown .. " s cooldown") or ""))
+end
+
+function Log.GameOpened(e)
+	Log.Add("game: " .. e.label .. " became usable -> it lights now")
+end
+
+function Log.GameClosed(e)
+	Log.Add("game: " .. e.label .. " no longer usable -> its window closes")
+end
+
+function Log.Delay(kind, seconds, now)
+	Log.Add(string.format("the %s report came %.1f s after the game: delay now %.2f s",
+		kind == "target" and "target's dodge" or "block/dodge/parry", seconds, now))
 end
 
 function Log.Cleared(why)

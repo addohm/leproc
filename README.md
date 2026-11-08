@@ -97,9 +97,21 @@ the game's addon menu by the minimap, or Options > AddOns > Leproc. It has four 
 - **Profiles:** each character starts with its own profile (by first and last
   name); share, copy, rename, delete or reset them.
 
-**How long it lights:** 5 s after the trigger, or until you use it. After you
-use it, it stays dark for its cooldown (Revenge 5 s) even if you block again.
-Dying or leaving combat ends every window.
+**How long it lights:**
+
+- **In the ability's own stance** (Revenge in Defensive Stance, Overpower in
+  Battle Stance), the game decides: it lights the moment the game says it's
+  usable and goes dark the moment the game says it isn't. "Short of rage"
+  still glows.
+- **In other stances** the game says no regardless, so Leproc keeps its own
+  window: about 5 s from the trigger. The game reports blocks, dodges and
+  parries to addons a little late (your logs: 0.2-0.9 s), so Leproc measures
+  that delay while you're in the stance and ends its window that much sooner.
+  `/leproc why` shows the delay.
+- After you use it, it stays dark for its cooldown (Revenge 5 s) even if you
+  block again. Dying or leaving combat ends every window.
+- A guess that the game contradicts (a dodge from someone else's attack) goes
+  out when you switch into the stance and the game says no.
 
 **Chat commands:**
 
@@ -119,7 +131,9 @@ Dying or leaving combat ends every window.
   the game itself says about your abilities being usable ("no (short of
   power)" when rage is the only reason).
   `/leproc log show` opens it in a window to copy (Ctrl+C), `/leproc log off`
-  stops it, `/leproc log clear` empties it. It keeps the last 300 lines.
+  stops it, `/leproc log clear` empties it. It keeps the last 2000 lines (a
+  dungeon's worth). It also logs when the game opens or closes a window and
+  each measured delay.
 - `/leproc minimap`, `/leproc profile`, `/leproc reset`.
 
 **Minimap button:** click for the window, right-click for the test, drag to move

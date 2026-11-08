@@ -335,7 +335,7 @@ Check(out:find('macro "Other", text read, no tracked ability'), "macros should s
 mbar:Hide()
 WM.Combat("player", "BLOCK")
 out = PrintedNow(function() WM.Slash("why revenge") end)
-Check(out:find("Revenge: any stance %(default%)") and out:find("lit now: yes") and out:find("window: open, 5.0 s left"), "why while lit: " .. out)
+Check(out:find("Revenge: any stance %(default%)") and out:find("lit now: yes") and out:find("window: open, %d.%d s left"), "why while lit: " .. out)
 Check(out:find("stance: needs Defensive Stance, you're not in it") and out:find("on screen: MultiBarBottomLeftButton1 %(slot 61%)"), "why: stance and buttons: " .. out)
 WM.Cast(REVENGE)
 out = PrintedNow(function() WM.Slash("why revenge") end)
@@ -457,8 +457,8 @@ ns.Refresh()
 out = PrintedNow(function() WM.Slash("log") end)
 Check(out:find("log on") and out:find("Overpower now: game says usable: spell no, button slot 73 no, in Battle Stance"), "log on: " .. out)
 out = PrintedNow(function() WM.Combat("target", "DODGE") end)
-Check(out:find("your target dodged %(target DODGE%) %-> window Overpower, in Battle Stance"), "log: the trigger: " .. out)
-Check(out:find("Overpower: game says usable: spell no, button slot 73 no"), "log: the game's answer at the trigger: " .. out)
+Check(out:find("your target dodged %(target DODGE%) %-> window Overpower %(%d.%d s, allowing for the delay%), in Battle Stance"), "log: the trigger: " .. out)
+Check(out:find("Overpower: game says usable: spell yes, button slot 73 yes"), "log: the game's answer at the trigger: " .. out)
 Check(out:find("Overpower glow ON %(Battle Stance%)"), "log: the glow: " .. out)
 out = PrintedNow(function() WM.Fire("ACTION_USABLE_CHANGED", { { slot = 73, usable = true, noMana = false } }) end)
 Check(out:find("game: Overpower button %(slot 73%) usable: yes"), "log: the game changing its mind: " .. out)
@@ -466,9 +466,9 @@ out = PrintedNow(function() WM.Fire("ACTION_USABLE_CHANGED", { { slot = 73, usab
 Check(out:find("game: Overpower button %(slot 73%) usable: no %(short of power%)"), "log: short of power: " .. out)
 out = PrintedNow(function() WM.Fire("ACTION_USABLE_CHANGED", { { slot = 73, usable = false, noMana = true } }) end)
 Check(out == "", "log: no line when nothing changed: " .. out)
-WM.spellUsable.Overpower = true
+WM.spellUsable.Overpower = "short"
 out = PrintedNow(function() WM.Fire("SPELL_UPDATE_USABLE") end)
-Check(out:find("game: Overpower spell usable: yes") and not out:find("Revenge spell"), "log: by spell, only changes: " .. out)
+Check(out:find("game: Overpower spell usable: no %(short of power%)") and not out:find("Revenge spell"), "log: by spell, only changes: " .. out)
 issecretvalue = function(v) return v == "SECRET" end
 WM.spellUsable.Overpower = "SECRET"
 out = PrintedNow(function() WM.Fire("SPELL_UPDATE_USABLE") end)
@@ -482,7 +482,7 @@ Check(out:find("new target"), "log: target change: " .. out)
 out = PrintedNow(function() WM.Cast(12294) end)
 Check(out:find("you cast spell 12294") or out:find("you cast %a"), "log: other casts: " .. out)
 out = PrintedNow(function() WM.Combat("player", "DODGE") end)
-Check(out:find("you dodged %(player DODGE%) %-> window Revenge, in Battle Stance") and not out:find("Mongoose"), "log: only your class's abilities: " .. out)
+Check(out:find("you dodged %(player DODGE%) %-> window Revenge %(%d.%d s, allowing for the delay%), in Battle Stance") and not out:find("Mongoose"), "log: only your class's abilities: " .. out)
 Check(out:find("t%d+%.%d you dodged"), "log: the game's timer: " .. out)
 out = PrintedNow(function() WM.Fire("PLAYER_DEAD") end)
 Check(out:find("you died") and out:find("windows cleared: you died") and out:find("Revenge glow off"), "log: death clears the windows: " .. out)
@@ -497,12 +497,65 @@ WM.Slash("log off")
 out = PrintedNow(function() WM.Fire("PLAYER_TARGET_CHANGED") end)
 Check(out == "", "log off: nothing logged: " .. out)
 LeprocDB.log.on = true
-for i = 1, 310 do ns.Log.Add("line " .. i) end
-Check(#LeprocDB.log.entries == 300 and LeprocDB.log.entries[300]:find("line 310"), "the log keeps the last 300 lines")
+for i = 1, 2010 do ns.Log.Add("line " .. i) end
+Check(#LeprocDB.log.entries == 2000 and LeprocDB.log.entries[2000]:find("line 2010"), "the log keeps the last 2000 lines")
 LeprocDB.log.on = false
 WM.Slash("log clear")
 Check(#LeprocDB.log.entries == 0, "log clear")
 WM.Advance(6)
+
+-- The game decides where it can. The owner's logs: the game makes Revenge usable 0.2-0.9 s
+-- before the report of the block reaches addons, and ends it 5 s after its own start.
+LeprocDB.delay = nil
+WM.SetStance(2)
+WM.Advance(1)
+WM.Combat("player", "BLOCK", nil, 0.7)
+Check(WM.Glowing(Fixed1), "in Defensive Stance Revenge lights the moment the game says so, before the report")
+WM.short = true
+WM.Fire("SPELL_UPDATE_USABLE")
+Check(WM.Glowing(Fixed1), "short of power still glows")
+WM.short = false
+WM.Fire("SPELL_UPDATE_USABLE")
+WM.Advance(0.7)
+Check(math.abs(ns.Track.Delay("player") - (0.5 * 0.7 + 0.7 * 0.3)) < 0.001, "the report's delay should be measured: " .. ns.Track.Delay("player"))
+WM.Advance(4.29)
+Check(WM.Glowing(Fixed1), "still lit just before the game's 5 s")
+WM.Advance(0.02)
+Check(not WM.Glowing(Fixed1), "dark the moment the game says it's over, not 5 s after the late report")
+-- Out of its stance the game can't say: Leproc's window, shortened by the measured delay.
+WM.SetStance(1)
+WM.Advance(1)
+local d = ns.Track.Delay("player")
+WM.Combat("player", "BLOCK", nil, 0.7)
+Check(not WM.Glowing(Fixed1), "in Battle Stance Revenge waits for the report")
+WM.Advance(0.7)
+Check(WM.Glowing(Fixed1), "the report lights it")
+WM.Advance(5 - d - 0.1)
+Check(WM.Glowing(Fixed1), "lit until its shortened window ends")
+WM.Advance(0.2)
+Check(not WM.Glowing(Fixed1), "dark " .. string.format("%.2f", d) .. " s before the full 5 s")
+-- Overpower in Battle Stance: the game ending it early (the owner's PvP log) turns it off.
+WM.Combat("target", "DODGE")
+Check(WM.Glowing(Main1), "Overpower lights")
+WM.Advance(1.2)
+WM.reactive.Overpower = WM.now
+WM.Fire("SPELL_UPDATE_USABLE")
+Check(not WM.Glowing(Main1), "the game said no after 1.2 s: dark")
+WM.Advance(5)
+-- A target dodge the game didn't count (someone else's attack) in Defensive Stance lights
+-- Overpower by guess; switching to Battle Stance, the game says no and the guess goes.
+WM.SetStance(2)
+WM.Advance(1)
+WM.Fire("UNIT_COMBAT", "target", "DODGE", "", 0, 1)
+Check(ns.Track.IsLit(ns.byKey.overpower), "the guess lights Overpower in Defensive Stance")
+WM.SetStance(1)
+Check(not ns.Track.IsLit(ns.byKey.overpower) and not WM.Glowing(Main1), "in Battle Stance the game's no wins")
+WM.SetStance(2)
+Check(not ns.Track.IsLit(ns.byKey.overpower), "and the guess stays closed")
+WM.SetStance(1)
+WM.Advance(6)
+local whyOut = PrintedNow(function() WM.Slash("why overpower") end)
+Check(whyOut:find("game: not usable %(it decides here%)") and whyOut:find("delay: the game's reports of your target's dodges"), "why shows the game and the delay: " .. whyOut)
 
 -- Other classes: a rogue sees Riposte, a priest sees none.
 WM.class = "ROGUE"

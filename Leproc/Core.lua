@@ -169,8 +169,14 @@ local function Why(e)
 		.. (e.class ~= class and (", not your class (" .. e.class:lower() .. ")") or "") }
 	lines[#lines + 1] = "lit now: " .. (ns.Track.IsLit(e) and "yes" or "no") .. (s.test and " (the test is on)" or "")
 	if #e.after > 0 then
+		local GAME = { yes = "usable", short = "usable, short of power", no = "not usable" }
+		lines[#lines + 1] = "game: " .. (s.game and (GAME[s.game] .. " (it decides here)")
+			or "can't say here (not in its stance, or hidden): Leproc's window decides")
 		lines[#lines + 1] = "window: " .. (s.window and string.format("open, %.1f s left", s.window)
 			or ("closed (opens " .. ns.WINDOW .. " s after " .. table.concat(e.after, ", ") .. ")"))
+		local kind = e.after[1] == "targetdodge" and "target" or "player"
+		lines[#lines + 1] = string.format("delay: the game's reports of %s come about %.1f s late; Leproc's own window ends that much sooner",
+			kind == "target" and "your target's dodges" or "your blocks, dodges and parries", ns.Track.Delay(kind))
 	end
 	if e.buff then
 		lines[#lines + 1] = "buff: also lights while you have " .. e.buff .. " (the game shows that glow; Leproc can't see the buff)"

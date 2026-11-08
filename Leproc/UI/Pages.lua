@@ -79,7 +79,11 @@ end
 
 local function AbilityTooltip(e)
 	local lines = { e.label }
-	if Triggers(e) then lines[#lines + 1] = "Lights for " .. ns.WINDOW .. " s after " .. Triggers(e) .. ", or until you use it." end
+	if Triggers(e) then
+		lines[#lines + 1] = "Lights after " .. Triggers(e) .. ", until its window ends or you use it. "
+			.. (e.stance and ("In " .. e.stance .. " the game's own answer decides; in other stances Leproc's ") or "The game's own answer decides; if it can't answer, Leproc's ")
+			.. ns.WINDOW .. " s window, shortened by how late the game reports the trigger."
+	end
 	if e.buff then
 		lines[#lines + 1] = (Triggers(e) and "Also lights" or "Lights") .. " while you have " .. e.buff
 			.. ". The game shows that glow itself, in combat too (no sound or countdown for it)."
@@ -151,7 +155,7 @@ Page({
 			panel.rows[#panel.rows + 1] = stack:Add(AbilityRow(stack.inner, e))
 			if forms then panel.also[#panel.also + 1] = stack:Add(AlsoRow(stack.inner, e)) end
 		end
-		stack:Add(UI.OptionText(stack.inner, "Leproc watches the blocks, dodges and parries the game reports, which addons can see in combat too, and lets the game show the glow for proc buffs. It never asks the game whether a button is usable, since that's what says no outside the right stance or form.", 54))
+		stack:Add(UI.OptionText(stack.inner, "In an ability's own stance the game says exactly when it's usable, and Leproc follows it. In other stances the game says no regardless, so Leproc watches the blocks, dodges and parries the game reports (addons see them in combat too) and keeps its own window. The game shows the glow for proc buffs itself.", 54))
 	end,
 	defaults = function()
 		ns.ResetModes()

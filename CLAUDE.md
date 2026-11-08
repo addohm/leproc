@@ -11,10 +11,13 @@ stance or form the player is in**. That's the gap it closes: ProcGlow (and the
 game) only light Revenge in Defensive Stance, because they ask the game whether
 the button is usable, and the game says no in the wrong stance.
 
-How: the game reports blocks, dodges and parries to addons even in combat
-(`UNIT_COMBAT`: only the amount is secret). `Track.lua` opens a 5 s window on the
-trigger, closes it when the player casts the ability, and keeps it dark for the
-ability's cooldown. `Bars.lua` draws the glow on Leproc's own overlay frames on
+How: in an ability's own stance the game's `C_Spell.IsSpellUsable` decides (exact
+at both ends). Elsewhere the game says no, so Leproc uses the blocks, dodges and
+parries the game reports to addons even in combat (`UNIT_COMBAT`: only the
+amount is secret): `Track.lua` opens a window of 5 s minus the measured report
+delay (the reports arrive 0.2-0.9 s after the game's own change), closes it
+when the player casts the ability, and keeps it dark for the ability's
+cooldown. `Bars.lua` draws the glow on Leproc's own overlay frames on
 the action buttons of any bar addon (the owner uses EllesmereUI's). The options window, profiles, glow styles and minimap
 button are Leboof's (the owner's other addon, `addohm/leboof`), adapted.
 
@@ -51,7 +54,13 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     setting; `LeprocDB.chars["First Last"]` is the profile each character uses;
     `ns.db` is the one in use.
   - `Glow.lua`: Leboof's glow styles (`Glow.Build`, `Glow.Show`).
-  - `Track.lua`: the trigger windows (`UNIT_COMBAT`), casts and cooldowns
+  - `Track.lua`: `GameSays(e)` (`C_Spell.IsSpellUsable` in the ability's
+    stance: yes / short / no, nil where it can't say) decides when known;
+    `Track.OnGame` (`ACTION_USABLE_CHANGED`, `SPELL_UPDATE_USABLE`) lets the
+    game's changes open and close Leproc's windows and measures the report
+    delay (`Track.Delay(kind)`, `LeprocDB.delay`, "player" and "target"
+    triggers; a stance switch isn't a trigger). The trigger windows
+    (`UNIT_COMBAT`, 5 s minus the delay), casts and cooldowns
     (`UNIT_SPELLCAST_SUCCEEDED`), `Track.Clear` on death and at the end of
     combat, the stance check (`GetShapeshiftFormInfo`),
     `Track.IsLit(e)`, `Track.Update()` (also plays the sound), `Track.Test()`.
@@ -60,7 +69,7 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     deaths, cleared windows, and the game's own usable answers ("no (short of
     power)" from noMana/insufficientPower) (`C_Spell.IsSpellUsable`, `C_ActionBar.IsUsableAction`,
     `ACTION_USABLE_CHANGED`, `SPELL_UPDATE_USABLE`; only changes). Kept in
-    `LeprocDB.log` (last 300, account-wide); `LeprocLog` is its copy window.
+    `LeprocDB.log` (last 2000, account-wide); `LeprocLog` is its copy window.
   - `Procs.lua`: proc buffs (`buff`, `buffIds` in the catalogue). An
     AuraContainer (`CustomAuraContainerTemplate`) with a slot per proc buff;
     the game shows a slot's button only while you have the buff
@@ -104,7 +113,9 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   committed `Leproc/` folder
 - `tests/`: `wowmock.lua` (a fake client: action buttons with stance pages,
   bar addons' buttons (`WM.AddonBar`, `WM.Button`), macros with text
-  (`WM.SetMacro`), aura containers (`WM.SetAura`, `WM.ProcGlowing`),
+  (`WM.SetMacro`), aura containers (`WM.SetAura`, `WM.ProcGlowing`), the
+  game's reactive state (`WM.Combat(unit, event, flags, lag)` sets it at once
+  and reports `lag` s later, like the real game; `WM.GameUsable`, `WM.short`),
   `EnumerateFrames`,
   combat events, a clock), `smoke.lua` (scenarios), `run_tests.py`.
 - `ProcGlow/`: someone else's addon, a design example only (git-ignored, local)
@@ -129,11 +140,14 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
 
 ## Conventions
 
-- **Never ask the game whether an ability is usable** (`IsUsableAction`,
-  `C_Spell.IsSpellUsable`) for a glow: outside the right stance it says no,
-  which is the gap Leproc closes. (`Log.lua` asks, to log the answer only.) Lit comes from the trigger window, the cooldown from the
-  player's own cast, and the stance (mode `stance` only) from
-  `GetShapeshiftFormInfo`.
+- **Ask the game only where it can answer.** In an ability's own stance (or
+  always, for abilities without one) `C_Spell.IsSpellUsable` is the truth:
+  exact, and "short of power" still counts as lit. Outside the stance it says
+  no regardless (the gap Leproc closes), so it's never asked there: the
+  trigger window decides, shortened by the measured report delay. The
+  cooldown comes from the player's own cast (the game's "usable" ignores
+  cooldowns), the stance from `GetShapeshiftFormInfo`. The owner's logs
+  (TESTING.md) are the evidence: keep reading new ones before changing this.
 - **Check what's secret** in Blizzard's API docs, `forever` branch
   (`Blizzard_APIDocumentationGenerated`):
   https://github.com/Gethe/wow-ui-source/tree/forever. Skip secret values with

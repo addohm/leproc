@@ -218,7 +218,13 @@ C_ActionBar = {
 		local a = M.actions[slot]
 		return a and a.name or nil
 	end,
-	IsUsableAction = function(slot) return M.slotUsable[slot] or false, false end,
+	IsUsableAction = function(slot)
+		if M.slotUsable[slot] ~= nil then return M.slotUsable[slot], false end
+		local a = M.actions[slot]
+		local name = a and C_Spell.GetSpellName(a[2])
+		if name then return M.GameUsable(name) end
+		return false, false
+	end,
 }
 -- GetMacroInfo(index or name): name, icon, body.
 function GetMacroInfo(which)
@@ -250,6 +256,7 @@ function M.SetStance(i)
 	for n = 1, 12 do _G["ActionButton" .. n].action = page + n - 1 end
 	M.Fire("UPDATE_SHAPESHIFT_FORM")
 	M.Fire("UPDATE_BONUS_ACTIONBAR")
+	M.Fire("SPELL_UPDATE_USABLE")
 end
 
 -- Leproc's overlay on a button.
@@ -371,15 +378,31 @@ MenuUtil = { CreateContextMenu = function(owner, generator) M.contextMenu = { ow
 C_SpellBook = { IsSpellKnown = function(id) return M.known[id] == true end }
 function date() return "12:00:00" end
 ChatFontNormal = {}
--- What the game says is usable: WM.spellUsable[name] (C_Spell.IsSpellUsable) and
--- WM.slotUsable[slot] (C_ActionBar.IsUsableAction).
-M.spellUsable, M.slotUsable = {}, {}
+-- The game's own side of reactive abilities. WM.Combat sets it the moment the game would (before
+-- the UNIT_COMBAT report, which can come `lag` seconds later) and fires SPELL_UPDATE_USABLE, and
+-- fires it again when its 5 s run out. C_Spell.IsSpellUsable says yes while it's active and
+-- you're in the spell's stance; WM.short makes it "short of power". WM.spellUsable[name] and
+-- WM.slotUsable[slot] override the answer (for the log's tests).
+M.spellUsable, M.slotUsable, M.reactive = {}, {}, {}
+M.REACTS = { dodge = { "Revenge", "Mongoose Bite" }, parry = { "Revenge", "Riposte", "Counterattack" },
+	block = { "Revenge" }, targetdodge = { "Overpower" } }
+M.NEEDS = { Revenge = 2, Overpower = 1 } -- the stance each needs
+function M.GameUsable(name)
+	local o = M.spellUsable[name]
+	if o == "short" then return false, true end
+	if o ~= nil then return o, false end
+	local r = M.reactive[name]
+	if not (r and r > M.now) then return false, false end
+	if M.NEEDS[name] and M.stance ~= M.NEEDS[name] then return false, false end
+	if M.short then return false, true end
+	return true, false
+end
 
 -- Spell names: the stances, and every ID in the addon's Data.lua by its name.
 M.spellNames = { [2458] = "Berserker Stance" }
 C_Spell = {
 	GetSpellTexture = function(id) return 100000 + id end,
-	IsSpellUsable = function(spell) return M.spellUsable[spell] or false, false end,
+	IsSpellUsable = function(spell) return M.GameUsable(spell) end,
 	GetSpellName = function(id)
 		if M.spellNames[id] then return M.spellNames[id] end
 		for name, ids in pairs(ns and ns.SpellIDs or {}) do
@@ -425,7 +448,23 @@ function M.Fire(event, ...)
 end
 
 -- Combat events as the game sends them: UNIT_COMBAT (unit, event, flagText, amount, schoolMask).
-function M.Combat(unit, event, flags) M.Fire("UNIT_COMBAT", unit, event, flags or "", 0, 1) end
+function M.Combat(unit, event, flags, lag)
+	local trigger
+	if unit == "player" then
+		if event == "DODGE" then trigger = "dodge"
+		elseif event == "PARRY" then trigger = "parry"
+		elseif event == "BLOCK" or (event == "WOUND" and (flags == "BLOCK_REDUCED" or flags == "BLOCK")) then trigger = "block" end
+	elseif unit == "target" and event == "DODGE" then
+		trigger = "targetdodge"
+	end
+	if trigger then
+		for _, name in ipairs(M.REACTS[trigger]) do M.reactive[name] = M.now + 5 end
+		M.Fire("SPELL_UPDATE_USABLE")
+		C_Timer.NewTimer(5, function() M.Fire("SPELL_UPDATE_USABLE") end)
+	end
+	local function Report() M.Fire("UNIT_COMBAT", unit, event, flags or "", 0, 1) end
+	if lag and lag > 0 then C_Timer.NewTimer(lag, Report) else Report() end
+end
 function M.Cast(spellID) M.Fire("UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-GUID", spellID) end
 
 function M.Slash(msg) SlashCmdList.LEPROC(msg) end
