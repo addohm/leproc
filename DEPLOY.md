@@ -65,7 +65,9 @@ each character uses.
 - `/leproc help` shows the build installed. If it's old, the install didn't
   copy (check `WOW` in the script) or the game needs a restart.
 - Nothing glows: `/leproc test` lights every tracked ability's buttons. If
-  that shows nothing, the ability isn't on a bar you can see (`/leproc list`
-  says). A bar addon that builds its buttons late is scanned again on entering
-  the world, 3 s later, and after combat; `/reload` scans too.
+  that shows nothing, the ability isn't on a bar you can see. `/leproc why
+  <ability>` says why it isn't lit (window, cooldown, stance, buttons),
+  `/leproc bars` what Leproc found on the bars, `/leproc macros` what it read
+  from each macro. A bar addon that builds its buttons late is noticed for 30 s
+  after entering the world; `/reload` scans again too.
 - Lua errors: turn them on with `/console scriptErrors 1` and send the text.

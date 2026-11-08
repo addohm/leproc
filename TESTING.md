@@ -47,6 +47,11 @@ Problems below.
     screen" for abilities on its bars, and they glow there (2a to 2f again),
     right after login and after a `/reload`. Also with no bar addon.
     Bartender, Dominos or ElvUI, if you have one.
+11. Diagnostics: `/leproc bars` lists your EllesmereUI buttons holding Revenge
+    and Overpower (by name and slot) and counts Blizzard's hidden ones;
+    `/leproc macros` shows each macro and what it counts for; `/leproc why
+    revenge` right after a block says lit, the window's seconds left, and the
+    buttons. Send the output if anything looks off.
 
 ## Confirmed
 

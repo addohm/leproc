@@ -8,6 +8,7 @@ All notable changes to leproc. The format follows
 
 ### Added
 
+- Diagnostics: `/leproc bars` (the action buttons found, and which hold your abilities), `/leproc macros` (what each macro on your bars counts for), `/leproc why <ability>` (its window, cooldown, stance and buttons right now) (2026-11-08).
 - Macros count for every tracked ability their text names (`/cast`, `/castsequence`, `/use`, `#showtooltip`, any clause), so a stance-dance macro like `/cast [nostance:2] Defensive Stance; Revenge` glows for Revenge in Battle Stance (2026-11-08).
 - Bar addons that build their buttons late (EllesmereUI, Bartender, Dominos, ElvUI, the gamepad bars) are noticed: Leproc watches for their first button for 30 s after entering the world, and on every update (2026-11-08).
 - Glows on any bar addon's action buttons (EllesmereUI, Bartender, Dominos, ElvUI...), not only Blizzard's: Leproc scans for buttons that hold an action slot (2026-11-08).

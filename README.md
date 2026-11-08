@@ -76,6 +76,10 @@ use it, it stays dark for its cooldown (Revenge 5 s) even if you block again.
 - `/leproc <ability> any|stance|off|default`, for example `/leproc revenge
   stance`.
 - `/leproc test` lights the buttons for 5 s.
+- `/leproc bars` lists the action buttons Leproc found and which of them hold
+  your abilities; `/leproc macros` shows what it read from each macro;
+  `/leproc why revenge` explains why Revenge is or isn't glowing right now
+  (its window, cooldown, stance and buttons).
 - `/leproc minimap`, `/leproc profile`, `/leproc reset`.
 
 **Minimap button:** click for the window, right-click for the test, drag to move

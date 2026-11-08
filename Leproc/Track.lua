@@ -25,6 +25,7 @@ local function InStance(e)
 	local _, active, _, spellID = GetShapeshiftFormInfo(index)
 	return active and not Secret(spellID) and e.stanceIds[spellID] == true
 end
+Track.InStance = InStance
 
 function Track.IsLit(e)
 	local mode = ns.Mode(e)
@@ -90,6 +91,14 @@ function Track.OnCast(spellID)
 	ready[e.key] = GetTime() + e.cooldown
 	Track.Update()
 	UpdateAt(e.cooldown)
+end
+
+-- What Leproc knows about an ability right now, for /leproc why: seconds left in its window and
+-- on its cooldown (nil if none), whether you're in its stance, whether the test is on.
+function Track.State(e)
+	local now = GetTime()
+	local function Left(t) return (t and t > now) and (t - now) or nil end
+	return { window = Left(open[e.key]), cooldown = Left(ready[e.key]), inStance = InStance(e), test = test > now }
 end
 
 -- Lights every tracked ability's buttons for one window, to see the glow (no sound).

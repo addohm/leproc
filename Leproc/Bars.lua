@@ -203,6 +203,76 @@ function Bars.OnScreen(e)
 	return false
 end
 
+-- Diagnostics (/leproc bars, /leproc macros, /leproc why) ----------------------------------
+
+local function Name(button)
+	local ok, name = pcall(button.GetName, button)
+	return (ok and Text(name)) or "an unnamed button"
+end
+
+local function Labels(list)
+	local names = {}
+	for _, e in ipairs(list) do names[#names + 1] = e.label end
+	return table.concat(names, ", ")
+end
+
+-- The buttons you can see that hold the ability, as "EABButton12 (slot 61)".
+function Bars.Where(e)
+	local where = {}
+	for _, button in ipairs(buttons) do
+		if button:IsVisible() then
+			for _, held in ipairs(EntriesOn(button)) do
+				if held == e then where[#where + 1] = Name(button) .. " (slot " .. Slot(button) .. ")" end
+			end
+		end
+	end
+	return where
+end
+
+-- Every button found: how many, how many on screen, the ones on screen holding a tracked
+-- ability, and how many hidden ones hold one (Blizzard's, under a bar addon).
+function Bars.Report()
+	Bars.CheckLate()
+	local shown, hidden, lines = 0, 0, {}
+	for _, button in ipairs(buttons) do
+		local held = EntriesOn(button)
+		if button:IsVisible() then
+			shown = shown + 1
+			if #held > 0 then lines[#lines + 1] = Name(button) .. " (slot " .. Slot(button) .. "): " .. Labels(held) end
+		elseif #held > 0 then
+			hidden = hidden + 1
+		end
+	end
+	table.insert(lines, 1, #buttons .. " action buttons found, " .. shown .. " on screen. On screen holding a tracked ability:"
+		.. (#lines == 0 and " none." or ""))
+	if hidden > 0 then lines[#lines + 1] = "and " .. hidden .. " hidden buttons hold one (they can't glow)." end
+	return lines
+end
+
+-- Every macro on a button you can see: its name, whether its text could be read, and the tracked
+-- abilities it names.
+function Bars.MacroReport()
+	local lines, seen = {}, {}
+	for _, button in ipairs(buttons) do
+		local slot = Slot(button)
+		if button:IsVisible() and slot and not seen[slot] then
+			local ok, kind, id, sub = pcall(GetActionInfo, slot)
+			if ok and kind == "macro" and not Secret(id) then
+				seen[slot] = true
+				local getText = (C_ActionBar and C_ActionBar.GetActionText) or GetActionText
+				local okName, name = pcall(getText, slot)
+				local body = MacroBody(slot, id, sub)
+				local held = EntriesOn(button)
+				lines[#lines + 1] = Name(button) .. " (slot " .. slot .. "): macro \"" .. tostring(okName and Text(name) or "?")
+					.. "\", " .. (body and "text read" or "|cffff8040text not readable|r")
+					.. ", " .. (#held > 0 and ("counts for " .. Labels(held)) or "no tracked ability")
+			end
+		end
+	end
+	table.insert(lines, 1, #lines .. " macros on buttons you can see" .. (#lines > 0 and ":" or "."))
+	return lines
+end
+
 local function Changed()
 	ns.Track.Update()
 	if ns.Window then ns.Window.Refresh() end

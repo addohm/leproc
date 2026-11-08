@@ -150,12 +150,38 @@ local function List()
 	ns.Print("* = changed from the default. Set one with /leproc <ability> any|stance|off|default")
 end
 
+local function Lines(lines)
+	for _, line in ipairs(lines) do ns.Print(line) end
+end
+
+-- /leproc why <ability>: everything that decides whether it glows right now.
+local function Why(e)
+	local s = ns.Track.State(e)
+	local _, class = UnitClass("player")
+	local lines = { e.label .. ": " .. MODE_WORDS[ns.Mode(e)] .. (ns.db.modes[e.key] and " (changed)" or " (default)")
+		.. (e.class ~= class and (", not your class (" .. e.class:lower() .. ")") or "") }
+	lines[#lines + 1] = "lit now: " .. (ns.Track.IsLit(e) and "yes" or "no") .. (s.test and " (the test is on)" or "")
+	lines[#lines + 1] = "window: " .. (s.window and string.format("open, %.1f s left", s.window)
+		or ("closed (opens " .. ns.WINDOW .. " s after " .. table.concat(e.after, ", ") .. ")"))
+	lines[#lines + 1] = "cooldown: " .. (s.cooldown and string.format("%.1f s left (from your cast)", s.cooldown) or "ready")
+	if e.stance then
+		lines[#lines + 1] = "stance: needs " .. e.stance .. ", you're " .. (s.inStance and "in it" or "not in it")
+			.. (ns.Mode(e) == "stance" and "" or " (doesn't matter in Any stance)")
+	end
+	local where = ns.Bars.Where(e)
+	lines[#lines + 1] = "on screen: " .. (#where > 0 and table.concat(where, ", ") or "|cffff8040no button you can see holds it|r")
+	Lines(lines)
+end
+
 local function Help()
 	ns.Print(ns.Version())
 	ns.Print("/leproc - open or close the options window")
 	ns.Print("/leproc list - your class's abilities, their modes, and whether they're on a bar you can see")
 	ns.Print("/leproc <ability> any|stance|off|default - any: lights in any stance; stance: only in the one it needs")
 	ns.Print("/leproc test - light your abilities' buttons for " .. ns.WINDOW .. " s")
+	ns.Print("/leproc bars - the action buttons Leproc found, and which hold your abilities")
+	ns.Print("/leproc macros - the macros on your bars, and the abilities each counts for")
+	ns.Print("/leproc why <ability> - why it is or isn't glowing right now")
 	ns.Print("/leproc minimap - show or hide the minimap button")
 	ns.Print("/leproc profile - the profile in use and the others (the Profiles tab manages them)")
 	ns.Print("/leproc reset - default modes, glow and sound")
@@ -173,6 +199,19 @@ SlashCmdList.LEPROC = function(msg)
 		List()
 	elseif cmd == "test" then
 		ns.Track.Test()
+	elseif cmd == "bars" then
+		Lines(ns.Bars.Report())
+	elseif cmd == "macros" then
+		Lines(ns.Bars.MacroReport())
+	elseif cmd == "why" then
+		local e = ns.byKey[(arg or ""):gsub("%s", "")]
+		if not e then
+			local keys = {}
+			for _, c in ipairs(ns.Catalogue) do keys[#keys + 1] = c.key end
+			ns.Print("why which? " .. table.concat(keys, ", "))
+			return
+		end
+		Why(e)
 	elseif cmd == "minimap" then
 		ns.Minimap.SetShown(ns.db.minimap.hide)
 	elseif cmd == "profile" then

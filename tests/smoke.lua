@@ -317,6 +317,33 @@ mbar:Hide()
 WM.mainBar:Show()
 WM.bottomLeft:Show()
 
+-- Diagnostics: /leproc bars, macros and why say what Leproc sees.
+local function PrintedNow(f)
+	WM.printed = {}
+	f()
+	return table.concat(WM.printed, "\n")
+end
+local out = PrintedNow(function() WM.Slash("bars") end)
+Check(out:find("action buttons found") and out:find("MultiBarBottomLeftButton1 %(slot 61%): Revenge"), "bars should list Revenge's button: " .. out)
+Check(not out:find("MacroRev") and out:find("and %d+ hidden buttons hold one"), "bars should count hidden buttons, not list them: " .. out)
+mbar:Show()
+out = PrintedNow(function() WM.Slash("macros") end)
+Check(out:find('macro "Rev", text read, counts for Revenge'), "macros should show the stance-dance macro: " .. out)
+Check(out:find('macro "Other", text read, no tracked ability'), "macros should show a macro with none: " .. out)
+mbar:Hide()
+WM.Combat("player", "BLOCK")
+out = PrintedNow(function() WM.Slash("why revenge") end)
+Check(out:find("Revenge: any stance %(default%)") and out:find("lit now: yes") and out:find("window: open, 5.0 s left"), "why while lit: " .. out)
+Check(out:find("stance: needs Defensive Stance, you're not in it") and out:find("on screen: MultiBarBottomLeftButton1 %(slot 61%)"), "why: stance and buttons: " .. out)
+WM.Cast(REVENGE)
+out = PrintedNow(function() WM.Slash("why revenge") end)
+Check(out:find("lit now: no") and out:find("window: closed") and out:find("cooldown: 5.0 s left"), "why after casting: " .. out)
+WM.Advance(6)
+out = PrintedNow(function() WM.Slash("why mongoose bite") end)
+Check(out:find("not your class %(hunter%)"), "why for another class's ability: " .. out)
+out = PrintedNow(function() WM.Slash("why") end)
+Check(out:find("why which%? revenge, overpower"), "why without an ability lists them: " .. out)
+
 -- Other classes: a rogue sees Riposte, a priest sees none.
 WM.class = "ROGUE"
 Check(#ns.ClassEntries() == 1 and ns.ClassEntries()[1].key == "riposte" and ns.Mode(ns.byKey.riposte) == "any", "a rogue's abilities")

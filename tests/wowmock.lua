@@ -30,6 +30,7 @@ local function NewFrame(kind, name, parent)
 		return true
 	end
 	function f:SetParent(p) self.parent = p end
+	function f:GetName() return self.name end
 	function f:IsObjectType(t) return self.kind == t end
 	function f:IsForbidden() return false end
 	function f:SetAttribute(k, v) self.attributes[k] = v end
