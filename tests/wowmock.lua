@@ -178,9 +178,17 @@ function GetMacroInfo(which)
 	end
 end
 
--- Stances: index 1 Battle (2457), 2 Defensive (71). WM.SetStance(1 or 2, or 0 for none).
+-- Stances: index 1 Battle (2457), 2 Defensive (71), 3 Berserker (2458). WM.SetStance(1 to 3,
+-- or 0 for none). Blizzard's stance bar: StanceButton1-3.
 M.stance = 1
-M.forms = { { spellID = 2457, page = 73 }, { spellID = 71, page = 85 } }
+M.forms = { { spellID = 2457, page = 73 }, { spellID = 71, page = 85 }, { spellID = 2458, page = 97 } }
+M.stanceBar = NewFrame("Frame", "StanceBar")
+for i = 1, 3 do
+	local b = NewFrame("CheckButton", "StanceButton" .. i, M.stanceBar)
+	b:SetSize(30, 30)
+	_G["StanceButton" .. i] = b
+end
+function GetNumShapeshiftForms() return #M.forms end
 function GetShapeshiftForm() return M.stance end
 function GetShapeshiftFormInfo(i)
 	local f = M.forms[i]
@@ -312,7 +320,17 @@ function M.Played(name)
 end
 MenuUtil = { CreateContextMenu = function(owner, generator) M.contextMenu = { owner = owner, generator = generator } end }
 C_SpellBook = { IsSpellKnown = function(id) return M.known[id] == true end }
-C_Spell = { GetSpellTexture = function(id) return 100000 + id end }
+-- Spell names: the stances, and every ID in the addon's Data.lua by its name.
+M.spellNames = { [2458] = "Berserker Stance" }
+C_Spell = {
+	GetSpellTexture = function(id) return 100000 + id end,
+	GetSpellName = function(id)
+		if M.spellNames[id] then return M.spellNames[id] end
+		for name, ids in pairs(ns and ns.SpellIDs or {}) do
+			for _, i in ipairs(ids) do if i == id then return name end end
+		end
+	end,
+}
 function UnitClass() return "Class", M.class end
 function InCombatLockdown() return M.combat end
 function print(...)

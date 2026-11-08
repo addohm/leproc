@@ -6,6 +6,11 @@
 -- (Blizzard's, under EllesmereUI) never do, and an ability on a bar page that changes with stance
 -- (a warrior's main bar) can't light in the other stances.
 --
+-- An ability can also glow a stance's button while it's lit and you're not in that stance
+-- (ns.db.also): the stance bar's button for it, and any action button holding the stance. Stance
+-- bar buttons are found by name (StanceButton1, BT4StanceButton1, DominosStanceButton1,
+-- ElvUI_StanceBarButton1...: "Stance", then "Button" and the stance's number).
+--
 -- What a button holds: GetActionInfo(slot) gives a spell, or the spell a macro would cast right
 -- now. A macro also counts for every tracked ability its text names, so a stance-dance macro
 -- (/cast [nostance:2] Defensive Stance; Revenge) is Revenge's button even in Battle Stance, when
@@ -16,6 +21,7 @@ local Bars = {}
 ns.Bars = Bars
 
 local buttons = {}   -- action buttons found, in the order found
+local stances = {}   -- stance bar buttons found: { button, the stance's number }
 local overlays = {}  -- button -> Leproc's overlay frame
 local pending = false -- a scan was asked for in combat
 
@@ -135,6 +141,69 @@ local function IsActionButton(f)
 	return ok and yes
 end
 
+-- A stance bar button's stance number, or nil.
+local function StanceIndex(f)
+	local ok, index = pcall(function()
+		if f:IsForbidden() then return nil end
+		if not (f:IsObjectType("CheckButton") or f:IsObjectType("Button")) or Slot(f) then return nil end
+		local name = Text(f:GetName())
+		return name and tonumber(name:match("Stance.-Button(%d+)$"))
+	end)
+	return ok and index or nil
+end
+
+local function SpellName(id)
+	if not Number(id) then return nil end
+	local ok, name = pcall(C_Spell.GetSpellName, id)
+	return ok and Text(name) or nil
+end
+
+-- The name of stance number i (from the game), and the one you're in.
+local function FormName(i)
+	local ok, _, _, _, id = pcall(GetShapeshiftFormInfo, i)
+	return ok and SpellName(id) or nil
+end
+
+local function CurrentForm()
+	local ok, i = pcall(GetShapeshiftForm)
+	if ok and Number(i) then return FormName(i) end
+end
+
+-- Your stances, by name, for the "Also glow" picker.
+function Bars.Forms()
+	local list = {}
+	local ok, n = pcall(GetNumShapeshiftForms)
+	for i = 1, (ok and Number(n)) or 0 do
+		local name = FormName(i)
+		if name then list[#list + 1] = name end
+	end
+	return list
+end
+
+-- The stances to glow now, with the seconds left on the ability lighting each.
+local function Wanted()
+	local wanted, current = {}, nil
+	for _, e in ipairs(ns.Catalogue) do
+		local target = ns.db.also[e.key]
+		if target then
+			local left = ns.Track.Left(e)
+			if left then
+				current = current or CurrentForm() or ""
+				if target ~= current and (not wanted[target] or left > wanted[target]) then wanted[target] = left end
+			end
+		end
+	end
+	return wanted
+end
+
+-- The spell a button holds (a spell, or a macro casting one), by name.
+local function SpellOn(button)
+	local slot = Slot(button)
+	if not slot then return nil end
+	local ok, kind, id, sub = pcall(GetActionInfo, slot)
+	if ok and (kind == "spell" or (kind == "macro" and sub == "spell")) then return SpellName(id) end
+end
+
 -- Finds action buttons not seen before and gives each an overlay. Out of combat only: a bar
 -- addon's buttons are protected, so their children are made while nothing is locked.
 function Bars.Scan()
@@ -145,12 +214,19 @@ function Bars.Scan()
 	pending = false
 	local f = EnumerateFrames()
 	while f do
-		if not overlays[f] and IsActionButton(f) then
-			local overlay = CreateFrame("Frame", nil, f)
-			overlay:SetAllPoints(f)
-			overlay:SetFrameLevel(f:GetFrameLevel() + 10)
-			buttons[#buttons + 1] = f
-			overlays[f] = overlay
+		if not overlays[f] then
+			local index = not IsActionButton(f) and StanceIndex(f)
+			if index or IsActionButton(f) then
+				local overlay = CreateFrame("Frame", nil, f)
+				overlay:SetAllPoints(f)
+				overlay:SetFrameLevel(f:GetFrameLevel() + 10)
+				overlays[f] = overlay
+				if index then
+					stances[#stances + 1] = { f, index }
+				else
+					buttons[#buttons + 1] = f
+				end
+			end
 		end
 		f = EnumerateFrames(f)
 	end
@@ -206,18 +282,43 @@ local function Tick()
 	for _, l in ipairs(lit) do Count(l[1], l[3], Left(l[2])) end
 end
 
+local function Show(button, left, entries)
+	local size = math.floor((button:GetWidth() or 0) + 0.5)
+	if size <= 0 then size = 36 end
+	local overlay = overlays[button]
+	ns.Glow.Show(overlay, left and ns.db.glow or "none", ns.db.color, size)
+	if (ns.db.countdown and left) or overlay.count then Count(overlay, size, ns.db.countdown and left or nil) end
+	if left then lit[#lit + 1] = { overlay, entries, size } end
+end
+
+-- A stance glow's entries, for the countdown: the lit abilities pointing at that stance.
+local function Pointing(stance)
+	local list = {}
+	for _, e in ipairs(ns.Catalogue) do
+		if ns.db.also[e.key] == stance then list[#list + 1] = e end
+	end
+	return list
+end
+
 function Bars.Update()
 	Bars.CheckLate()
 	wipe(lit)
+	local wanted = Wanted()
+	local anyWanted = next(wanted) ~= nil
 	for _, button in ipairs(buttons) do
-		local entries = button:IsVisible() and EntriesOn(button) or NONE
+		local visible = button:IsVisible()
+		local entries = visible and EntriesOn(button) or NONE
 		local left = Left(entries)
-		local size = math.floor((button:GetWidth() or 0) + 0.5)
-		if size <= 0 then size = 36 end
-		local overlay = overlays[button]
-		ns.Glow.Show(overlay, left and ns.db.glow or "none", ns.db.color, size)
-		if (ns.db.countdown and left) or overlay.count then Count(overlay, size, ns.db.countdown and left or nil) end
-		if left then lit[#lit + 1] = { overlay, entries, size } end
+		local stance = anyWanted and visible and SpellOn(button)
+		if stance and wanted[stance] then
+			if not left or wanted[stance] > left then left = wanted[stance] end
+			entries = Pointing(stance)
+		end
+		Show(button, left, entries)
+	end
+	for _, s in ipairs(stances) do
+		local stance = anyWanted and s[1]:IsVisible() and FormName(s[2])
+		Show(s[1], stance and wanted[stance] or nil, stance and Pointing(stance) or NONE)
 	end
 	local want = ns.db.countdown and #lit > 0
 	if want and not ticker then
@@ -281,7 +382,8 @@ function Bars.Report()
 			hidden = hidden + 1
 		end
 	end
-	table.insert(lines, 1, #buttons .. " action buttons found, " .. shown .. " on screen. On screen holding a tracked ability:"
+	table.insert(lines, 1, #buttons .. " action buttons and " .. #stances .. " stance bar buttons found, " .. shown
+		.. " action buttons on screen. On screen holding a tracked ability:"
 		.. (#lines == 0 and " none." or ""))
 	if hidden > 0 then lines[#lines + 1] = "and " .. hidden .. " hidden buttons hold one (they can't glow)." end
 	return lines

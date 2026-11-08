@@ -8,6 +8,7 @@ All notable changes to leproc. The format follows
 
 ### Added
 
+- Also glow: per ability, a stance whose button also glows (on the stance bar, and any action button holding it) while the ability is lit and you're not in that stance, e.g. Revenge → Defensive Stance. Off by default (2026-11-08).
 - Optional countdown: the seconds left in the window, in the middle of a lit button (Glow tab; off by default) (2026-11-08).
 - Leproc in the game's Options > AddOns list, with a button that opens its window (2026-11-08).
 - Diagnostics: `/leproc bars` (the action buttons found, and which hold your abilities), `/leproc macros` (what each macro on your bars counts for), `/leproc why <ability>` (its window, cooldown, stance and buttons right now) (2026-11-08).

@@ -58,6 +58,11 @@ the game's addon menu by the minimap, or Options > AddOns > Leproc. It has four 
   - **Off.**
 
   An ability that isn't on a bar you can see says so.
+
+  Under each one, **Also glow** can pick a stance. While the ability is lit and
+  you're not in that stance, the stance's button glows too, on the stance bar
+  and on any action button holding it. For example, Revenge → Defensive Stance
+  points you at the stance to switch to. Off ("Nothing else") by default.
 - **Glow:** the glow style (Pixel, Action button, Auto-cast, GCD, Modern,
   Classic, Pulse), its colour, an optional countdown (the seconds left, in the
   middle of a lit button; off by default), and a sound for when an ability

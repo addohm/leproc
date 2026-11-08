@@ -324,7 +324,7 @@ local function PrintedNow(f)
 	return table.concat(WM.printed, "\n")
 end
 local out = PrintedNow(function() WM.Slash("bars") end)
-Check(out:find("action buttons found") and out:find("MultiBarBottomLeftButton1 %(slot 61%): Revenge"), "bars should list Revenge's button: " .. out)
+Check(out:find("stance bar buttons found") and out:find("MultiBarBottomLeftButton1 %(slot 61%): Revenge"), "bars should list Revenge's button: " .. out)
 Check(not out:find("MacroRev") and out:find("and %d+ hidden buttons hold one"), "bars should count hidden buttons, not list them: " .. out)
 mbar:Show()
 out = PrintedNow(function() WM.Slash("macros") end)
@@ -368,6 +368,44 @@ SettingsPanel:Show()
 cat.frame.open.scripts.OnClick(cat.frame.open)
 Check(ns.Window.IsShown() and not SettingsPanel:IsShown(), "the AddOns entry's button should open Leproc's window")
 ns.Window.Hide()
+
+-- Also glow: Revenge points at Defensive Stance. While Revenge is lit and you're not in
+-- Defensive Stance, its stance bar button and any action button holding it glow too.
+WM.SetAction(66, 71) -- Defensive Stance on the fixed bar
+local DefButton = MultiBarBottomLeftButton6
+Check(#ns.Bars.Forms() == 3 and ns.Bars.Forms()[2] == "Defensive Stance", "the warrior's stances")
+WM.Combat("player", "BLOCK")
+Check(not WM.Glowing(StanceButton2) and not WM.Glowing(DefButton), "nothing else glows by default")
+WM.Advance(6)
+ns.Window.Show()
+ns.Window.Select("abilities")
+local apanel = ns.Window.CurrentPanel()
+Check(apanel.also and #apanel.also == 2, "each ability should have an Also glow row")
+local alsoRev = apanel.also[1]
+alsoRev.box.scripts.OnClick() -- Nothing else -> Battle Stance
+alsoRev.box.scripts.OnClick() -- -> Defensive Stance
+Check(ns.db.also.revenge == "Defensive Stance" and alsoRev.box.text == "Defensive Stance", "the picker should set Defensive Stance")
+ns.Window.Hide()
+WM.Combat("player", "BLOCK")
+Check(WM.Glowing(Fixed1), "Revenge glows")
+Check(WM.Glowing(StanceButton2) and not WM.Glowing(StanceButton1) and not WM.Glowing(StanceButton3), "the Defensive Stance button on the stance bar should glow")
+Check(WM.Glowing(DefButton), "an action button holding Defensive Stance should glow")
+Check(PrintedNow(function() WM.Slash("why revenge") end):find("also glows: the Defensive Stance button"), "why shows Also glow")
+ns.db.countdown = true
+ns.Refresh()
+Check(WM.Countdown(StanceButton2) == "5", "the stance button shows the countdown too")
+ns.db.countdown = false
+WM.SetStance(2)
+Check(WM.Glowing(Fixed1) and not WM.Glowing(StanceButton2) and not WM.Glowing(DefButton), "in Defensive Stance only Revenge glows")
+WM.SetStance(1)
+Check(WM.Glowing(StanceButton2), "back in Battle Stance the stance button glows again")
+WM.Advance(6)
+Check(not WM.Glowing(StanceButton2) and not WM.Glowing(DefButton), "the stance glow ends with the window")
+local out2 = PrintedNow(function() WM.Slash("bars") end)
+Check(out2:find("3 stance bar buttons found"), "bars counts stance buttons: " .. out2)
+WM.Slash("reset")
+Check(ns.db.also.revenge == nil, "reset clears Also glow")
+WM.SetAction(66, nil)
 
 -- Other classes: a rogue sees Riposte, a priest sees none.
 WM.class = "ROGUE"

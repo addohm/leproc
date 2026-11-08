@@ -57,6 +57,11 @@ Problems below.
     when the glow goes. Off by default.
 13. Options > AddOns lists Leproc; its button closes the game's options and
     opens Leproc's window.
+14. Also glow (Abilities tab, under Revenge): pick Defensive Stance. Block in
+    Battle Stance: Revenge glows, and so does Defensive Stance on the stance
+    bar (EllesmereUI's stance bar too? `/leproc bars` says how many stance
+    buttons it found) and on any action button holding it. Switch to
+    Defensive: only Revenge still glows.
 
 ## Confirmed
 

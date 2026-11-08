@@ -107,6 +107,28 @@ local function AbilityRow(parent, e)
 	return row
 end
 
+-- "Also glow": a stance whose button glows too while the ability is lit and you're not in it.
+local function AlsoChoices()
+	local list = { { "none", "Nothing else" } }
+	for _, name in ipairs(ns.Bars.Forms()) do list[#list + 1] = { name, name } end
+	return list
+end
+
+local function AlsoRow(parent, e)
+	local row = UI.OptionSelect(parent, "      Also glow", AlsoChoices,
+		function() return ns.db.also[e.key] or "none" end,
+		function(v)
+			ns.db.also[e.key] = v ~= "none" and v or nil
+			ns.Refresh()
+		end,
+		{
+			font = "GameFontHighlightSmall", controlX = MODE_X, boxWidth = MODE_BOX,
+			tooltip = { "Also glow", "While " .. e.label .. " is lit and you're not in the stance picked here, that stance's button glows too: on the stance bar, and any action button holding it. It points you at the stance to switch to." },
+		})
+	row.entry = e
+	return row
+end
+
 Page({
 	id = "abilities",
 	label = "Abilities",
@@ -118,12 +140,18 @@ Page({
 			stack:Add(UI.OptionText(stack.inner, "Your class has no abilities Leproc tracks yet. So far it covers the ones that light after a block, dodge or parry: Revenge and Overpower (warrior), Riposte (rogue), Counterattack and Mongoose Bite (hunter).", 60))
 			return
 		end
+		local forms = #ns.Bars.Forms() > 0
+		panel.also = {}
 		for _, e in ipairs(list) do
 			panel.rows[#panel.rows + 1] = stack:Add(AbilityRow(stack.inner, e))
+			if forms then panel.also[#panel.also + 1] = stack:Add(AlsoRow(stack.inner, e)) end
 		end
 		stack:Add(UI.OptionText(stack.inner, "Leproc watches the blocks, dodges and parries the game reports, which addons can see in combat too. It never asks the game whether a button is usable, since that's what says no outside the right stance.", 54))
 	end,
-	defaults = function() ns.ResetModes() end,
+	defaults = function()
+		ns.ResetModes()
+		wipe(ns.db.also)
+	end,
 })
 
 Page({

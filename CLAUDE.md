@@ -66,6 +66,9 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     (`GetActionInfo`), and for a macro also every tracked ability its text
     names (`GetMacroInfo` by the name `C_ActionBar.GetActionText` gives;
     `#show`, `/cast*`, `/use` lines, any clause), so stance-dance macros count.
+    Stance bar buttons are found by name (`Stance…Button<n>`) for Also glow
+    (`ns.db.also[key]` = a stance's name; `Bars.Forms()` lists yours): the
+    stance's buttons glow while the ability is lit and you're not in it.
     `Bars.Update()` (glows and the countdown: `Track.Left(e)`; a 0.1 s ticker
     redraws only the lit buttons' numbers), `Bars.OnScreen(e)`. Diagnostics: `Bars.Report()`
     (`/leproc bars`), `Bars.MacroReport()` (`/leproc macros`),

@@ -15,6 +15,8 @@ change.
 - Buttons from any bar addon, found by scanning (2026-11-08).
 - Diagnostics: `/leproc bars`, `/leproc macros`, `/leproc why` (2026-11-08).
 - Optional countdown on lit buttons; Leproc in Options > AddOns (2026-11-08).
+- Also glow: a stance's button (stance bar, or an action button holding it)
+  while an ability is lit and you're not in that stance (2026-11-08).
 - Every bar on ProcGlow's list tested; late bar addons noticed; macros count
   for every tracked ability their text names, so stance-dance macros glow
   (2026-11-08).
@@ -24,19 +26,16 @@ change.
 Picked on 2026-11-08 from the ProcGlow comparison, in this order:
 
 1. Check 0.1.0 in game (TESTING.md).
-2. Also glow another button: the stance button an ability needs (stance bar,
-   or an action button holding the stance), while you're not in it.
-3. Buff procs: Forever's Bloodthrill (Overpower), Expose Prey (Mongoose Bite)
+2. Buff procs: Forever's Bloodthrill (Overpower), Expose Prey (Mongoose Bite)
    and Victorious (Victory Rush), then class procs (Clearcasting, Eclipse ->
    Starfire, Shadow Trance and others). Readable out of combat in any form; in
    combat through Blizzard's aura containers, as ProcGlow does: a slot per proc
    buff, the glow attached to it over the action button, so the game shows it
    with the buff and Leproc never reads it.
-4. Execute and Hammer of Wrath: target health is secret in Forever. Probe
+3. Execute and Hammer of Wrath: target health is secret in Forever. Probe
    whether the game can fade a glow by health percent (`UnitHealthPercent` with
    a curve); if not, they stay tied to their stance.
 
 ## Ideas
 
-- A glow on the stance button too, pointing to the stance an ability needs.
 - A per-ability glow, colour or sound.

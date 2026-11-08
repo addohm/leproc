@@ -9,6 +9,7 @@ local DEFAULTS = {
 	glow = "pixel", color = "gold",     -- the glow on a lit button (Glow.STYLES, Glow.COLORS)
 	sound = "none",                     -- played when an ability lights up (ns.SOUNDS)
 	countdown = false,                  -- the seconds left, on a lit button
+	also = {},                          -- key -> a stance whose button also glows (by its name)
 	window = {},                        -- the options window: pos, size, tab
 	minimap = { angle = 275, hide = false }, -- clear of Nothing Wasted (200), Ticky (225), Leboof (250)
 }
@@ -170,6 +171,9 @@ local function Why(e)
 		lines[#lines + 1] = "stance: needs " .. e.stance .. ", you're " .. (s.inStance and "in it" or "not in it")
 			.. (ns.Mode(e) == "stance" and "" or " (doesn't matter in Any stance)")
 	end
+	if ns.db.also[e.key] then
+		lines[#lines + 1] = "also glows: the " .. ns.db.also[e.key] .. " button, while it's lit and you're not in that stance"
+	end
 	local where = ns.Bars.Where(e)
 	lines[#lines + 1] = "on screen: " .. (#where > 0 and table.concat(where, ", ") or "|cffff8040no button you can see holds it|r")
 	Lines(lines)
@@ -220,6 +224,7 @@ SlashCmdList.LEPROC = function(msg)
 		ns.Print("profile: " .. ns.Profiles.Current() .. ". All: " .. table.concat(ns.Profiles.Names(), ", "))
 	elseif cmd == "reset" then
 		ns.ResetModes()
+		wipe(ns.db.also)
 		ns.db.glow, ns.db.color, ns.db.sound, ns.db.countdown = DEFAULTS.glow, DEFAULTS.color, DEFAULTS.sound, DEFAULTS.countdown
 		ns.Refresh()
 		ns.Print("reset.")
