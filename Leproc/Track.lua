@@ -29,10 +29,11 @@ local activeAt = {}   -- key -> when the game last said its window opened (for m
 local reportedAt = {} -- key -> { time, kind }: the last trigger report for it
 local stanceAt = -10  -- when the stance last changed
 
--- The kinds of trigger, for the delay: your own block/dodge/parry, and your target's dodge (whose
--- report came before the game's answer in the owner's PvP log).
+-- The kinds of trigger, for the delay: your own block/dodge/parry, and your target's dodge. The
+-- starting values are from the owner's logs: 0.2-0.9 s for your own (Defensive Stance tanking),
+-- 0.3-0.5 s for the target's (Overpower in Battle Stance).
 local KIND = { block = "player", dodge = "player", parry = "player", targetdodge = "target" }
-local DELAY = { player = 0.5, target = 0 }
+local DELAY = { player = 0.5, target = 0.4 }
 local MAX_DELAY = 1.5
 
 local function Secret(v)

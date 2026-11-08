@@ -33,6 +33,7 @@ All notable changes to leproc. The format follows
 ### Changed
 
 - In an ability's own stance the game decides: Revenge in Defensive Stance and Overpower in Battle Stance light the moment the game says they're usable and go dark the moment it says they aren't ("short of power" still glows). This fixes Overpower glowing after the game had ended it (2026-11-08).
+- The target's-dodge delay starts at 0.4 s, not 0: the owner's Battle Stance log showed those reports 0.3-0.5 s late too (2026-11-08).
 - Elsewhere Leproc's window is 5 s minus the measured delay of the game's block/dodge/parry reports (the owner's logs: 0.2-0.9 s late), so it no longer glows about half a second past the real end. The delay is learned while the game can answer, per kind of trigger, and shown by `/leproc why` (2026-11-08).
 - A guessed window the game contradicts closes when you switch into the ability's stance (2026-11-08).
 - `/leproc log` keeps 2000 lines, and logs the game opening and closing windows and each measured delay (2026-11-08).

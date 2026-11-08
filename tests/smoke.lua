@@ -507,6 +507,7 @@ WM.Advance(6)
 -- The game decides where it can. The owner's logs: the game makes Revenge usable 0.2-0.9 s
 -- before the report of the block reaches addons, and ends it 5 s after its own start.
 LeprocDB.delay = nil
+Check(ns.Track.Delay("player") == 0.5 and ns.Track.Delay("target") == 0.4, "the starting delays, from the owner's logs")
 WM.SetStance(2)
 WM.Advance(1)
 WM.Combat("player", "BLOCK", nil, 0.7)

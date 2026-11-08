@@ -121,6 +121,15 @@ Problems below.
   and stayed lit ~0.5 s too long. That also explains the first log's
   "usable before any trigger". Fixed in the next build: the game decides in
   the stance, the delay is measured and taken off elsewhere (item 19).
+- Fourth log (still the a89b890 build: the update hadn't been installed),
+  Battle Stance: the game opened Overpower at t635.9 and t643.8 and ended it
+  exactly 5.0 s later both times; the target-dodge reports came 0.5 s and
+  0.3 s after the game. So Overpower's window isn't short (the PvP case stays
+  unexplained), and target dodges are reported late too: their starting delay
+  is 0.4 s now. Same log: t667.3-668.5 the old build lit Revenge (cooldown
+  over) while the game said not usable, the false glow 0264c54 fixes; and
+  t144.9-148.6 a block in Battle Stance lit Revenge, the owner switched and
+  used it, as designed.
 
 - 9f623d4: with EllesmereUI's action bars, Revenge and Overpower said "not on a
   bar you can see" although both were on its bars: Leproc only looked at
