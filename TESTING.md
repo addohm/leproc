@@ -77,12 +77,13 @@ Problems below.
     Rogue: Cutthroat lights Ambush out of Stealth. Warlock: Shadow Trance and
     Decimation. Mage, shaman, paladin as in the README. Note which never
     light: their buff IDs are guesses from Forever's data.
-17. `/leproc log`, for the Overpower problem below: turn it on, fight a few
-    mobs in Battle and in Defensive Stance (solo, and in a group if you can),
-    note when Overpower glows but isn't usable, then `/leproc log show`,
-    Ctrl+C, and paste it to me. The lines to look for: "your target dodged
-    (target DODGE) -> window Overpower" and what "game says usable" right
-    after, and "game: Overpower ... usable" changes.
+17. `/leproc log`, for the Overpower problem below: turn it on, fight in
+    Battle Stance until Overpower glows after a dodge, then `/leproc log show`,
+    Ctrl+C, and paste it to me. What to look for: after "your target dodged",
+    the line where the game says Overpower is no longer usable, whether it says
+    "no (short of power)" or a plain "no", and what you cast just before.
+18. Death and combat end: after dying, or once combat ends, nothing glows
+    (the log says "windows cleared").
 
 ## Confirmed
 
@@ -93,7 +94,14 @@ Problems below.
 
 - 0ddf9ba / 118bbe5: Overpower glows when it isn't usable, on the spell and on
   a macro. No Bloodthrill talent, so it's the "your target dodged" window.
-  Being looked into with `/leproc log` (item 17).
+  The e4280bc log (party PvP, open world) showed: target dodged, the game said
+  Overpower usable 0.1 s later (so it was the owner's own attack), then not
+  usable 1.2 s after that, with no cast of it; Leproc kept glowing to 5 s.
+  Either rage ran short or Forever ends the window early: the next log says
+  which (item 17). Same log: Revenge lit after a death (fixed: windows clear
+  on death and at the end of combat); once, the game said Revenge was usable
+  on switching to Defensive Stance with no block, dodge or parry logged
+  before it (watch for this again).
 
 - 9f623d4: with EllesmereUI's action bars, Revenge and Overpower said "not on a
   bar you can see" although both were on its bars: Leproc only looked at

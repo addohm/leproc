@@ -130,14 +130,29 @@ function Track.Test()
 	end
 end
 
+-- Death and the end of combat close every window: nothing is left to use it on, and a cooldown
+-- ending later mustn't light it (it did after a death).
+function Track.Clear(why)
+	if next(open) == nil then return end
+	wipe(open)
+	ns.Log.Cleared(why)
+	Track.Update()
+end
+
 local events = CreateFrame("Frame")
 events:RegisterUnitEvent("UNIT_COMBAT", "player", "target")
 events:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+events:RegisterEvent("PLAYER_DEAD")
+events:RegisterEvent("PLAYER_REGEN_ENABLED")
 -- (A stance change is handled in Bars.lua, once the bars have changed too.)
 events:SetScript("OnEvent", function(_, event, a, b, c)
 	if event == "UNIT_COMBAT" then
 		Track.OnUnitCombat(a, b, c)
 	elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
 		Track.OnCast(c)
+	elseif event == "PLAYER_DEAD" then
+		Track.Clear("you died")
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		Track.Clear("combat ended")
 	end
 end)

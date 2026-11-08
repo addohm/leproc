@@ -25,8 +25,14 @@ All notable changes to leproc. The format follows
 - `tools/install_forever.cmd` and `tools/make_release.py`, copied from Leboof for a `Leproc` addon folder, plus `.gitattributes` and `.gitignore` (2026-11-08).
 - Standard docs: README, CLAUDE, CHANGELOG, DEPLOY, SECURITY and ROADMAP (2026-11-08).
 
+### Fixed
+
+- A window lasted past your death: a cooldown ending afterwards lit Revenge while you were dead. Dying and the end of combat now close every window (2026-11-08).
+- `/leproc log` timestamps mixed the clock's seconds with the game timer's tenths, putting lines out of order: it now shows the clock, then the game's timer (2026-11-08).
+
 ### Changed
 
+- `/leproc log`: "no (short of power)" when rage, energy or mana is the only reason; every spell you cast; deaths; only your class's abilities in a trigger's line (2026-11-08).
 - Abilities tab: "(not on screen)" instead of "(not on a bar you can see)", which wrapped onto the next row (2026-11-08).
 - `ProcGlow/` (the design example, someone else's addon) is no longer tracked, and is git-ignored (2026-11-08).
 - Docs filled in with what's known so far; open questions left as TODOs (2026-11-08).

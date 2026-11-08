@@ -52,11 +52,13 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     `ns.db` is the one in use.
   - `Glow.lua`: Leboof's glow styles (`Glow.Build`, `Glow.Show`).
   - `Track.lua`: the trigger windows (`UNIT_COMBAT`), casts and cooldowns
-    (`UNIT_SPELLCAST_SUCCEEDED`), the stance check (`GetShapeshiftFormInfo`),
+    (`UNIT_SPELLCAST_SUCCEEDED`), `Track.Clear` on death and at the end of
+    combat, the stance check (`GetShapeshiftFormInfo`),
     `Track.IsLit(e)`, `Track.Update()` (also plays the sound), `Track.Test()`.
   - `Log.lua`: `/leproc log`: triggers (`Log.Trigger`), glows (`Log.Glow`),
-    casts (`Log.Cast`), stance and target changes, and the game's own usable
-    answers (`C_Spell.IsSpellUsable`, `C_ActionBar.IsUsableAction`,
+    every cast (tracked ones via `Log.Cast`), stance and target changes,
+    deaths, cleared windows, and the game's own usable answers ("no (short of
+    power)" from noMana/insufficientPower) (`C_Spell.IsSpellUsable`, `C_ActionBar.IsUsableAction`,
     `ACTION_USABLE_CHANGED`, `SPELL_UPDATE_USABLE`; only changes). Kept in
     `LeprocDB.log` (last 300, account-wide); `LeprocLog` is its copy window.
   - `Procs.lua`: proc buffs (`buff`, `buffIds` in the catalogue). An
