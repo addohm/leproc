@@ -34,8 +34,16 @@ Revenge kept only on the Defensive Stance page has no button to light in Battle
 Stance. Bars 2 to 8 stay the same in every stance. The Abilities tab ("not on
 screen") and `/leproc list` say when an ability isn't on a bar you can see.
 
-**Bar addons work too:** Leproc finds action buttons from any addon
-(EllesmereUI, Bartender, Dominos, ElvUI...), not only Blizzard's.
+**Bar addons work too:** Leproc finds action buttons from any addon, not only
+Blizzard's: every bar ProcGlow knows (Blizzard's, EllesmereUI, Bartender,
+Dominos, ElvUI, the gamepad bars) and any other. Bars built a while after login
+are picked up too.
+
+**Macros count by their text.** A macro that names a tracked ability on a
+`/cast`, `/castsequence`, `/use` or `#showtooltip` line is that ability's
+button, in any clause. So a stance-dance macro like
+`/cast [nostance:2] Defensive Stance; Revenge` glows for Revenge in Battle
+Stance, even though pressing it there would switch stance first.
 
 ## Usage
 

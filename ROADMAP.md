@@ -13,6 +13,9 @@ change.
   (2026-11-08). Tried in game: the window opens; abilities on EllesmereUI's
   bars weren't found.
 - Buttons from any bar addon, found by scanning (2026-11-08).
+- Every bar on ProcGlow's list tested; late bar addons noticed; macros count
+  for every tracked ability their text names, so stance-dance macros glow
+  (2026-11-08).
 
 ## Next
 

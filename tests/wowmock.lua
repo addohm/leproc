@@ -131,15 +131,48 @@ function M.AddonBar(name, slots, how)
 	return bar
 end
 
--- Action slots: WM.SetAction(slot, spellID) or WM.SetAction(slot, spellID, "macro").
+-- One named button of a bar addon (ProcGlow's list), holding `slot` the way `how` says:
+-- "action" (the field), "state" (`_state_action`) or "attribute".
+function M.Button(name, parent, how, slot)
+	local b = NewFrame("CheckButton", name, parent)
+	b:SetSize(38, 38)
+	if how == "attribute" then b:SetAttribute("action", slot)
+	elseif how == "state" then b._state_action = slot
+	else b.action = slot end
+	_G[name] = b
+	return b
+end
+
+-- Action slots: WM.SetAction(slot, spellID) or WM.SetAction(slot, spellID, "macro") (a macro
+-- whose text isn't known). WM.SetMacro(slot, index, name, body, castsNow) puts macro `index`
+-- on the slot; castsNow is the spell it would cast right now (nil: none). As on Forever, the
+-- slot then reports that spell's ID, not the macro's index.
+M.macros = {}
 function M.SetAction(slot, spellID, kind)
 	M.actions[slot] = spellID and { kind or "spell", spellID } or nil
+end
+function M.SetMacro(slot, index, name, body, castsNow)
+	M.macros[index] = { name = name, body = body }
+	M.actions[slot] = { "macro", castsNow or index, castsNow and "spell" or nil, name = name }
 end
 function GetActionInfo(slot)
 	local a = M.actions[slot]
 	if not a then return nil end
-	if a[1] == "macro" then return "macro", a[2], "spell" end
+	if a[1] == "macro" then
+		if a.name then return "macro", a[2], a[3] end
+		return "macro", a[2], "spell"
+	end
 	return "spell", a[2]
+end
+C_ActionBar = { GetActionText = function(slot)
+	local a = M.actions[slot]
+	return a and a.name or nil
+end }
+-- GetMacroInfo(index or name): name, icon, body.
+function GetMacroInfo(which)
+	for index, m in pairs(M.macros) do
+		if index == which or m.name == which then return m.name, 134400, m.body end
+	end
 end
 
 -- Stances: index 1 Battle (2457), 2 Defensive (71). WM.SetStance(1 or 2, or 0 for none).
@@ -210,8 +243,8 @@ C_Timer = {
 		table.insert(M.timers, t)
 		return t
 	end,
-	NewTicker = function(seconds, fn)
-		local t = { at = M.now + seconds, every = seconds, fn = fn }
+	NewTicker = function(seconds, fn, iterations)
+		local t = { at = M.now + seconds, every = seconds, fn = fn, left = iterations }
 		function t:Cancel() self.cancelled = true end
 		table.insert(M.timers, t)
 		return t
@@ -226,7 +259,15 @@ function M.Advance(seconds)
 		end
 		if not next then break end
 		M.now = next.at
-		if next.every then next.at = next.at + next.every else next.cancelled = true end
+		if next.every then
+			next.at = next.at + next.every
+			if next.left then
+				next.left = next.left - 1
+				if next.left <= 0 then next.cancelled = true end
+			end
+		else
+			next.cancelled = true
+		end
 		next.fn()
 	end
 	M.now = target

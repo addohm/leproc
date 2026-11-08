@@ -33,7 +33,10 @@ Problems below.
 5. Glow tab: each style shows on the sample and on the buttons (Test). Do Modern
    and Classic line up with the button? Pick a sound, block: it plays once per
    lighting, in combat too.
-6. Macros: a macro that casts Revenge glows like the spell does.
+6. Macros: a macro that casts Revenge glows like the spell does. A
+   stance-dance macro (`/cast [nostance:2] Defensive Stance; Revenge`) glows in
+   Battle Stance after a block. A macro naming both
+   (`/cast [stance:1] Overpower; [stance:2] Revenge`) glows for either.
 7. Minimap button: click opens the window, right-click runs the test, drag
    moves it, clear of Nothing Wasted's, Ticky's and Leboof's buttons.
 8. Profiles tab: as Leboof's. Each character's own profile is named by first and
@@ -41,8 +44,9 @@ Problems below.
 9. Other classes: a rogue's Riposte after a parry; a hunter's Counterattack
    (parry) and Mongoose Bite (your dodge).
 10. With EllesmereUI's action bars: the Abilities tab no longer says "not on
-    screen" for abilities on its bars, and they glow there (2a to 2f again).
-    Also with no bar addon. Bartender, Dominos or ElvUI, if you have one.
+    screen" for abilities on its bars, and they glow there (2a to 2f again),
+    right after login and after a `/reload`. Also with no bar addon.
+    Bartender, Dominos or ElvUI, if you have one.
 
 ## Confirmed
 

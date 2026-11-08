@@ -227,10 +227,12 @@ Check(ns.Profiles.Current() == "Tester Smith" and LeprocDB.profiles.Tester == ni
 -- which hold their slot in `_state_action`, possibly after login. Leproc finds them by scanning.
 WM.mainBar:Hide()
 WM.bottomLeft:Hide()
-local eab = WM.AddonBar("EAB", { 73, 61 }, "state")
-Check(not ns.Bars.OnScreen(ns.byKey.revenge), "Blizzard's bars are hidden and the EAB bar isn't scanned yet")
 WM.Fire("PLAYER_ENTERING_WORLD")
-Check(ns.Bars.OnScreen(ns.byKey.revenge) and ns.Bars.OnScreen(ns.byKey.overpower), "the EAB buttons should be found")
+Check(not ns.Bars.OnScreen(ns.byKey.revenge), "Blizzard's bars are hidden and there's no other bar yet")
+-- EllesmereUI builds its bars late, with no event Leproc listens to: the 2 s watch finds them.
+local eab = WM.AddonBar("EAB", { 73, 61 }, "state")
+WM.Advance(2)
+Check(WM.Glowing(EABButton1) == false and ns.Bars.OnScreen(ns.byKey.revenge) and ns.Bars.OnScreen(ns.byKey.overpower), "the late EAB buttons should be found")
 WM.Combat("player", "PARRY")
 Check(WM.Glowing(EABButton2) and not WM.Glowing(EABButton1), "Revenge should glow on EllesmereUI's button")
 Check(not WM.Glowing(Fixed1), "Blizzard's hidden button shouldn't glow")
@@ -256,6 +258,64 @@ bt:Hide()
 WM.mainBar:Show()
 WM.bottomLeft:Show()
 EABButton1._state_action = 73
+
+-- Every bar on ProcGlow's list is found, however the button holds its slot. Each holds Revenge
+-- (a different rank or slot each) and glows after a block.
+WM.mainBar:Hide()
+WM.bottomLeft:Hide()
+local listed = WM.AddonBar("Listed", {}, "state")
+local LIST = {
+	{ "MultiBarBottomRightButton1", "action" }, { "MultiBarRightButton1", "action" },
+	{ "MultiBarLeftButton1", "action" }, { "MultiBar5Button1", "action" }, { "MultiBar6Button1", "action" },
+	{ "MultiBar7Button1", "action" }, { "MultiBar8Button1", "action" },
+	{ "BT4Button1", "state" }, { "BT4Button120", "attribute" },
+	{ "DominosActionButton1", "attribute" }, { "DominosActionButton120", "action" },
+	{ "ElvUI_Bar1Button1", "state" }, { "ElvUI_Bar15Button12", "state" },
+	{ "EABButton180", "state" },
+	{ "GamepadMainActionBarFramePageUnitBottomCenteredAnchorBottomBarActionButton1", "action" },
+	{ "GamepadMainActionBarFramePageUnitShortcutsActionBarActionButton1", "action" },
+}
+for i, b in ipairs(LIST) do
+	WM.SetAction(120 + i, REVENGE)
+	WM.Button(b[1], listed, b[2], 120 + i)
+end
+WM.Fire("PLAYER_ENTERING_WORLD")
+WM.Combat("player", "BLOCK")
+for _, b in ipairs(LIST) do
+	Check(WM.Glowing(_G[b[1]]), b[1] .. " (" .. b[2] .. ") should be found and glow")
+end
+WM.Advance(6)
+listed:Hide()
+
+-- Macros: a stance-dance macro names Revenge, so its button is Revenge's even while it would
+-- cast Defensive Stance; one naming both abilities lights for either; #showtooltip counts; a
+-- macro naming no tracked ability doesn't light.
+local DEFENSIVE = 71
+local mbar = WM.AddonBar("Macros", {}, "state")
+WM.SetMacro(140, 1, "Rev", "#showtooltip\n/cast [nostance:2] Defensive Stance; Revenge", DEFENSIVE)
+WM.SetMacro(141, 2, "Both", "/cast [stance:1] Overpower; [stance:2] !Revenge(Rank 6)", OVERPOWER)
+WM.SetMacro(142, 3, "Tip", "#showtooltip Revenge\n/startattack\n/cast Revenge", nil)
+WM.SetMacro(143, 4, "Other", "/cast [nostance:2] Defensive Stance; Shield Block", DEFENSIVE)
+WM.SetMacro(144, 5, "Seq", "/castsequence reset=5 Sunder Armor, Revenge", nil)
+local mRev = WM.Button("MacroRev", mbar, "action", 140)
+local mBoth = WM.Button("MacroBoth", mbar, "action", 141)
+local mTip = WM.Button("MacroTip", mbar, "action", 142)
+local mOther = WM.Button("MacroOther", mbar, "action", 143)
+local mSeq = WM.Button("MacroSeq", mbar, "action", 144)
+WM.Fire("PLAYER_ENTERING_WORLD")
+WM.Combat("player", "WOUND", "BLOCK_REDUCED")
+Check(WM.Glowing(mRev), "a stance-dance macro should glow for Revenge in Battle Stance")
+Check(WM.Glowing(mBoth), "a macro naming Revenge in another clause should glow")
+Check(WM.Glowing(mTip), "a macro with #showtooltip Revenge should glow")
+Check(WM.Glowing(mSeq), "a /castsequence with Revenge should glow")
+Check(not WM.Glowing(mOther), "a macro without a tracked ability shouldn't glow")
+WM.Advance(6)
+WM.Combat("target", "DODGE")
+Check(WM.Glowing(mBoth) and not WM.Glowing(mRev), "the two-ability macro should glow for Overpower too")
+WM.Advance(6)
+mbar:Hide()
+WM.mainBar:Show()
+WM.bottomLeft:Show()
 
 -- Other classes: a rogue sees Riposte, a priest sees none.
 WM.class = "ROGUE"

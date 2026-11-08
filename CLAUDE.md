@@ -56,12 +56,17 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     `Track.IsLit(e)`, `Track.Update()` (also plays the sound), `Track.Test()`.
   - `Bars.lua`: finds action buttons from any bar addon (`Bars.Scan`: every
     frame via `EnumerateFrames` that's a Button/CheckButton holding a slot, out
-    of combat, at login, on entering the world and 3 s later, after combat if
-    it had to wait), gives each an overlay, reads what it holds
-    (`GetActionInfo(slot)`: a spell, or a macro that casts one),
-    `Bars.Update()`, `Bars.OnScreen(e)`. A button's slot: `_state_action`
-    (paging buttons, EllesmereUI's `EABButton`s), else `action` (Blizzard's),
-    else the "action" attribute (secure action template).
+    of combat: at login, on entering the world, after combat if it had to
+    wait). `Bars.LATE` is the first button of each bar addon on ProcGlow's list
+    (EllesmereUI, Bartender, Dominos, ElvUI, gamepad): `Bars.CheckLate()` scans
+    again when one turns up without an overlay, every 2 s for 30 s after
+    entering the world and on every update. A button's slot: `_state_action`
+    (paging buttons), else `action` (Blizzard's), else the "action" attribute
+    (secure action template). What it holds (`EntriesOn`): the spell
+    (`GetActionInfo`), and for a macro also every tracked ability its text
+    names (`GetMacroInfo` by the name `C_ActionBar.GetActionText` gives;
+    `#show`, `/cast*`, `/use` lines, any clause), so stance-dance macros count.
+    `Bars.Update()`, `Bars.OnScreen(e)`.
   - `UI/Widgets.lua`, `UI/Window.lua`, `UI/Minimap.lua`: Leboof's, adapted.
     `UI/Pages.lua`: the Abilities, Glow, General and Profiles tabs.
   - `Media/Icon.tga`: the in-game icon, drawn by `art/make_logo.py`. Never edit
@@ -76,7 +81,8 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
 - `tools/make_release.py`: builds `release/Leproc-<version>.zip` from the
   committed `Leproc/` folder
 - `tests/`: `wowmock.lua` (a fake client: action buttons with stance pages,
-  bar addons' buttons (`WM.AddonBar`), `EnumerateFrames`,
+  bar addons' buttons (`WM.AddonBar`, `WM.Button`), macros with text
+  (`WM.SetMacro`), `EnumerateFrames`,
   combat events, a clock), `smoke.lua` (scenarios), `run_tests.py`.
 - `ProcGlow/`: someone else's addon, a design example only (git-ignored, local)
 - `.scratch/`: git-ignored downloads (Blizzard UI source, the wago.tools CSV).
@@ -113,9 +119,14 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
 - **A partial block is a `WOUND` flagged `BLOCK_REDUCED`** (most Classic blocks
   are partial); a full block is `BLOCK`, or a `WOUND` flagged `BLOCK`
   (CombatFeedback.lua).
-- **Find buttons by what they hold, not by name.** No list of bar addons'
-  frame names: any button with an action slot counts, and hidden ones (Blizzard's
-  under EllesmereUI) never glow because they aren't visible.
+- **Find buttons by what they hold, not by name**, so any bar addon works:
+  any button with an action slot counts, and hidden ones (Blizzard's under
+  EllesmereUI) never glow because they aren't visible. The tests check every
+  bar on ProcGlow's list by name; names are only used to notice late bars
+  (`Bars.LATE`).
+- **ProcGlow is the reference for what the addon must handle** (bars, macros,
+  abilities, edge cases): check how it handles something before building the
+  same thing, and take the idea, never the code.
 - **Glows go on Leproc's own overlay frames**, never on the buttons themselves:
   don't set fields or scripts on the buttons, and don't call protected functions.
   Display only: never automate anything.
