@@ -138,8 +138,10 @@ the game's addon menu by the minimap, or Options > AddOns > Leproc. It has four 
   dungeon's worth). It also logs when the game opens or closes a window,
   each measured delay, and Blizzard's own proc highlights (button highlights
   and screen alerts, for any spell), with whether the ability is highlighted
-  at each trigger: a probe for a signal that might tell your own dodged
-  attacks from your party's.
+  at each trigger, and the game's reactive alerts (the floating "<Overpower>"
+  when one of your reactive abilities becomes active), with the combat text
+  settings when the log starts: probes for a signal that might tell your own
+  dodged attacks from your party's.
 - `/leproc minimap`, `/leproc profile`, `/leproc reset`.
 
 **Minimap button:** click for the window, right-click for the test, drag to move

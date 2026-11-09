@@ -71,7 +71,11 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     `ACTION_USABLE_CHANGED`, `SPELL_UPDATE_USABLE`; only changes), and
     Blizzard's proc highlights (`SPELL_ACTIVATION_OVERLAY_*`, any spell;
     `C_SpellActivationOverlay.IsSpellOverlayed` at each trigger), a probe for
-    a stance-independent "your own attack was dodged" signal. Kept in
+    a stance-independent "your own attack was dodged" signal, and the game's
+    reactive alerts (`COMBAT_TEXT_UPDATE` "SPELL_ACTIVE"; the name from
+    `C_CombatText.GetCurrentEventInfo` is secret, the type isn't), the second
+    probe (the owner's rule: Overpower only for his own dodged attacks; the
+    combat log, which names the attacker, is blocked for addons). Kept in
     `LeprocDB.log` (last 2000, account-wide); `LeprocLog` is its copy window.
   - `Procs.lua`: proc buffs (`buff`, `buffIds` in the catalogue). An
     AuraContainer (`CustomAuraContainerTemplate`) with a slot per proc buff;

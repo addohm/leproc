@@ -455,6 +455,7 @@ ns.Refresh()
 
 -- /leproc log: triggers, glows, casts, and what the game says, with secret values shown as such.
 out = PrintedNow(function() WM.Slash("log") end)
+Check(out:find("combat text settings: enableFloatingCombatText 1, floatingCombatTextReactives 1"), "log on shows the combat text settings: " .. out)
 Check(out:find("log on") and out:find("Overpower now: game says usable: spell no, button slot 73 no, highlighted: no, in Battle Stance"), "log on: " .. out)
 out = PrintedNow(function() WM.Combat("target", "DODGE") end)
 Check(out:find("your target dodged %(target DODGE%) %-> window Overpower %(%d.%d s, allowing for the delay%), in Battle Stance"), "log: the trigger: " .. out)
@@ -479,6 +480,17 @@ out = PrintedNow(function() WM.Cast(OVERPOWER) end)
 Check(out:find("you cast Overpower %-> its window closes, dark for its 5 s cooldown") and out:find("Overpower glow off"), "log: the cast: " .. out)
 out = PrintedNow(function() WM.Fire("PLAYER_TARGET_CHANGED") end)
 Check(out:find("new target"), "log: target change: " .. out)
+-- The reactive-alert probe: the game's "<Overpower>" combat text, with the spell when readable.
+WM.combatText = "Overpower"
+out = PrintedNow(function() WM.Fire("COMBAT_TEXT_UPDATE", "SPELL_ACTIVE") end)
+Check(out:find("game: reactive alert %(SPELL_ACTIVE%) for Overpower, in Battle Stance"), "log: reactive alert: " .. out)
+issecretvalue = function(v) return v == "SECRET" end
+WM.combatText = "SECRET"
+out = PrintedNow(function() WM.Fire("COMBAT_TEXT_UPDATE", "SPELL_ACTIVE") end)
+Check(out:find("for a spell the game hides"), "log: hidden reactive alert: " .. out)
+issecretvalue = nil
+out = PrintedNow(function() WM.Fire("COMBAT_TEXT_UPDATE", "DAMAGE") end)
+Check(out == "", "log: other combat text isn't logged: " .. out)
 -- The proc-highlight probe: Blizzard's events for any spell, and at a trigger whether the
 -- ability is highlighted (any rank).
 out = PrintedNow(function() WM.Fire("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW", 11584) end)

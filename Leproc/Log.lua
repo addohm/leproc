@@ -9,6 +9,9 @@
 --   SHOW/HIDE) for any spell, and at each trigger whether the game highlights the ability
 --   (C_SpellActivationOverlay.IsSpellOverlayed): a probe for a signal that might say "your own
 --   attack was dodged" in any stance (Forever's Bloodthrill speaks of "an activation of Overpower").
+--   The game's reactive alerts (COMBAT_TEXT_UPDATE "SPELL_ACTIVE": the floating "<Overpower>" when
+--   one of your reactive abilities becomes active; its spell name may be hidden): another probe.
+--   Only for you, so next to "your target dodged" it would say the dodged attack was yours.
 -- Asking the game is for this log only: the glows never do (outside the right stance it says no).
 local _, ns = ...
 
@@ -174,6 +177,20 @@ for _, event in ipairs({ "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW", "SPELL_ACTIVATION
 	"SPELL_ACTIVATION_OVERLAY_SHOW", "SPELL_ACTIVATION_OVERLAY_HIDE" }) do
 	pcall(events.RegisterEvent, events, event)
 end
+pcall(events.RegisterEvent, events, "COMBAT_TEXT_UPDATE")
+
+-- The floating combat text settings that decide whether the game sends reactive alerts.
+local function CombatTextSettings()
+	local get = (C_CVar and C_CVar.GetCVar) or GetCVar
+	if not get then return "unknown" end
+	local parts = {}
+	for _, name in ipairs({ "enableFloatingCombatText", "floatingCombatTextReactives" }) do
+		local ok, v = pcall(get, name)
+		parts[#parts + 1] = name .. " " .. ((ok and v ~= nil) and Value(v) or "-")
+	end
+	return table.concat(parts, ", ")
+end
+
 local HIGHLIGHTS = {
 	SPELL_ACTIVATION_OVERLAY_GLOW_SHOW = "game: button highlight ON for ",
 	SPELL_ACTIVATION_OVERLAY_GLOW_HIDE = "game: button highlight off for ",
@@ -208,6 +225,12 @@ events:SetScript("OnEvent", function(_, event, changes, _, spellID)
 		end
 	elseif event == "PLAYER_DEAD" then
 		Log.Add("you died")
+	elseif event == "COMBAT_TEXT_UPDATE" then
+		if changes ~= "SPELL_ACTIVE" then return end
+		local spell = "a spell the game hides"
+		local ok, data = pcall(C_CombatText.GetCurrentEventInfo)
+		if ok and type(data) == "string" and not (issecretvalue and issecretvalue(data)) then spell = data end
+		Log.Add("game: reactive alert (SPELL_ACTIVE) for " .. spell .. ", in " .. Stance())
 	elseif HIGHLIGHTS[event] then
 		local id = changes
 		Log.Add(HIGHLIGHTS[event] .. (id ~= nil and SpellLabel(id) or "everything") .. ", in " .. Stance())
@@ -225,6 +248,7 @@ function Log.SetOn(on)
 	wipe(said)
 	if on then
 		ns.Print("log on: triggers, glows, casts and what the game says about your abilities are listed here. /leproc log show to copy it, /leproc log off to stop.")
+		Log.Add("combat text settings: " .. CombatTextSettings())
 		said.stance = Stance()
 		for _, e in ipairs(ClassEntries()) do
 			said["spell" .. e.key] = SpellAnswer(e)

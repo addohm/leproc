@@ -374,6 +374,11 @@ function M.Played(name)
 	for _, id in ipairs(M.sounds) do if id == SOUNDKIT[name] then return true end end
 	return false
 end
+-- Floating combat text: C_CombatText.GetCurrentEventInfo gives WM.combatText for the event being
+-- handled; the settings are WM.cvars.
+M.cvars = { enableFloatingCombatText = "1", floatingCombatTextReactives = "1" }
+C_CombatText = { GetCurrentEventInfo = function() return M.combatText end }
+C_CVar = { GetCVar = function(name) return M.cvars[name] end }
 -- Blizzard's proc highlights: WM.overlayed[spellID] = true while the game highlights it.
 M.overlayed = {}
 C_SpellActivationOverlay = { IsSpellOverlayed = function(id) return M.overlayed[id] == true end }

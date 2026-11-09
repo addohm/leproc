@@ -106,6 +106,16 @@ Problems below.
 21. Out of combat, your target's dodges are ignored: with `/leproc log` on,
     target someone a party member is fighting before you pull: "-> ignored:
     you're not in combat", and no Overpower glow.
+22. The reactive-alert probe (log only), the owner's rule: "if something dodges
+    MY attack, light Overpower". First make sure the game sends the alerts:
+    `/console enableFloatingCombatText 1` and
+    `/console floatingCombatTextReactives 1` (or the "Reactive spells" combat
+    text option); `/leproc log` prints both settings when it starts. Then
+    fight with Overpower procs in Battle Stance and in Defensive Stance, in a
+    group, with the game's combat log saved. In the log: does "game: reactive
+    alert (SPELL_ACTIVE)" come right after "your target dodged" when it was
+    your attack (combat log: "Kam's ... was dodged"), never after a party
+    member's, and in Defensive Stance too? Send both logs.
 
 ## Confirmed
 
