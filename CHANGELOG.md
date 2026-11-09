@@ -8,9 +8,15 @@ All notable changes to leproc. The format follows
 
 ### Added
 
+- `tools/compare_logs.py`: compares Leproc's log with the game's combat log from the same session: when Overpower and Revenge should have been lit (your dodged attacks, your blocks, dodges and parries, your casts), false glows and misses with the stance and trigger, and whose attack each "your target dodged" was, with the probes that came with it (2026-11-09).
+
 - `/leproc log` logs the game's reactive alerts (`COMBAT_TEXT_UPDATE` "SPELL_ACTIVE", the floating "<Overpower>"; the spell's name when readable) and, when the log starts, the floating combat text settings. A probe: the alert is only ever for you, so next to "your target dodged" it would mark the dodged attack as yours (2026-11-09).
 
 - `/leproc log` logs Blizzard's proc highlights (`SPELL_ACTIVATION_OVERLAY_GLOW_SHOW`/`HIDE`, `SPELL_ACTIVATION_OVERLAY_SHOW`/`HIDE`, any spell) and, at each trigger, whether the game highlights the ability. A probe: if Forever highlights Overpower after your own dodged attack in any stance, party members' dodges could stop counting (2026-11-09).
+
+### Changed
+
+- `/leproc log` keeps 10000 lines (several dungeons), up from 2000; the copy window shows the newest 3000, and all are in Leproc.lua after a `/reload` (2026-11-09).
 
 ### Fixed
 

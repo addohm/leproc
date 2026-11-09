@@ -4,6 +4,23 @@ What to check after installing a build (`tools\install_forever.cmd`, then
 `/reload`). Note the build `/leproc help` shows. Results go in Confirmed or
 Problems below.
 
+## Capturing a session for comparison
+
+Leproc's log says what Leproc saw and did; the game's combat log says what
+really happened (whose attack was dodged). Together, `tools/compare_logs.py`
+shows every false glow and miss and which signals came with each dodge.
+
+1. Install the latest build; `/leproc help` shows it.
+2. `/console enableFloatingCombatText 1` and
+   `/console floatingCombatTextReactives 1` (for the reactive-alert probe).
+3. `/leproc log clear`, `/leproc log`.
+4. `/combatlog` (chat confirms; again after a logout or `/reload` if it
+   doesn't). Advanced combat logging isn't needed.
+5. Play. Then `/combatlog` to stop, `/reload` (saves Leproc's log).
+6. Send `WTF\Account\<account>\SavedVariables\Leproc.lua` and the newest
+   `Logs\WoWCombatLog...txt` (zipped). Leproc keeps 10000 lines: several
+   dungeons.
+
 ## To check (0.1.0)
 
 0. First install: fully restart the game. The AddOns list and the addon

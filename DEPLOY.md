@@ -82,4 +82,6 @@ each character uses.
   from each macro, `/leproc log` every trigger and glow as it happens (and what
   the game says), to copy with `/leproc log show`. A bar addon that builds its buttons late is noticed for 30 s
   after entering the world; `/reload` scans again too.
+- Wrong glows: capture `/leproc log` and `/combatlog` from the same session
+  (TESTING.md, "Capturing a session") and run `tools/compare_logs.py` on them.
 - Lua errors: turn them on with `/console scriptErrors 1` and send the text.

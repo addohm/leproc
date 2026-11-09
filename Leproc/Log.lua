@@ -1,5 +1,5 @@
 -- Leproc: /leproc log, for finding out why an ability lights when it shouldn't (or the other way
--- round). While it's on, it prints and keeps (the last 2000 lines, account-wide in LeprocDB.log):
+-- round). While it's on, it prints and keeps (the last 10000 lines, account-wide in LeprocDB.log):
 --   every trigger the game reports (UNIT_COMBAT), the windows it opens, the stance you're in;
 --   every glow turning on or off, every spell you cast, stance and target changes, deaths;
 --   what the game itself says about your class's abilities being usable: at each trigger, and
@@ -18,7 +18,8 @@ local _, ns = ...
 local Log = {}
 ns.Log = Log
 
-local MAX = 2000
+local MAX = 10000 -- several dungeons; about 1 MB in Leproc.lua
+local SHOWN = 3000 -- the copy window shows the newest lines (a bigger text box gets slow)
 
 local TRIGGERS = {
 	block = "you blocked", dodge = "you dodged", parry = "you parried", targetdodge = "your target dodged",
@@ -306,7 +307,17 @@ function Log.Show()
 		window.box = box
 	end
 	local entries = Data().entries
-	window.box:SetText(#entries > 0 and table.concat(entries, "\n") or "Nothing logged yet. /leproc log turns the log on.")
+	local text
+	if #entries == 0 then
+		text = "Nothing logged yet. /leproc log turns the log on."
+	elseif #entries <= SHOWN then
+		text = table.concat(entries, "\n")
+	else
+		text = "(The newest " .. SHOWN .. " of " .. #entries .. " lines. All of them are saved in "
+			.. "WTF\\Account\\<account>\\SavedVariables\\Leproc.lua after a /reload or logout.)\n"
+			.. table.concat(entries, "\n", #entries - SHOWN + 1, #entries)
+	end
+	window.box:SetText(text)
 	window:Show()
 	window.box:SetFocus()
 	window.box:HighlightText()

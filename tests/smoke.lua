@@ -525,8 +525,11 @@ WM.Slash("log off")
 out = PrintedNow(function() WM.Fire("PLAYER_TARGET_CHANGED") end)
 Check(out == "", "log off: nothing logged: " .. out)
 LeprocDB.log.on = true
-for i = 1, 2010 do ns.Log.Add("line " .. i) end
-Check(#LeprocDB.log.entries == 2000 and LeprocDB.log.entries[2000]:find("line 2010"), "the log keeps the last 2000 lines")
+for i = 1, 10010 do ns.Log.Add("line " .. i) end
+Check(#LeprocDB.log.entries == 10000 and LeprocDB.log.entries[10000]:find("line 10010"), "the log keeps the last 10000 lines")
+WM.Slash("log show")
+local shown = LeprocLog.box.text
+Check(shown:find("^%(The newest 3000 of 10000 lines") and shown:find("line 10010$") and not shown:find("line 7010\n"), "the window shows the newest 3000")
 LeprocDB.log.on = false
 WM.Slash("log clear")
 Check(#LeprocDB.log.entries == 0, "log clear")

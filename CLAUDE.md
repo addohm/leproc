@@ -76,7 +76,8 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     `C_CombatText.GetCurrentEventInfo` is secret, the type isn't), the second
     probe (the owner's rule: Overpower only for his own dodged attacks; the
     combat log, which names the attacker, is blocked for addons). Kept in
-    `LeprocDB.log` (last 2000, account-wide); `LeprocLog` is its copy window.
+    `LeprocDB.log` (last 10000, account-wide; about 1 MB); `LeprocLog` is its
+    copy window (the newest 3000).
   - `Procs.lua`: proc buffs (`buff`, `buffIds` in the catalogue). An
     AuraContainer (`CustomAuraContainerTemplate`) with a slot per proc buff;
     the game shows a slot's button only while you have the buff
@@ -118,6 +119,15 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   `v<version>`).
 - `tools/gen_data.py`: fetches Forever's SpellName table from wago.tools and
   writes `Data.lua` (every ID for each ability and stance name).
+- `tools/compare_logs.py <leproc log> <WoWCombatLog.txt> [--player Kam]`: the
+  ground truth from the game's combat log (whose attack was dodged, blocks,
+  parries, casts) against Leproc's log (copied text or `Leproc.lua`): when
+  Overpower and Revenge should have been lit, false glows and misses with
+  the stance and the trigger, and for every "your target dodged" whose attack
+  it was and whether the probes came with it. Tested on
+  `tests/fixtures/` (made-up logs in the real formats) by `run_tests.py`.
+  Check its parsing against the first real combat log (the damage suffix's
+  "blocked" position, the 17 advanced params).
 - `tools/forever_tooltips.py <names>`: Wowhead's Forever tooltip for every ID
   with each name, to check a spell or proc buff before adding it.
 - `tools/install_forever.cmd`: Windows; pulls, mirrors `Leproc/` into the
@@ -131,7 +141,8 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   game's reactive state (`WM.Combat(unit, event, flags, lag)` sets it at once
   and reports `lag` s later, like the real game; `WM.GameUsable`, `WM.short`),
   `EnumerateFrames`,
-  combat events, a clock), `smoke.lua` (scenarios), `run_tests.py`.
+  combat events, a clock), `smoke.lua` (scenarios), `run_tests.py` (also runs
+  `tools/compare_logs.py` on `tests/fixtures/`).
 - `ProcGlow/`: someone else's addon, a design example only (git-ignored, local)
 - `.scratch/`: git-ignored downloads (Blizzard UI source, the wago.tools CSV).
 
@@ -158,6 +169,9 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
 
 ## Conventions
 
+- **Debug glows against the combat log, not guesses.** Ask the owner for
+  `/leproc log` and `/combatlog` from the same session (TESTING.md), run
+  `tools/compare_logs.py`, and fix by the kind of mismatch it reports.
 - **Ask the game only where it can answer.** In an ability's own stance (or
   always, for abilities without one) `C_Spell.IsSpellUsable` is the truth:
   exact, and "short of power" still counts as lit. Outside the stance it says

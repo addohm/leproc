@@ -134,8 +134,9 @@ the game's addon menu by the minimap, or Options > AddOns > Leproc. It has four 
   the game itself says about your abilities being usable ("no (short of
   power)" when rage is the only reason).
   `/leproc log show` opens it in a window to copy (Ctrl+C), `/leproc log off`
-  stops it, `/leproc log clear` empties it. It keeps the last 2000 lines (a
-  dungeon's worth). It also logs when the game opens or closes a window,
+  stops it, `/leproc log clear` empties it. It keeps the last 10000 lines
+  (several dungeons); the window shows the newest 3000, and all of them are in
+  `WTF\Account\<account>\SavedVariables\Leproc.lua` after a `/reload`. It also logs when the game opens or closes a window,
   each measured delay, and Blizzard's own proc highlights (button highlights
   and screen alerts, for any spell), with whether the ability is highlighted
   at each trigger, and the game's reactive alerts (the floating "<Overpower>"

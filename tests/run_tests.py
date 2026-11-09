@@ -71,5 +71,33 @@ if not failed:
     except Exception as e:
         fail(f"smoke.lua: {e}")
 
-print("FAILED" if failed else "OK: syntax, TOC, globals and smoke scenarios")
+# tools/compare_logs.py on the fixtures: made-up logs in the real formats (a combat log with
+# your dodged swing, Twin's dodged swing, a parry and a partial block; Leproc's log as copied, and
+# as saved in Leproc.lua).
+import subprocess
+
+EXPECT = [
+    "Player: Kam",
+    "== Overpower: available 1 times (1.8 s), Leproc lit 2 times; 1 false glows, 1 misses",
+    "FALSE 15:05:20.",
+    "MISSED 15:05:10.2 for 0.",
+    "in Battle Stance: Boar dodged your swing",
+    "MISSED 15:05:30.0 for 0.",
+    "you parried Boar",
+    "MISSED 15:05:40.0 for 5.0 s, in Defensive Stance: you partly blocked Boar",
+    "in Battle Stance: yours; reactive alert yes, highlight no",
+    "in Defensive Stance: not yours (Twin); reactive alert no, highlight no",
+    "median 0.5",
+]
+for log in ("leproc-log.txt", "Leproc.lua"):
+    run = subprocess.run([sys.executable, str(ROOT / "tools" / "compare_logs.py"), str(TESTS / "fixtures" / log),
+                          str(TESTS / "fixtures" / "combatlog.txt")], capture_output=True, text=True)
+    if run.returncode != 0:
+        fail(f"compare_logs.py on {log}: {run.stderr.strip()}")
+        continue
+    for want in EXPECT:
+        if want not in run.stdout:
+            fail(f"compare_logs.py on {log}: no '{want}' in:\n{run.stdout}")
+
+print("FAILED" if failed else "OK: syntax, TOC, globals, smoke scenarios and compare_logs.py")
 sys.exit(1 if failed else 0)

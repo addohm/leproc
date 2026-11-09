@@ -1,0 +1,22 @@
+LeprocDB = {
+["log"] = {
+["entries"] = {
+"15:05:01 t1301.3 stance: Battle Stance", -- [1]
+"15:05:10 t1310.7 your target dodged (target DODGE) -> window Overpower (4.6 s, allowing for the delay), in Battle Stance", -- [2]
+"15:05:10 t1310.7   Overpower: game says usable: spell yes, button slot 62 yes, highlighted: no", -- [3]
+"15:05:10 t1310.7 Overpower glow ON (Battle Stance)", -- [4]
+"15:05:10 t1310.8 game: reactive alert (SPELL_ACTIVE) for a spell the game hides, in Battle Stance", -- [5]
+"15:05:12 t1312.0 you cast Overpower -> its window closes, dark for its 5 s cooldown", -- [6]
+"15:05:12 t1312.0 Overpower glow off (Battle Stance)", -- [7]
+"15:05:15 t1315.4 stance: Defensive Stance", -- [8]
+"15:05:20 t1320.5 your target dodged (target DODGE) -> window Overpower (4.6 s, allowing for the delay), in Defensive Stance", -- [9]
+"15:05:20 t1320.5 Overpower glow ON (Defensive Stance)", -- [10]
+"15:05:25 t1325.1 Overpower glow off (Defensive Stance)", -- [11]
+"15:05:30 t1330.5 you parried (player PARRY) -> window Revenge (4.6 s, allowing for the delay), in Defensive Stance", -- [12]
+"15:05:30 t1330.5 Revenge glow ON (Defensive Stance)", -- [13]
+"15:05:35 t1335.1 Revenge glow off (Defensive Stance)", -- [14]
+"15:05:47 t1347.6 you cast Heroic Strike", -- [15]
+"15:05:55 t1355.9 combat ends", -- [16]
+},
+},
+}
