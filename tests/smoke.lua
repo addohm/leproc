@@ -455,7 +455,7 @@ ns.Refresh()
 
 -- /leproc log: triggers, glows, casts, and what the game says, with secret values shown as such.
 out = PrintedNow(function() WM.Slash("log") end)
-Check(out:find("log on") and out:find("Overpower now: game says usable: spell no, button slot 73 no, in Battle Stance"), "log on: " .. out)
+Check(out:find("log on") and out:find("Overpower now: game says usable: spell no, button slot 73 no, highlighted: no, in Battle Stance"), "log on: " .. out)
 out = PrintedNow(function() WM.Combat("target", "DODGE") end)
 Check(out:find("your target dodged %(target DODGE%) %-> window Overpower %(%d.%d s, allowing for the delay%), in Battle Stance"), "log: the trigger: " .. out)
 Check(out:find("Overpower: game says usable: spell yes, button slot 73 yes"), "log: the game's answer at the trigger: " .. out)
@@ -479,6 +479,22 @@ out = PrintedNow(function() WM.Cast(OVERPOWER) end)
 Check(out:find("you cast Overpower %-> its window closes, dark for its 5 s cooldown") and out:find("Overpower glow off"), "log: the cast: " .. out)
 out = PrintedNow(function() WM.Fire("PLAYER_TARGET_CHANGED") end)
 Check(out:find("new target"), "log: target change: " .. out)
+-- The proc-highlight probe: Blizzard's events for any spell, and at a trigger whether the
+-- ability is highlighted (any rank).
+out = PrintedNow(function() WM.Fire("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW", 11584) end)
+Check(out:find("game: button highlight ON for Overpower %(11584%), in Battle Stance"), "log: highlight on: " .. out)
+out = PrintedNow(function() WM.Fire("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE", 12345) end)
+Check(out:find("game: button highlight off for spell 12345"), "log: highlight off, another spell: " .. out)
+out = PrintedNow(function() WM.Fire("SPELL_ACTIVATION_OVERLAY_HIDE") end)
+Check(out:find("game: screen proc alert off for everything"), "log: alert off with no spell: " .. out)
+WM.overlayed[11584] = true
+WM.SetStance(2)
+WM.Advance(1)
+out = PrintedNow(function() WM.Fire("UNIT_COMBAT", "target", "DODGE", "", 0, 1) end)
+Check(out:find("Overpower: game says usable: spell no, highlighted: yes"), "log: highlighted at the trigger: " .. out)
+WM.overlayed[11584] = nil
+WM.SetStance(1)
+WM.Advance(6)
 out = PrintedNow(function() WM.Cast(12294) end)
 Check(out:find("you cast spell 12294") or out:find("you cast %a"), "log: other casts: " .. out)
 out = PrintedNow(function() WM.Combat("player", "DODGE") end)

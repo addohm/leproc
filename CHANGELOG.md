@@ -6,6 +6,14 @@ All notable changes to leproc. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `/leproc log` logs Blizzard's proc highlights (`SPELL_ACTIVATION_OVERLAY_GLOW_SHOW`/`HIDE`, `SPELL_ACTIVATION_OVERLAY_SHOW`/`HIDE`, any spell) and, at each trigger, whether the game highlights the ability. A probe: if Forever highlights Overpower after your own dodged attack in any stance, party members' dodges could stop counting (2026-11-09).
+
+### Fixed
+
+- The game's answers for abilities you don't track (another class's, set to Off) were taken into account, and could have fed the measured delay (2026-11-09).
+
 ## [0.9.0-beta] - 2026-11-08
 
 The first beta: reactive abilities and procs glow on your action buttons in any stance or form.

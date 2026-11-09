@@ -374,6 +374,9 @@ function M.Played(name)
 	for _, id in ipairs(M.sounds) do if id == SOUNDKIT[name] then return true end end
 	return false
 end
+-- Blizzard's proc highlights: WM.overlayed[spellID] = true while the game highlights it.
+M.overlayed = {}
+C_SpellActivationOverlay = { IsSpellOverlayed = function(id) return M.overlayed[id] == true end }
 MenuUtil = { CreateContextMenu = function(owner, generator) M.contextMenu = { owner = owner, generator = generator } end }
 C_SpellBook = { IsSpellKnown = function(id) return M.known[id] == true end }
 function date() return "12:00:00" end

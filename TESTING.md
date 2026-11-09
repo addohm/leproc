@@ -96,6 +96,13 @@ Problems below.
       Battle Stance (the log says "no longer usable -> its window closes").
     - With `/leproc log` on, "the block/dodge/parry report came 0.x s after the
       game" lines show the delay being measured.
+20. The proc-highlight probe (log only): `/leproc log clear`, `/leproc log`,
+    then fight with Overpower procs in Battle Stance and in Defensive Stance,
+    in a group if you can, with the combat log saved too. In the log, look
+    for "game: button highlight ON for Overpower" or "screen proc alert ON":
+    does it come with your own dodged attacks, in which stances, and does it
+    ever come for a party member's? Also "highlighted: yes/no" on each
+    "your target dodged" line. Send both logs.
 
 ## Confirmed
 
@@ -130,6 +137,13 @@ Problems below.
   over) while the game said not usable, the false glow 0264c54 fixes; and
   t144.9-148.6 a block in Battle Stance lit Revenge, the owner switched and
   used it, as designed.
+- Fifth log (2026-11-09; old build, then 0.9.0-beta from t3007): the new build
+  lit Revenge the instant the game said (t3033.3), the parry report came 0.5 s
+  later and the delay was learned; a cast turned it off. At t3153.8 Overpower
+  lit in Defensive Stance from "your target dodged" 3.6 s after a Charge, in a
+  group of five: the owner's own swing or a party member's, which Leproc can't
+  tell apart. Next: the proc-highlight probe (item 20) and the game's combat
+  log next to Leproc's.
 
 - 9f623d4: with EllesmereUI's action bars, Revenge and Overpower said "not on a
   bar you can see" although both were on its bars: Leproc only looked at

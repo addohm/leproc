@@ -68,7 +68,10 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     every cast (tracked ones via `Log.Cast`), stance and target changes,
     deaths, cleared windows, and the game's own usable answers ("no (short of
     power)" from noMana/insufficientPower) (`C_Spell.IsSpellUsable`, `C_ActionBar.IsUsableAction`,
-    `ACTION_USABLE_CHANGED`, `SPELL_UPDATE_USABLE`; only changes). Kept in
+    `ACTION_USABLE_CHANGED`, `SPELL_UPDATE_USABLE`; only changes), and
+    Blizzard's proc highlights (`SPELL_ACTIVATION_OVERLAY_*`, any spell;
+    `C_SpellActivationOverlay.IsSpellOverlayed` at each trigger), a probe for
+    a stance-independent "your own attack was dodged" signal. Kept in
     `LeprocDB.log` (last 2000, account-wide); `LeprocLog` is its copy window.
   - `Procs.lua`: proc buffs (`buff`, `buffIds` in the catalogue). An
     AuraContainer (`CustomAuraContainerTemplate`) with a slot per proc buff;

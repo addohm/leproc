@@ -133,8 +133,11 @@ the game's addon menu by the minimap, or Options > AddOns > Leproc. It has four 
   power)" when rage is the only reason).
   `/leproc log show` opens it in a window to copy (Ctrl+C), `/leproc log off`
   stops it, `/leproc log clear` empties it. It keeps the last 2000 lines (a
-  dungeon's worth). It also logs when the game opens or closes a window and
-  each measured delay.
+  dungeon's worth). It also logs when the game opens or closes a window,
+  each measured delay, and Blizzard's own proc highlights (button highlights
+  and screen alerts, for any spell), with whether the ability is highlighted
+  at each trigger: a probe for a signal that might tell your own dodged
+  attacks from your party's.
 - `/leproc minimap`, `/leproc profile`, `/leproc reset`.
 
 **Minimap button:** click for the window, right-click for the test, drag to move

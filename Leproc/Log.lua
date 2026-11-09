@@ -5,6 +5,10 @@
 --   what the game itself says about your class's abilities being usable: at each trigger, and
 --   whenever the game changes its mind (ACTION_USABLE_CHANGED by button, SPELL_UPDATE_USABLE by
 --   spell). Values the game hides come out as "secret".
+--   Blizzard's proc highlights (SPELL_ACTIVATION_OVERLAY_GLOW_SHOW/HIDE, SPELL_ACTIVATION_OVERLAY_
+--   SHOW/HIDE) for any spell, and at each trigger whether the game highlights the ability
+--   (C_SpellActivationOverlay.IsSpellOverlayed): a probe for a signal that might say "your own
+--   attack was dodged" in any stance (Forever's Bloodthrill speaks of "an activation of Overpower").
 -- Asking the game is for this log only: the glows never do (outside the right stance it says no).
 local _, ns = ...
 
@@ -63,7 +67,32 @@ local function SpellAnswer(e)
 	return ok and Answer(usable, short) or "error"
 end
 
--- What the game says about an ability now: by spell, and by each button you can see holding it.
+-- Whether the game highlights the ability (its proc glow), any rank: "yes", "no", "secret", or
+-- nil if the client has no such call.
+local function Highlighted(e)
+	local api = C_SpellActivationOverlay and C_SpellActivationOverlay.IsSpellOverlayed
+	if not api then return nil end
+	local answer = "no"
+	for _, id in ipairs(e.idList) do
+		local ok, on = pcall(api, id)
+		local v = ok and Value(on) or "error"
+		if v == "yes" or v == "secret" or v == "error" then answer = v end
+		if v == "yes" then break end
+	end
+	return answer
+end
+
+local function SpellLabel(id)
+	if issecretvalue and issecretvalue(id) then return "a hidden spell" end
+	local e = ns.bySpell[id]
+	if e then return e.label .. " (" .. tostring(id) .. ")" end
+	local ok, name = pcall(C_Spell.GetSpellName, id)
+	if ok and type(name) == "string" and not (issecretvalue and issecretvalue(name)) then return name .. " (" .. tostring(id) .. ")" end
+	return "spell " .. tostring(id)
+end
+
+-- What the game says about an ability now: by spell, by each button you can see holding it, and
+-- whether it highlights it.
 local function Usable(e)
 	local parts = { "spell " .. SpellAnswer(e) }
 	local check = (C_ActionBar and C_ActionBar.IsUsableAction) or IsUsableAction
@@ -71,7 +100,8 @@ local function Usable(e)
 		local okA, u, short = pcall(check, slot)
 		parts[#parts + 1] = "button slot " .. slot .. " " .. (okA and Answer(u, short) or "error")
 	end
-	return "game says usable: " .. table.concat(parts, ", ")
+	local lit = Highlighted(e)
+	return "game says usable: " .. table.concat(parts, ", ") .. (lit and (", highlighted: " .. lit) or "")
 end
 
 local function Mine(e)
@@ -135,6 +165,17 @@ for _, event in ipairs({ "ACTION_USABLE_CHANGED", "SPELL_UPDATE_USABLE", "UPDATE
 	"PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED", "PLAYER_DEAD" }) do
 	events:RegisterEvent(event)
 end
+-- The proc highlights: registered one by one, in case a client lacks any of them.
+for _, event in ipairs({ "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW", "SPELL_ACTIVATION_OVERLAY_GLOW_HIDE",
+	"SPELL_ACTIVATION_OVERLAY_SHOW", "SPELL_ACTIVATION_OVERLAY_HIDE" }) do
+	pcall(events.RegisterEvent, events, event)
+end
+local HIGHLIGHTS = {
+	SPELL_ACTIVATION_OVERLAY_GLOW_SHOW = "game: button highlight ON for ",
+	SPELL_ACTIVATION_OVERLAY_GLOW_HIDE = "game: button highlight off for ",
+	SPELL_ACTIVATION_OVERLAY_SHOW = "game: screen proc alert ON for ",
+	SPELL_ACTIVATION_OVERLAY_HIDE = "game: screen proc alert off for ",
+}
 events:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 events:SetScript("OnEvent", function(_, event, changes, _, spellID)
 	if not Log.IsOn() then return end
@@ -163,6 +204,9 @@ events:SetScript("OnEvent", function(_, event, changes, _, spellID)
 		end
 	elseif event == "PLAYER_DEAD" then
 		Log.Add("you died")
+	elseif HIGHLIGHTS[event] then
+		local id = changes
+		Log.Add(HIGHLIGHTS[event] .. (id ~= nil and SpellLabel(id) or "everything") .. ", in " .. Stance())
 	elseif event == "UPDATE_SHAPESHIFT_FORM" then
 		Said("stance", "stance: ", Stance())
 	elseif event == "PLAYER_TARGET_CHANGED" then

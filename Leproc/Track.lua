@@ -152,7 +152,8 @@ end
 function Track.OnGame()
 	local now, changed = GetTime(), false
 	for _, e in ipairs(ns.Catalogue) do
-		if #e.after > 0 then
+		-- Only abilities you track (other classes' are off): their answers mean nothing for you.
+		if #e.after > 0 and ns.Mode(e) ~= "off" then
 			local says = GameSays(e)
 			local state = says and (says == "no" and "inactive" or "active") or nil
 			local before = game[e.key]
