@@ -116,7 +116,8 @@ switch. The same goes for Overpower in Defensive Stance, and for every class's p
 - **This is a beta.** Report odd glows with `/leproc log` (`/leproc log show` to copy it).
 - **Outside the ability's stance the glow is Leproc's estimate.** The game can't say there.
   Overpower, for example, can light when your target dodges a party member's attack, since the
-  game only reports that the target dodged.
+  game only reports that the target dodged (only while you're in combat yourself). Set
+  Overpower to "Only in its stance" if you'd rather it lit only when the game confirms it.
 - **Proc glows are placed out of combat.** In combat they stay on the buttons they were on, even
   if a stance change flips that bar's page.
 - **Execute and Hammer of Wrath** aren't covered: Forever hides target health from addons.

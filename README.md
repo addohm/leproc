@@ -113,6 +113,8 @@ the game's addon menu by the minimap, or Options > AddOns > Leproc. It has four 
   block again. Dying or leaving combat ends every window.
 - A guess that the game contradicts (a dodge from someone else's attack) goes
   out when you switch into the stance and the game says no.
+- Your target's dodges only count while you're in combat: out of combat it
+  can't have been your attack (in a group, someone else is hitting it).
 
 **Chat commands:**
 

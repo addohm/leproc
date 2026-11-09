@@ -140,6 +140,10 @@ function Log.Delay(kind, seconds, now)
 		kind == "target" and "target's dodge" or "block/dodge/parry", seconds, now))
 end
 
+function Log.Ignored(what, why)
+	Log.Add(what .. " -> ignored: " .. why)
+end
+
 function Log.Cleared(why)
 	Log.Add("windows cleared: " .. why)
 end

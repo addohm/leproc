@@ -140,6 +140,14 @@ function Track.OnUnitCombat(unit, event, flags)
 		elseif event == "BLOCK" or (event == "WOUND" and (flags == "BLOCK_REDUCED" or flags == "BLOCK")) then trigger = "block"
 		end
 	elseif unit == "target" and event == "DODGE" then
+		-- The game doesn't say whose attack your target dodged. Out of combat it can't have been
+		-- yours (the owner's log: four of them while a party member fought his target), and you
+		-- can't use the ability anyway.
+		local ok, fighting = pcall(UnitAffectingCombat, "player")
+		if ok and not Secret(fighting) and not fighting then
+			ns.Log.Ignored("your target dodged (target DODGE)", "you're not in combat, so it wasn't your attack")
+			return
+		end
 		trigger = "targetdodge"
 	end
 	if trigger then Open(trigger, unit, event, flags) end

@@ -103,6 +103,9 @@ Problems below.
     does it come with your own dodged attacks, in which stances, and does it
     ever come for a party member's? Also "highlighted: yes/no" on each
     "your target dodged" line. Send both logs.
+21. Out of combat, your target's dodges are ignored: with `/leproc log` on,
+    target someone a party member is fighting before you pull: "-> ignored:
+    you're not in combat", and no Overpower glow.
 
 ## Confirmed
 
@@ -144,6 +147,14 @@ Problems below.
   group of five: the owner's own swing or a party member's, which Leproc can't
   tell apart. Next: the proc-highlight probe (item 20) and the game's combat
   log next to Leproc's.
+- Sixth log (2026-11-09, 0.9.0-beta 0f8a000): t3498.1-3502.1 four "your
+  target dodged" lit Overpower while the owner wasn't in combat (a party
+  member fighting his target): now ignored. t3580.1 a target dodge 0.7 s after
+  his Sunder lit Overpower in Defensive Stance; at t3581.9 he switched to
+  Battle Stance, the game said not usable and Leproc closed it on the spot
+  (as designed). That dodge wasn't one that enabled his Overpower: likely a
+  party member's. Mid-fight ones like it still light; the probe (item 20)
+  or "Only in its stance" are the answers so far.
 
 - 9f623d4: with EllesmereUI's action bars, Revenge and Overpower said "not on a
   bar you can see" although both were on its bars: Leproc only looked at

@@ -415,6 +415,10 @@ C_Spell = {
 }
 function UnitClass() return "Class", M.class end
 function InCombatLockdown() return M.combat end
+-- In combat as far as the unit is concerned (fighting, not the UI lockdown): WM.fighting, true
+-- unless a test says otherwise, so the scenarios' triggers count.
+M.fighting = true
+function UnitAffectingCombat(unit) return unit == "player" and M.fighting end
 function print(...)
 	local parts = {}
 	for i = 1, select("#", ...) do parts[i] = tostring(select(i, ...)) end

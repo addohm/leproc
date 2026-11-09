@@ -12,6 +12,7 @@ All notable changes to leproc. The format follows
 
 ### Fixed
 
+- Your target's dodges no longer light Overpower while you're out of combat: in a group they were party members' attacks (the owner's log: four while he wasn't fighting). The log says "ignored: you're not in combat" (2026-11-09).
 - The game's answers for abilities you don't track (another class's, set to Off) were taken into account, and could have fed the measured delay (2026-11-09).
 
 ## [0.9.0-beta] - 2026-11-08

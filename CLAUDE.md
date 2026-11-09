@@ -162,6 +162,8 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   cooldown comes from the player's own cast (the game's "usable" ignores
   cooldowns), the stance from `GetShapeshiftFormInfo`. The owner's logs
   (TESTING.md) are the evidence: keep reading new ones before changing this.
+  A target's dodge only counts while the player is in combat
+  (`UnitAffectingCombat`): the game doesn't say whose attack it was.
 - **Check what's secret** in Blizzard's API docs, `forever` branch
   (`Blizzard_APIDocumentationGenerated`):
   https://github.com/Gethe/wow-ui-source/tree/forever. Skip secret values with

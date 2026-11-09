@@ -520,6 +520,24 @@ WM.Slash("log clear")
 Check(#LeprocDB.log.entries == 0, "log clear")
 WM.Advance(6)
 
+-- A target's dodge while you're out of combat isn't yours (the owner's log: four while a party
+-- member fought his target): ignored, and the log says so. Your own block still counts.
+WM.fighting = false
+out = PrintedNow(function() WM.Slash("log") end)
+WM.SetStance(2)
+WM.Advance(1)
+out = PrintedNow(function() WM.Fire("UNIT_COMBAT", "target", "DODGE", "", 0, 1) end)
+Check(out:find("your target dodged %(target DODGE%) %-> ignored: you're not in combat"), "the log says why: " .. out)
+Check(not ns.Track.IsLit(ns.byKey.overpower), "no Overpower guess out of combat")
+WM.Combat("player", "BLOCK")
+Check(ns.Track.IsLit(ns.byKey.revenge), "your own block still counts")
+WM.fighting = true
+WM.Fire("UNIT_COMBAT", "target", "DODGE", "", 0, 1)
+Check(ns.Track.IsLit(ns.byKey.overpower), "in combat the guess lights it")
+WM.Slash("log off")
+WM.SetStance(1)
+WM.Advance(6)
+
 -- The game decides where it can. The owner's logs: the game makes Revenge usable 0.2-0.9 s
 -- before the report of the block reaches addons, and ends it 5 s after its own start.
 LeprocDB.delay = nil
