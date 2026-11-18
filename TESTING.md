@@ -13,7 +13,8 @@ install script, don't just `/reload`.
 1. No Lua errors at login. The first login says "thanks for installing!";
    after that, "v1.0.0-dev build <commit> loaded" once per login, not at each
    loading screen.
-2. `/leproc` opens the window: six tabs (General, Procs & Buffs, Glow, Timer &
+2. `/leproc` opens the window; its title says "Leproc v1.0.0-dev" with no
+   build number (Options > AddOns too; `/leproc help` gives the build). Six tabs (General, Procs & Buffs, Glow, Timer &
    Stacks, Text Alerts, Profiles), each opens; the four not built yet say so.
    Drag it by the title bar, resize from the corner, Escape closes it; it
    opens again where you left it, on the tab you left it on.

@@ -10,6 +10,7 @@ local function Near(a, b) return math.abs(a - b) < 1e-6 end
 local P = ns.Profiles
 
 -- Login: the character's own profile, with the defaults, and a welcome the first time only.
+ns.build = "abc1234" -- as the install script stamps it
 WM.Fire("ADDON_LOADED", "Leproc")
 WM.Fire("PLAYER_LOGIN")
 WM.Fire("PLAYER_ENTERING_WORLD")
@@ -28,6 +29,9 @@ panel.scripts.OnShow(panel)
 Check(panel.enable:GetChecked(), "the Enable box shows Leproc on")
 panel.open.scripts.OnClick(panel.open)
 Check(ns.Window.IsShown(), "the button should open Leproc's window")
+-- The build number is for chat only: the window and the Options entry show the version alone.
+Check(ns.Window.Frame().version:GetText() == "v0.0.0", "the window shows the version without the build")
+Check(panel.title:GetText() == "Leproc v0.0.0", "the Options entry too")
 
 -- The window: ProcGlow's pages as our tabs, in order; every page builds.
 local ids = table.concat(ns.Window.PageIds(), ",")
@@ -171,6 +175,7 @@ Check(WM.contextMenu ~= nil, "the addon compartment opens the menu too")
 WM.printed = {}
 WM.Slash("help")
 Check(Printed("/leproc profile [name]") and Printed("/leproc on | off"), "help")
+Check(Printed("v0.0.0 build abc1234"), "help gives the build")
 WM.Slash("glow")
 Check(ns.Window.IsShown() and ns.db.window.tab == "glow", "/leproc glow opens that tab")
 WM.Slash("profile Spare")

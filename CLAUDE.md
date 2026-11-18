@@ -54,7 +54,8 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     triggers, stance, cooldown, note; `ns.WINDOW`), unused until step 2
     reworks it; `tools/gen_data.py` reads its names.
   - `Core.lua`: the defaults (`ns.DEFAULTS`: enabled, loginMessage,
-    classColour, window, minimap), `ns.Secret(v)`, `ns.Enabled()` and
+    classColour, window, minimap), `ns.Version(withBuild)` (the build only
+    in chat, never in the window: the owner's rule), `ns.Secret(v)`, `ns.Enabled()` and
     `ns.SetEnabled()`, `ns.Refresh()` (the theme, minimap button and window
     follow `ns.db`), `ns.ResetAll()` (asks, then `LeprocDB = nil` and
     `ReloadUI`), the login message (`LeprocDB.welcomed`: a welcome the first

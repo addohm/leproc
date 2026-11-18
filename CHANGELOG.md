@@ -18,6 +18,10 @@ This is step 1 of 10: the version is 1.0.0-dev until 1.0.0.
 - Options > AddOns > Leproc has an Enable box.
 - `/leproc general`, `abilities`, `glow`, `timer`, `text`, `profiles` open a tab; `/leproc profile <name>` switches; `/leproc on`, `off`.
 
+### Changed
+
+- The window's title and the Options > AddOns entry show the version without the build number; the build is in chat only (the login line, `/leproc help`) (2026-11-18).
+
 ### Removed
 
 - For now, everything that glowed: the trigger windows, proc buffs, bar scanning, the Abilities and Glow tabs, `/leproc log`, `list`, `test`, `bars`, `macros`, `why` and `reset`. They come back, rebuilt, from step 2. The minimap button's right-click no longer runs the test.

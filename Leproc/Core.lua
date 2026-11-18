@@ -34,9 +34,11 @@ function ns.Print(msg)
 	print("|cffff8040Leproc|r: " .. msg)
 end
 
-function ns.Version()
+-- "v1.0.0"; with withBuild, the build too ("v1.0.0 build abc1234"). The build is for chat only,
+-- never the window.
+function ns.Version(withBuild)
 	local v = C_AddOns.GetAddOnMetadata(ADDON, "Version") or "?"
-	return "v" .. v .. (ns.build and (" build " .. ns.build) or "")
+	return "v" .. v .. (withBuild and ns.build and (" build " .. ns.build) or "")
 end
 
 -- A value the game may hide from addons (in combat, in instances) is never compared: this says
@@ -89,7 +91,7 @@ local function Greet()
 		LeprocDB.welcomed = true
 		ns.Print("thanks for installing! Type |cffffd100/leproc|r or click the minimap button to choose what glows.")
 	elseif ns.db.loginMessage then
-		ns.Print(ns.Version() .. " loaded. Type |cffffd100/leproc|r to open the options.")
+		ns.Print(ns.Version(true) .. " loaded. Type |cffffd100/leproc|r to open the options.")
 	end
 end
 
@@ -123,7 +125,7 @@ local PAGE_WORDS = {
 }
 
 local function Help()
-	ns.Print(ns.Version())
+	ns.Print(ns.Version(true))
 	ns.Print("/leproc - open or close the options window")
 	ns.Print("/leproc general | abilities | glow | timer | text | profiles - open that tab")
 	ns.Print("/leproc profile [name] - list the profiles, or switch to one")

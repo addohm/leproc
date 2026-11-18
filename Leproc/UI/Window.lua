@@ -304,7 +304,8 @@ local function Build()
 	title:SetText("Leproc")
 	local version = frame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
 	version:SetPoint("LEFT", title, "RIGHT", 8, 0)
-	version:SetText(ns.Version())
+	version:SetText(ns.Version()) -- no build: that's for chat
+	frame.version = version
 
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", -2, -2)
@@ -389,6 +390,7 @@ function Window.Register()
 	local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	title:SetPoint("LEFT", icon, "RIGHT", 10, 0)
 	title:SetText("Leproc " .. ns.Version())
+	panel.title = title
 	local text = panel:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	text:SetPoint("TOPLEFT", icon, "BOTTOMLEFT", 0, -12)
 	text:SetPoint("RIGHT", -16, 0)
