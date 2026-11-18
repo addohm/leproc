@@ -39,6 +39,19 @@ local stanceAt = -10  -- when the stance last changed
 -- starting values are from the owner's logs: 0.2-0.9 s for your own (Defensive Stance tanking),
 -- 0.3-0.5 s for the target's (Overpower in Battle Stance).
 local KIND = { block = "player", dodge = "player", parry = "player", targetdodge = "target" }
+
+-- Reports that don't say whose attack it was. In a group, half of your target's dodges are
+-- someone else's (the owner's group session, 2026-11-18: 25 of 50 in Defensive Stance were a party
+-- member's, and nothing the game gives addons tells them apart). So in a group they open no window
+-- of Leproc's: Overpower lights where the game knows (Battle Stance), and a window the game opened
+-- there carries on if you then switch stance. Solo, every dodge of your target is yours.
+local AMBIGUOUS = { targetdodge = true }
+
+local function Grouped()
+	local ok, yes = pcall(IsInGroup)
+	return ok and not ns.Secret(yes) and yes == true
+end
+Track.Grouped = Grouped
 local DELAY = { player = 0.5, target = 0.4 }
 local MAX_DELAY = 1.5
 local GCD = 1.5
@@ -171,8 +184,9 @@ local function UpdateAt(seconds)
 end
 
 local function Open(trigger, unit, event, flags)
-	local now, opened, kind = GetTime(), {}, KIND[trigger]
+	local now, opened, held, kind = GetTime(), {}, {}, KIND[trigger]
 	local ends = now + ns.WINDOW - Track.Delay(kind)
+	local guess = not (AMBIGUOUS[trigger] and Grouped())
 	for _, e in ipairs(ns.Catalogue) do
 		if e.triggers[trigger] then
 			-- The game said the window opened shortly before this report: that's the delay.
@@ -181,9 +195,16 @@ local function Open(trigger, unit, event, flags)
 				activeAt[e.key] = nil
 			end
 			reportedAt[e.key] = { now, kind }
-			if not open[e.key] or open[e.key] < ends then open[e.key] = ends end
-			opened[#opened + 1] = e
+			if guess then
+				if not open[e.key] or open[e.key] < ends then open[e.key] = ends end
+				opened[#opened + 1] = e
+			else
+				held[#held + 1] = e
+			end
 		end
+	end
+	if #held > 0 then
+		ns.Log.Grouped(trigger, unit, event, held)
 	end
 	if #opened > 0 then
 		ns.Log.Trigger(trigger, unit, event, flags, opened, ends - now)
@@ -231,8 +252,13 @@ function Track.OnGame()
 			if state == "active" and before == "inactive" and now - stanceAt > 0.3 then
 				local r = reportedAt[e.key]
 				if r and now - r[1] < MAX_DELAY then
-					-- The report came first (target dodges do): no delay, and its window stands.
+					-- The report came first (target dodges do): no delay. The game confirms the
+					-- window (it was your attack), in a group too.
 					Sample(r[2], 0)
+					if not open[e.key] or open[e.key] < now + ns.WINDOW then
+						open[e.key] = now + ns.WINDOW
+						UpdateAt(ns.WINDOW)
+					end
 				else
 					activeAt[e.key] = now
 					open[e.key] = now + ns.WINDOW

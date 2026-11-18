@@ -83,7 +83,8 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     use `ns.db.glow` and `ns.db.color` (pixel, gold) until the glow designer
     (step 3).
   - `Track.lua`: the glow rule (above): `Track.IsLit(e)`, `GameSays(e)`,
-    the trigger windows (`UNIT_COMBAT`), the delay (`Track.Delay(kind)`,
+    the trigger windows (`UNIT_COMBAT`; a target's dodge opens none in a
+    group: `Track.Grouped()`), the delay (`Track.Delay(kind)`,
     `LeprocDB.delay`, "player" and "target" triggers), `Track.OnGame`
     (`ACTION_USABLE_CHANGED`, `SPELL_UPDATE_USABLE`), casts and cooldowns
     (`UNIT_SPELLCAST_SUCCEEDED`), `Track.Clear` on death and at the end of
@@ -216,7 +217,12 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   isn't secret), the stance from `GetShapeshiftFormInfo`. The owner's logs
   (TESTING.md) are the evidence: keep reading new ones before changing this.
   A target's dodge only counts while the player is in combat
-  (`UnitAffectingCombat`): the game doesn't say whose attack it was.
+  (`UnitAffectingCombat`) and not in a group (`IsInGroup`): the game doesn't
+  say whose attack it was, and in the owner's group session half were a party
+  member's (2026-11-18; nothing addons get tells them apart: the reactive
+  alert's spell and `C_CombatText` info are secret, Blizzard's highlight never
+  comes). In a group only the game's own answer (Battle Stance) opens
+  Overpower's window (`AMBIGUOUS` in Track.lua).
 - **Check what's secret** in Blizzard's API docs, `forever` branch
   (`Blizzard_APIDocumentationGenerated`):
   https://github.com/Gethe/wow-ui-source/tree/forever. Skip secret values with

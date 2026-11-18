@@ -127,6 +127,22 @@ function Log.Trigger(trigger, unit, event, flags, opened, length)
 	end
 end
 
+-- A report that opens no window in a group (your target's dodge: whose attack it was isn't said).
+function Log.Grouped(trigger, unit, event, held)
+	if not Log.IsOn() then return end
+	local names = {}
+	for _, e in ipairs(held) do
+		if Mine(e) then names[#names + 1] = e.label end
+	end
+	if #names == 0 then return end
+	Log.Add(TRIGGERS[trigger] .. " (" .. tostring(unit) .. " " .. tostring(event) .. ") -> no window for "
+		.. table.concat(names, ", ") .. ": you're in a group and the game doesn't say whose attack it was (the game decides in "
+		.. "its stance), in " .. Stance())
+	for _, e in ipairs(held) do
+		if Mine(e) then Log.Add("  " .. e.label .. ": " .. Usable(e)) end
+	end
+end
+
 function Log.Cast(e)
 	Log.Add("you cast " .. e.label .. " -> its window closes" .. (e.cooldown > 0 and (", dark for its " .. e.cooldown .. " s cooldown") or ""))
 end

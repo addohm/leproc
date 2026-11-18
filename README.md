@@ -47,9 +47,14 @@ ProcGlow's reactive abilities:
    from the trigger, ended a little early to allow for how late the game
    reports it to addons (measured while you're in the stance; `/leproc why`
    shows it). Execute can't do this: addons can't see the target's health.
-   Your target's dodges only count while you're in combat (in a group, out of
-   combat, it was someone else's attack). Dying or leaving combat ends every
-   window.
+   Dying or leaving combat ends every window.
+6. **Overpower in a group:** the game tells addons that your target dodged,
+   never whose attack it was, and in a group half of those dodges are someone
+   else's (your logs: 25 of 50). So in a group Overpower lights where the game
+   knows, in Battle Stance, and stays lit if you then switch stance; it doesn't
+   guess in other stances. Solo, every dodge of your target is yours, so it
+   lights in any stance (in combat only). Revenge follows your own blocks,
+   dodges and parries, so it's exact in any stance, grouped or not.
 
 **Your bars and macros stay as they are.**
 

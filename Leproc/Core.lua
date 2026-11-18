@@ -231,6 +231,9 @@ local function Why(e)
 		for _, t in ipairs(e.after) do after[#after + 1] = ns.Track.TRIGGERS[t] end
 		lines[#lines + 1] = "window: " .. (s.window and string.format("open, %.1f s left", s.window)
 			or ("closed (opens " .. ns.WINDOW .. " s after " .. table.concat(after, ", ") .. ")"))
+		if e.triggers.targetdodge and ns.Track.Grouped() then
+			lines[#lines + 1] = "in a group: your target's dodges open no window of Leproc's (the game doesn't say whose attack it was), so it lights where the game decides"
+		end
 		local kind = e.after[1] == "targetdodge" and "target" or "player"
 		lines[#lines + 1] = string.format("delay: the game's reports of %s come about %.1f s late; Leproc's own window ends that much sooner",
 			kind == "target" and "your target's dodges" or "your blocks, dodges and parries", ns.Track.Delay(kind))

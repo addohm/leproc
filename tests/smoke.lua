@@ -650,6 +650,44 @@ WM.Slash("log off")
 WM.SetStance(1)
 WM.Advance(6)
 
+-- In a group your target's dodges are half someone else's (the owner's session, 2026-11-18), and
+-- the game doesn't say whose: they open no window. Overpower lights where the game knows (Battle
+-- Stance), and a window the game opened carries on if you switch stance. Revenge (your own blocks,
+-- dodges and parries) is unaffected.
+WM.group = true
+WM.SetStance(2)
+WM.Advance(1)
+out = PrintedNow(function() WM.Slash("log") end)
+out = PrintedNow(function() WM.Fire("UNIT_COMBAT", "target", "DODGE", "", 0, 1) end)
+Check(not ns.Track.IsLit(ns.byKey.overpower), "in a group, a target's dodge in Defensive Stance doesn't light Overpower")
+Check(out:find("no window for Overpower: you're in a group"), "the log says why: " .. out)
+local whyGroup = PrintedNow(function() WM.Slash("why overpower") end)
+Check(whyGroup:find("in a group: your target's dodges open no window"), "why says so: " .. whyGroup)
+WM.Combat("player", "BLOCK")
+Check(ns.Track.IsLit(ns.byKey.revenge), "Revenge still lights from your own block")
+WM.Advance(6)
+WM.SetStance(1)
+WM.Advance(1)
+WM.Combat("target", "DODGE")
+Check(ns.Track.IsLit(ns.byKey.overpower) and WM.Glowing(Main1), "in Battle Stance the game decides: lit")
+WM.SetStance(2)
+Check(ns.Track.IsLit(ns.byKey.overpower), "the game's window carries on after switching to Defensive Stance")
+WM.Advance(6)
+Check(not ns.Track.IsLit(ns.byKey.overpower), "and ends with it")
+-- The report coming before the game's change (as target dodges can) still counts as the game's.
+WM.SetStance(1)
+WM.Advance(1)
+WM.Fire("UNIT_COMBAT", "target", "DODGE", "", 0, 1)
+WM.reactive.Overpower = WM.now + 5
+WM.Fire("SPELL_UPDATE_USABLE")
+WM.SetStance(2)
+Check(ns.Track.IsLit(ns.byKey.overpower), "the game confirmed it right after the report: it carries on in Defensive Stance")
+WM.Advance(6)
+WM.Slash("log off")
+WM.group = false
+WM.SetStance(1)
+WM.Advance(1)
+
 -- The game decides where it can. The owner's logs: the game makes Revenge usable 0.2-0.9 s
 -- before the report of the block reaches addons, and ends it 5 s after its own start.
 LeprocDB.delay = nil

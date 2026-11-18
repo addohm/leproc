@@ -106,8 +106,11 @@ in TESTING.md.
    diagnostics (`why`, `bars`, `macros`, `rescan`, `test`); then, after the
    owner's screenshot, no sacrifices to the player's setup: a macro is the
    spell its icon shows (stance-dance macros worked out from their own text),
-   and an ability with no button on screen glows its stance's buttons. 2b:
-   the class pages. Every bar ProcGlow knows (Blizzard's,
+   and an ability with no button on screen glows its stance's buttons; and,
+   after the owner's group session, Overpower in a group lights only where
+   the game decides (no addon signal says whose attack your target dodged;
+   option A, his pick). 2b: the class pages, including a per-ability choice
+   for that (in a group: only where the game knows / any stance). Every bar ProcGlow knows (Blizzard's,
    Bartender, Dominos, ElvUI, EllesmereUI, the gamepad bars, the stance bars)
    plus our scan for any other; slots and macros. Per button, ProcGlow's
    order: Blizzard's proc highlight; the target's type (Exorcism); the game's

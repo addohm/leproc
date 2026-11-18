@@ -56,8 +56,11 @@ testing (the session section below).
    (5 s less the measured delay). In Defensive Stance it follows the game
    exactly. Use it: dark for its 5 s cooldown, even if you block again.
 2. Overpower: your target dodges your attack: it glows in Battle Stance (the
-   game) and in Defensive and Berserker Stance (Leproc's window). In a group,
-   a target's dodge while you're out of combat doesn't light it.
+   game). Solo also in Defensive and Berserker Stance (Leproc's window). **In a
+   group** it only lights in Battle Stance: dodges in Defensive Stance never
+   light it (the log says "no window for Overpower: you're in a group"), but
+   if it lit in Battle Stance and you switch to Defensive, it stays lit to the
+   end of the game's window.
 3. **Execute** (new, ProcGlow's rule, first time in game): put it on a bar,
    fight something down past 20% in Battle Stance, then Berserker Stance. Does
    it stay dark above 20% and light below (the game's usable answer)? In
@@ -245,7 +248,8 @@ shows every false glow and miss and which signals came with each dodge.
     his (its spell is secret, and it fires for Revenge too), Blizzard's
     highlight with none. So 24 false Overpower glows. The 17 "misses" were the
     report's lateness (0.4 s) or the target dying right after your dodged
-    swing. Decision pending (ROADMAP).
+    swing. Decided (the owner, option A): in a group, Overpower only where
+    the game decides; solo any stance. In since the next build.
   - The log is spammed with "screen proc alert off for everything" lines
     (`SPELL_ACTIVATION_OVERLAY_HIDE` with no spell).
 

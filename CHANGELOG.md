@@ -16,6 +16,10 @@ Steps 1 and 2a of 10 are in: the version is 1.0.0-dev until 1.0.0.
 - Every bar addon's buttons as in 0.x; `/leproc test`, `why`, `bars`, `macros`, `log` back, and `/leproc rescan` (ProcGlow's) looks for buttons again.
 - No sacrifices to your setup (2026-11-18): an ability that's lit with no button of it on screen (it's on another stance's bar page) glows the buttons that switch you to its stance instead: the stance bar's, and any button showing that stance. `/leproc why` says so.
 
+### Changed
+
+- Overpower in a group (2026-11-18, the owner's pick after his group session: 25 of 50 target dodges in Defensive Stance were a party member's, and nothing addons get says whose): your target's dodges open no window of Leproc's while you're in a group. Overpower lights where the game decides (Battle Stance), and a window the game opened carries on when you switch stance. Solo it's unchanged. The log and `/leproc why overpower` say so.
+
 ### Fixed
 
 - `tools/compare_logs.py` read partial blocks from the wrong column on Forever's combat log (19 advanced fields, not 17), inventing Revenge windows; it now finds the damage suffix after the position fields (2026-11-18, the owner's first real log).
