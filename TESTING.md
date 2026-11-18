@@ -4,7 +4,49 @@ What to check after installing a build (`tools\install_forever.cmd`, then
 `/reload`). Note the build `/leproc help` shows. Results go in Confirmed or
 Problems below.
 
-## Capturing a session for comparison
+## To check: rebuild step 1 (1.0.0-dev)
+
+The window, profiles, the minimap button and Options > AddOns. Nothing glows
+in this build (step 2). The file list changed: **restart the game** after the
+install script, don't just `/reload`.
+
+1. No Lua errors at login. The first login says "thanks for installing!";
+   after that, "v1.0.0-dev build <commit> loaded" once per login, not at each
+   loading screen.
+2. `/leproc` opens the window: six tabs (General, Procs & Buffs, Glow, Timer &
+   Stacks, Text Alerts, Profiles), each opens; the four not built yet say so.
+   Drag it by the title bar, resize from the corner, Escape closes it; it
+   opens again where you left it, on the tab you left it on.
+3. **Scale** in the title bar: the arrows go 70% to 140% in 5% steps, the
+   window follows at once, Reset is 100%, and it's kept after a `/reload`.
+4. **-** folds the window to its title bar where it is; **+** brings it back
+   at its size. Drag it while folded.
+5. General: "Use my class colour" turns the edge, the rules under the
+   headings and the selected tab from gold to your class colour; Defaults
+   puts gold back. "Enable Leproc" off greys the minimap button (and its
+   tooltip says off).
+6. Options > AddOns > Leproc: the icon, the Enable box (it matches General's),
+   and the button closes the game's options and opens Leproc's window.
+7. The minimap button: click opens and closes the window; right-click opens
+   the game's own menu with your profiles (the one in use first, ticked),
+   picking one switches, "New profile..." opens the Profiles tab. Drag moves it
+   around the minimap. The addon compartment does the same.
+8. Profiles: new, switch, copy, rename, delete and reset as before. Each
+   profile keeps its own window size, place, scale and tab.
+9. **Switching by talents**: `/leproc spec` lists your three talent trees with
+   their points and says which has the most (Forever's talent trees: this is
+   the first test of reading them). Do the names and points match your talent
+   window? With dual spec, after switching spec?
+10. On the Profiles tab, tick "Switch profile by my talents or group role",
+    make a second profile and pick it for the tree with your most points: it
+    switches at once, with a line in chat. Respec or switch spec: it follows.
+11. **Switching by role**: in a group, set your role (or have the leader set
+    it) with a rule for that role: it switches, and back to the talent rule
+    when you leave the group. Change role in combat: nothing until combat ends.
+12. Reset all settings (General): asks first, then reloads with everything
+    back to the defaults (the welcome shows again).
+
+## Capturing a session for comparison (0.9.0-beta; the log comes back in step 2)
 
 Leproc's log says what Leproc saw and did; the game's combat log says what
 really happened (whose attack was dodged). Together, `tools/compare_logs.py`
@@ -21,7 +63,7 @@ shows every false glow and miss and which signals came with each dodge.
    `Logs\WoWCombatLog...txt` (zipped). Leproc keeps 10000 lines: several
    dungeons.
 
-## To check (0.1.0)
+## To check (0.9.0-beta; superseded by the rebuild)
 
 0. First install: fully restart the game. The AddOns list and the addon
    compartment show Leproc's icon: a glowing gold square with a lightning bolt,

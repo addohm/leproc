@@ -55,7 +55,24 @@ local function NewFrame(kind, name, parent)
 	function f:SetScript(event, fn) self.scripts[event] = fn end
 	function f:RegisterEvent(e) self.events[e] = true end
 	function f:RegisterUnitEvent(e, ...) self.events[e] = { ... } end
-	function f:CreateTexture() return Permissive({}) end
+	-- Textures remember what the tests look at: desaturation and colours.
+	function f:CreateTexture()
+		local t = Permissive({ shown = true })
+		function t:SetDesaturated(v) self.desaturated = v and true or false end
+		function t:IsDesaturated() return self.desaturated end
+		function t:SetColorTexture(r, g, b, a) self.color = { r, g, b, a } end
+		function t:SetVertexColor(r, g, b, a) self.vertex = { r, g, b, a } end
+		function t:SetShown(v) self.shown = v and true or false end
+		function t:Show() self.shown = true end
+		function t:Hide() self.shown = false end
+		function t:IsShown() return self.shown end
+		return t
+	end
+	function f:SetScale(v) self.scale = v end
+	function f:GetScale() return self.scale or 1 end
+	function f:GetLeft() return 100 end
+	function f:GetTop() return 700 end
+	function f:SetBackdropBorderColor(r, g, b) self.border = { r, g, b } end
 	function f:CreateAnimationGroup()
 		local g = Permissive({ animations = {}, playing = false })
 		function g:CreateAnimation(kind)
@@ -478,6 +495,56 @@ function M.Combat(unit, event, flags, lag)
 	if lag and lag > 0 then C_Timer.NewTimer(lag, Report) else Report() end
 end
 function M.Cast(spellID) M.Fire("UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-GUID", spellID) end
+
+-- Class colours, as the game gives them.
+RAID_CLASS_COLORS = { WARRIOR = { r = 0.78, g = 0.61, b = 0.43 }, PRIEST = { r = 1, g = 1, b = 1 } }
+C_ClassColor = { GetClassColor = function(class) return RAID_CLASS_COLORS[class] end }
+function ReloadUI() M.reloaded = true end
+M.minimapShape = "ROUND"
+function GetMinimapShape() return M.minimapShape end
+GameMenuFrame = NewFrame("Frame", "GameMenuFrame")
+-- Groups and roles: WM.group (in a group or not) and WM.role ("TANK", "HEALER", "DAMAGER", "NONE").
+M.group, M.role = false, "NONE"
+function IsInGroup() return M.group end
+function UnitGroupRolesAssigned(unit) return unit == "player" and M.role or "NONE" end
+-- Forever's talents: one trait tree with a group per talent tree. WM.trees = { { name, points } };
+-- the groups come back out of order, as orderIndex sorts them.
+M.trees = { { "Arms", 0 }, { "Fury", 0 }, { "Protection", 0 } }
+C_ClassTalents = { GetActiveConfigID = function() return 77 end }
+C_Traits = {
+	GetConfigInfo = function(id) if id == 77 then return { ID = 77, treeIDs = { 800 } } end end,
+	GetGroupDisplayInfoByTreeID = function(treeID)
+		if treeID ~= 800 then return {} end
+		local list = {}
+		for i = #M.trees, 1, -1 do
+			list[#list + 1] = { groupID = 500 + i, treeID = 800, orderIndex = i, displayName = M.trees[i][1], icon = 0 }
+		end
+		return list
+	end,
+	GetGroupCurrencyInfo = function(configID, groupIDs)
+		local out = {}
+		for _, id in ipairs(groupIDs) do
+			local t = M.trees[id - 500]
+			out[#out + 1] = { traitNodeGroupID = id, currencyInfos = { { traitCurrencyID = 1, quantity = 0, spent = t[2] } } }
+		end
+		return out
+	end,
+}
+-- Blizzard's menus: WM.contextMenu holds the last one opened; WM.MenuItems runs its generator and
+-- lists what it made ({ kind, text, isSelected, select }).
+function M.MenuItems()
+	local items = {}
+	local root = {}
+	function root:CreateTitle(text) table.insert(items, { kind = "title", text = text }) end
+	function root:CreateDivider() table.insert(items, { kind = "divider" }) end
+	function root:CreateButton(text, fn) table.insert(items, { kind = "button", text = text, select = fn }) end
+	function root:CreateRadio(text, isSelected, setSelected, data)
+		table.insert(items, { kind = "radio", text = text, isSelected = function() return isSelected(data) end,
+			select = function() setSelected(data) end })
+	end
+	M.contextMenu.generator(M.contextMenu.owner, root)
+	return items
+end
 
 function M.Slash(msg) SlashCmdList.LEPROC(msg) end
 

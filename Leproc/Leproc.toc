@@ -1,8 +1,8 @@
 ## Interface: 16001
 ## Title: Leproc
-## Notes: Glows your action buttons when Revenge, Overpower and other reactive abilities are ready, in any stance or form.
+## Notes: Glows your action buttons when a proc or reactive ability is ready, in any stance or form, with timers, text popups, icons and buff reminders.
 ## Author: addohm
-## Version: 0.9.0-beta
+## Version: 1.0.0-dev
 ## IconTexture: Interface\AddOns\Leproc\Media\Icon
 ## SavedVariables: LeprocDB
 ## AddonCompartmentFunc: Leproc_OnAddonCompartmentClick
@@ -13,12 +13,11 @@ Abilities.lua
 Core.lua
 Profiles.lua
 Glow.lua
-Log.lua
-Track.lua
-Procs.lua
-Bars.lua
 
+UI\Theme.lua
 UI\Widgets.lua
 UI\Window.lua
-UI\Pages.lua
 UI\Minimap.lua
+UI\Pages\General.lua
+UI\Pages\Soon.lua
+UI\Pages\Profiles.lua

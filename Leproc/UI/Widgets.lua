@@ -122,45 +122,6 @@ function UI.OptionEdit(parent, label, get, set, tooltip)
 	return row
 end
 
--- A sound picker (ns.SOUNDS) with a Test button that plays the one chosen.
-function UI.OptionSound(parent, label, get, set, tooltip)
-	local row = UI.OptionSelect(parent, label, ns.SOUNDS, get, function(v)
-		set(v)
-		ns.Play(v)
-	end, { tooltip = tooltip, boxWidth = 130 })
-	local test = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
-	test:SetSize(50, 22)
-	test:SetPoint("LEFT", row.right + 4, 0)
-	test:SetText("Test")
-	test:SetScript("OnClick", function() ns.Play(get()) end)
-	row.test = test
-	return row
-end
-
--- A sample action button showing the glow as it's set.
-function UI.GlowPreview(parent)
-	local row = CreateFrame("Frame", nil, parent)
-	row:SetHeight(64)
-	local function Sample(x, label, icon)
-		local f = CreateFrame("Frame", nil, row)
-		f:SetSize(36, 36)
-		f:SetPoint("LEFT", x, 0)
-		f.icon = f:CreateTexture(nil, "ARTWORK")
-		f.icon:SetAllPoints()
-		f.icon:SetTexture(icon)
-		f.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-		local text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		text:SetPoint("LEFT", f, "RIGHT", 14, 0)
-		text:SetText(label)
-		return f
-	end
-	local sample = Sample(LABEL_X + 14, "How a lit button looks", "Interface\\Icons\\Ability_Warrior_Revenge")
-	row.Sync = function()
-		ns.Glow.Show(sample, ns.db.glow, ns.db.color, 36)
-	end
-	return row
-end
-
 -- buttonText may be a function, read at each Sync.
 function UI.OptionButton(parent, label, buttonText, onClick, tooltip)
 	local row = OptionRow(parent, label, nil, tooltip)
@@ -185,6 +146,14 @@ function UI.OptionHeading(parent, text)
 	local fs = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
 	fs:SetPoint("BOTTOMLEFT", 4, 6)
 	fs:SetText(text)
+	local rule = row:CreateTexture(nil, "ARTWORK")
+	rule:SetPoint("BOTTOMLEFT", 4, 2)
+	rule:SetPoint("BOTTOMRIGHT", -8, 2)
+	rule:SetHeight(1)
+	ns.Theme.Paint(function(T)
+		local r, g, b = T.Edge()
+		rule:SetColorTexture(r, g, b, 0.5)
+	end)
 	row.Sync = function() end
 	return row
 end

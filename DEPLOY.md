@@ -24,6 +24,8 @@ To install by hand instead, copy the `Leproc` folder (not the repo root) into
 1. Run the tests (`.venv/bin/python tests/run_tests.py`), commit and push.
 2. On Windows, run `tools\install_forever.cmd`, then `/reload` (or restart the
    game if it says so).
+   Between releases the TOC's version is the next one with `-dev` (now
+   `1.0.0-dev`, during the rebuild); the build stamp says which commit.
 3. For a release (the owner's rule: every release ships its whole kit):
    - bump `## Version` in `Leproc/Leproc.toc` (betas: `0.9.0-beta`), move the
      CHANGELOG's Unreleased entries under the new version;

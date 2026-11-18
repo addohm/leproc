@@ -6,7 +6,23 @@ All notable changes to leproc. The format follows
 
 ## [Unreleased]
 
+Leproc is being rebuilt with ProcGlow's feature set as its base (ROADMAP.md, "The rebuild").
+This is step 1 of 10: the version is 1.0.0-dev until 1.0.0.
+
 ### Added
+
+- Rebuild step 1 (2026-11-18): the options window with ProcGlow's pages as tabs (General, Procs & Buffs, Glow, Timer & Stacks, Text Alerts, Profiles; the middle four say which step brings them), a Scale button (70% to 140%) and a minimise button in its title bar, and the window in your class colour as an option.
+- General: Enable Leproc (the minimap button greys out while it's off), a login reminder in chat (a welcome the first time), and Reset all settings (every profile and character, after asking; the interface reloads).
+- Profiles switch by your talents or group role: a profile for each talent tree (the one with the most points counts, read from Forever's talent trees) and for each role; a role wins while you're in a group. They wait for the end of combat, and each character has its own rules. `/leproc spec` shows what Leproc sees.
+- The minimap button's right-click is a menu of your profiles (the game's own menus); the addon compartment too.
+- Options > AddOns > Leproc has an Enable box.
+- `/leproc general`, `abilities`, `glow`, `timer`, `text`, `profiles` open a tab; `/leproc profile <name>` switches; `/leproc on`, `off`.
+
+### Removed
+
+- For now, everything that glowed: the trigger windows, proc buffs, bar scanning, the Abilities and Glow tabs, `/leproc log`, `list`, `test`, `bars`, `macros`, `why` and `reset`. They come back, rebuilt, from step 2. The minimap button's right-click no longer runs the test.
+
+### Added (0.9.0-beta's log, before the rebuild)
 
 - `tools/compare_logs.py`: compares Leproc's log with the game's combat log from the same session: when Overpower and Revenge should have been lit (your dodged attacks, your blocks, dodges and parries, your casts), false glows and misses with the stance and trigger, and whose attack each "your target dodged" was, with the probes that came with it (2026-11-09).
 
@@ -14,11 +30,11 @@ All notable changes to leproc. The format follows
 
 - `/leproc log` logs Blizzard's proc highlights (`SPELL_ACTIVATION_OVERLAY_GLOW_SHOW`/`HIDE`, `SPELL_ACTIVATION_OVERLAY_SHOW`/`HIDE`, any spell) and, at each trigger, whether the game highlights the ability. A probe: if Forever highlights Overpower after your own dodged attack in any stance, party members' dodges could stop counting (2026-11-09).
 
-### Changed
+### Changed (before the rebuild)
 
 - `/leproc log` keeps 10000 lines (several dungeons), up from 2000; the copy window shows the newest 3000, and all are in Leproc.lua after a `/reload` (2026-11-09).
 
-### Fixed
+### Fixed (before the rebuild)
 
 - Your target's dodges no longer light Overpower while you're out of combat: in a group they were party members' attacks (the owner's log: four while he wasn't fighting). The log says "ignored: you're not in combat" (2026-11-09).
 - The game's answers for abilities you don't track (another class's, set to Off) were taken into account, and could have fed the measured delay (2026-11-09).

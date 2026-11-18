@@ -88,12 +88,18 @@ addon.
 Each step is a commit or a few, installed and checked in game, with its list
 in TESTING.md.
 
-1. **Skeleton and look.** The new file layout; settings and profiles (per
-   character, up to 8, switching by spec or group role); the options window
-   in our theme with ProcGlow's pages (General, Class procs and buffs, Glow
-   style, Timer and stacks, Text alerts, Profiles); scale, minimise, class
-   colour; the minimap button (profiles on right-click); Options > AddOns; the
-   login message.
+1. **Skeleton and look.** Done 2026-11-18. The new file layout; settings and
+   profiles, switching by talents or group role; the options window in our
+   theme with ProcGlow's pages as tabs (General, Procs & Buffs, Glow, Timer &
+   Stacks, Text Alerts, Profiles; the middle four are placeholders until their
+   steps); scale, minimise, class colour; the minimap button (profiles on
+   right-click, through the game's own menus); Options > AddOns with an Enable
+   box; the login message. Profiles stay Leproc's: account-wide and shareable
+   between characters, with no limit, rather than ProcGlow's 8 per character;
+   the switching rules are per character, as in ProcGlow. Talents are read
+   from Forever's talent trees (the group with the most points spent); not
+   seen in game yet (TESTING.md). 0.x's glow code is gone until step 2
+   (`Abilities.lua`, `Data.lua` and `Glow.lua` stay, unused, for step 2).
 2. **Buttons and the glow rule.** Every bar ProcGlow knows (Blizzard's,
    Bartender, Dominos, ElvUI, EllesmereUI, the gamepad bars, the stance bars)
    plus our scan for any other; slots and macros. Per button, ProcGlow's

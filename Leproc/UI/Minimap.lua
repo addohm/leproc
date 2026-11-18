@@ -1,5 +1,6 @@
 -- Leproc: a draggable minimap button (no libraries), and the game's addon compartment entry.
--- Left-click opens the options window; right-click lights your abilities' buttons for a test.
+-- Left-click opens the options window; right-click opens a menu of your profiles (Blizzard's own
+-- menus, MenuUtil). The icon greys out while Leproc is turned off.
 local _, ns = ...
 
 local M = {}
@@ -9,9 +10,15 @@ local button
 
 local function UpdatePosition()
 	local angle = math.rad(ns.db.minimap.angle)
-	local radius = Minimap:GetWidth() / 2 + 5
+	local x, y = math.cos(angle), math.sin(angle)
+	-- On a square minimap the button follows the square's edge.
+	local shape = GetMinimapShape and GetMinimapShape() or "ROUND"
+	if shape ~= "ROUND" then
+		local m = math.max(math.abs(x), math.abs(y))
+		if m > 0 then x, y = x / m, y / m end
+	end
 	button:ClearAllPoints()
-	button:SetPoint("CENTER", Minimap, "CENTER", math.cos(angle) * radius, math.sin(angle) * radius)
+	button:SetPoint("CENTER", Minimap, "CENTER", x * (Minimap:GetWidth() / 2 + 5), y * (Minimap:GetHeight() / 2 + 5))
 end
 
 local function FollowCursor()
@@ -22,9 +29,36 @@ local function FollowCursor()
 	UpdatePosition()
 end
 
-local function OnClick(mouseButton)
+-- The profiles menu: the one in use first, the others to switch to, then a way to make a new one.
+local function ProfileMenu(owner, root)
+	local P = ns.Profiles
+	root:CreateTitle("Leproc profiles")
+	local names = { P.Current() }
+	for _, name in ipairs(P.Names()) do
+		if name ~= P.Current() then names[#names + 1] = name end
+	end
+	for _, name in ipairs(names) do
+		root:CreateRadio(name, function(n) return n == P.Current() end, function(n)
+			local ok, err = P.Switch(n)
+			ns.Print(ok and ("profile: " .. P.Current() .. ".") or err)
+		end, name)
+	end
+	root:CreateDivider()
+	root:CreateButton("New profile...", function() ns.Window.Show("profiles") end)
+end
+
+function M.OpenMenu(owner)
+	if MenuUtil and MenuUtil.CreateContextMenu then
+		GameTooltip:Hide()
+		MenuUtil.CreateContextMenu(owner, ProfileMenu)
+	else
+		ns.Window.Show("profiles")
+	end
+end
+
+local function OnClick(mouseButton, owner)
 	if mouseButton == "RightButton" then
-		ns.Track.Test()
+		M.OpenMenu(owner)
 	else
 		ns.Window.Toggle()
 	end
@@ -49,20 +83,30 @@ local function Build()
 	icon:SetTexture(ns.ICON)
 	icon:SetTexCoord(0.04, 0.96, 0.04, 0.96)
 	icon:SetPoint("TOPLEFT", 7, -6)
+	button.icon = icon
 
 	local border = button:CreateTexture(nil, "OVERLAY")
 	border:SetSize(53, 53)
 	border:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
 	border:SetPoint("TOPLEFT")
 
-	button:SetScript("OnClick", function(_, mouseButton) OnClick(mouseButton) end)
-	button:SetScript("OnDragStart", function(self) self:SetScript("OnUpdate", FollowCursor) end)
-	button:SetScript("OnDragStop", function(self) self:SetScript("OnUpdate", nil) end)
+	button:SetScript("OnClick", function(self, mouseButton) OnClick(mouseButton, self) end)
+	button:SetScript("OnDragStart", function(self)
+		self.dragging = true
+		GameTooltip:Hide()
+		self:SetScript("OnUpdate", FollowCursor)
+	end)
+	button:SetScript("OnDragStop", function(self)
+		self.dragging = nil
+		self:SetScript("OnUpdate", nil)
+	end)
 	button:SetScript("OnEnter", function(self)
+		if self.dragging then return end
 		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-		GameTooltip:AddLine("Leproc")
+		GameTooltip:AddLine("Leproc" .. (ns.Enabled() and "" or " |cff999999(off)|r"))
 		GameTooltip:AddLine("Click for options.", 1, 1, 1)
-		GameTooltip:AddLine("Right-click to light your abilities' buttons for " .. ns.WINDOW .. " s, as a test.", 1, 1, 1)
+		GameTooltip:AddLine("Right-click to switch profile.", 1, 1, 1)
+		GameTooltip:AddLine("Profile: " .. ns.Profiles.Current(), 1, 0.82, 0)
 		GameTooltip:AddLine("Drag to move this button.", 0.7, 0.7, 0.7)
 		GameTooltip:Show()
 	end)
@@ -76,18 +120,24 @@ end
 
 function M.SetShown(shown)
 	ns.db.minimap.hide = not shown
-	if button then button:SetShown(shown) end
+	M.Apply()
 	if ns.Window then ns.Window.Refresh() end
 end
 
--- Shows the button where the current profile has it (at login, and when the profile changes).
+-- Shows the button where the current profile has it, grey while Leproc is off (at login, and
+-- whenever settings or the profile change).
 function M.Apply()
 	if not button then return end
 	UpdatePosition()
 	button:SetShown(not ns.db.minimap.hide)
+	button.icon:SetDesaturated(not ns.Enabled())
+end
+
+function M.Button()
+	return button
 end
 
 function M.Init()
-	Build()
+	if not button then Build() end
 	M.Apply()
 end
