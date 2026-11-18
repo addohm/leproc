@@ -239,7 +239,11 @@ local function Why(e)
 		lines[#lines + 1] = "stance: needs " .. table.concat(e.stances, " or ") .. ", you're " .. (s.inStance and "in it" or "not in it")
 	end
 	local where = ns.Bars.Where(e)
-	lines[#lines + 1] = "on screen: " .. (#where > 0 and table.concat(where, ", ") or "|cffff8040no button you can see holds it|r")
+	lines[#lines + 1] = "on screen: " .. (#where > 0 and table.concat(where, ", ") or "no button you can see holds it")
+	local points = ns.Bars.Pointing(e)
+	if #points > 0 then
+		lines[#lines + 1] = "so the buttons for " .. table.concat(points, " or ") .. " glow instead (switch, and it's there)"
+	end
 	Lines(lines)
 end
 

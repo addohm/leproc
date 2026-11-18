@@ -275,6 +275,7 @@ WM.bottomLeft:Hide()
 WM.Combat("player", "DODGE")
 Check(not WM.Glowing(Fixed1), "a hidden bar shouldn't glow")
 Check(not ns.Bars.OnScreen(ns.byKey.revenge), "Revenge isn't on screen with its bar hidden in Battle Stance")
+Check(WM.Glowing(StanceButton2), "so the Defensive Stance button glows for it")
 WM.bottomLeft:Show()
 WM.Advance(6)
 
@@ -430,46 +431,108 @@ end
 WM.Advance(6)
 listed:Hide()
 
--- Macros: a stance-dance macro names Revenge, so its button is Revenge's even while it would
--- cast Defensive Stance; one naming both abilities lights for either; #showtooltip counts; a
--- macro naming no tracked ability doesn't light.
-local DEFENSIVE = 71
+-- Macros (the owner's own, 2026-11-18): a macro is the spell its icon shows, which the game
+-- reports for the slot (its #showtooltip, else the first /cast that applies). Two macros share
+-- the name MKSB (Shield Block, which also has a "/cast [stance:2] Revenge" line, and Shield Bash)
+-- and two MKR (Revenge and Retaliation). In Battle Stance.
+local SHIELD_BLOCK, SHIELD_BASH, RETALIATION, DEFENSIVE, SUNDER = 2565, 72, 20230, 71, 7386
+WM.spellNames[SHIELD_BLOCK], WM.spellNames[SHIELD_BASH] = "Shield Block", "Shield Bash"
+WM.spellNames[RETALIATION], WM.spellNames[DEFENSIVE], WM.spellNames[SUNDER] = "Retaliation", "Defensive Stance", "Sunder Armor"
 local mbar = WM.AddonBar("Macros", {}, "state")
-WM.SetMacro(140, 1, "Rev", "#showtooltip\n/cast [nostance:2] Defensive Stance; Revenge", DEFENSIVE)
-WM.SetMacro(141, 2, "Both", "/cast [stance:1] Overpower; [stance:2] !Revenge(Rank 6)", OVERPOWER)
-WM.SetMacro(142, 3, "Tip", "#showtooltip Revenge\n/startattack\n/cast Revenge", nil)
-WM.SetMacro(143, 4, "Other", "/cast [nostance:2] Defensive Stance; Shield Block", DEFENSIVE)
-WM.SetMacro(144, 5, "Seq", "/castsequence reset=5 Sunder Armor, Revenge", nil)
-local mRev = WM.Button("MacroRev", mbar, "action", 140)
-local mBoth = WM.Button("MacroBoth", mbar, "action", 141)
-local mTip = WM.Button("MacroTip", mbar, "action", 142)
-local mOther = WM.Button("MacroOther", mbar, "action", 143)
-local mSeq = WM.Button("MacroSeq", mbar, "action", 144)
+WM.SetMacro(140, 1, "MKSB", "#showtooltip Shield Block\n/cast [stance:1/3] Defensive Stance\n/cast [equipped:shields] Shield Block\n/cast [stance:2] Revenge", SHIELD_BLOCK)
+WM.SetMacro(141, 2, "MKSB", "#showtooltip [equipped:Shields]Shield Bash;Pummel\n/equipset [nostance:3,noequipped:Shields] Tank\n/cast [stance:3,@mouseover,harm,nodead][stance:3] Pummel; [stance:1] Defensive Stance; [@mouseover,harm,nodead][] Shield Bash", SHIELD_BASH)
+WM.SetMacro(142, 3, "MKR", "#showtooltip Revenge\n/cast [stance:1/3] Defensive Stance;Revenge\n/cast [stance:2] Shield Block", 7379)
+WM.SetMacro(143, 4, "MKR", "#showtooltip Retaliation\n/cast [stance:1/3] Sweeping Strikes; [stance:2] Battle Stance", RETALIATION)
+WM.SetMacro(144, 5, "MKOP", "#showtooltip Overpower\n/startattack\n/cast [nostance:1] Battle Stance\n/cast Overpower", OVERPOWER)
+-- Stance-dance macros with no #showtooltip naming the ability show the stance until you switch.
+-- Two share the name Dance (one dances to Revenge, one to Taunt), both showing Defensive Stance.
+WM.SetMacro(145, 121, "RevDance", "#showtooltip\n/cast [nostance:2] Defensive Stance; Revenge", DEFENSIVE)
+WM.SetMacro(146, 122, "Dance", "/cast [stance:1/3] Defensive Stance; [stance:2, nomod] !Revenge(Rank 6)", DEFENSIVE)
+WM.SetMacro(147, 123, "Dance", "/cast [stance:1/3] Defensive Stance; Taunt", DEFENSIVE)
+WM.SetMacro(148, 124, "Seq", "/castsequence reset=5 Sunder Armor, Revenge", SUNDER)
+local bBlock = WM.Button("MacroBlock", mbar, "action", 140)
+local bBash = WM.Button("MacroBash", mbar, "action", 141)
+local bRev = WM.Button("MacroRev", mbar, "action", 142)
+local bRet = WM.Button("MacroRet", mbar, "action", 143)
+local bOP = WM.Button("MacroOP", mbar, "action", 144)
+local bDance = WM.Button("MacroDance", mbar, "action", 145)
+local bDup1 = WM.Button("MacroDup1", mbar, "action", 146)
+local bDup2 = WM.Button("MacroDup2", mbar, "action", 147)
+local bSeq = WM.Button("MacroSeq", mbar, "action", 148)
 WM.Fire("PLAYER_ENTERING_WORLD")
 WM.Combat("player", "WOUND", "BLOCK_REDUCED")
-Check(WM.Glowing(mRev), "a stance-dance macro should glow for Revenge in Battle Stance")
-Check(WM.Glowing(mBoth), "a macro naming Revenge in another clause should glow")
-Check(WM.Glowing(mTip), "a macro with #showtooltip Revenge should glow")
-Check(WM.Glowing(mSeq), "a /castsequence with Revenge should glow")
-Check(not WM.Glowing(mOther), "a macro without a tracked ability shouldn't glow")
+Check(WM.Glowing(bRev), "MKR shows Revenge (its #showtooltip): it glows after a block, in Battle Stance")
+Check(not WM.Glowing(bBlock), "MKSB shows Shield Block: its Revenge line doesn't make it Revenge's button")
+Check(not WM.Glowing(bBash), "the other MKSB (Shield Bash) isn't mixed up with it")
+Check(not WM.Glowing(bRet), "the Retaliation MKR isn't mixed up with the Revenge one")
+Check(not WM.Glowing(bOP), "MKOP shows Overpower: not lit by a block")
+Check(WM.Glowing(bDance), "a stance-dance macro showing Defensive Stance glows for Revenge")
+Check(not WM.Glowing(bDup1) and not WM.Glowing(bDup2), "two macros named Dance showing the same stance: Leproc can't tell which text is whose, so neither")
+Check(not WM.Glowing(bSeq), "a /castsequence showing Sunder Armor isn't Revenge's button")
+Check(not WM.Glowing(StanceButton2), "Revenge has buttons you can see: the stance button doesn't glow")
 WM.Advance(6)
 WM.Combat("target", "DODGE")
-Check(WM.Glowing(mBoth) and not WM.Glowing(mRev), "the two-ability macro should glow for Overpower too")
+Check(WM.Glowing(bOP) and not WM.Glowing(bRev), "MKOP glows for Overpower")
 WM.Advance(6)
+-- In Defensive Stance the game says the stance-dance macro shows Revenge.
+WM.SetStance(2)
+WM.macros[121].shows = 7379
+WM.Combat("player", "BLOCK")
+Check(WM.Glowing(bDance) and WM.Glowing(bRev) and not WM.Glowing(bBlock), "Defensive Stance: the Revenge macros glow, the Shield Block one doesn't")
+WM.Advance(6)
+WM.SetStance(1)
+WM.macros[121].shows = DEFENSIVE
+-- What a macro would show in each stance: only stances decided; a press without modifiers, in
+-- combat, with a target.
+Check(ns.Macros.Shows("#showtooltip [mod:shift] Piercing Howl; Hamstring\n/cast [mod:shift] Piercing Howl; [nomod, stance:1/3] Hamstring; [nomod, stance:2] Battle Stance", 2) == "hamstring", "#showtooltip wins")
+Check(ns.Macros.Shows("#showtooltip\n/cast [mod:shift] Piercing Howl; [nomod, stance:1/3] Hamstring; [nomod, stance:2] Battle Stance", 2) == "battle stance", "no #showtooltip spell: the first /cast that applies")
+Check(ns.Macros.Shows("/cast [nocombat, stance:1/2] Charge; [combat, stance:3] Intercept; [nocombat] Defensive Stance; [combat] Berserker Stance", 1) == "berserker stance", "in combat")
+Check(ns.Macros.Shows("/cast [stance:2] [] Disarm", 1) == "disarm", "an empty condition always holds")
+Check(ns.Macros.Shows("/cast [stance] Rend; Heroic Strike", 0) == "heroic strike" and ns.Macros.Shows("/cast [nostance] Rend; Heroic Strike", 0) == "rend", "[stance] and [nostance] with no number")
 mbar:Hide()
 WM.mainBar:Show()
 WM.bottomLeft:Show()
 
+-- The player keeps their bars: with Revenge only on the Defensive Stance page of the main bar
+-- (nothing you can see holds it in Battle Stance), a block lights the buttons that take you there:
+-- the stance bar's Defensive Stance, and an action button holding it.
+WM.SetAction(61, nil)
+WM.SetAction(62, nil)
+WM.SetAction(66, DEFENSIVE)
+ns.Refresh()
+WM.Combat("player", "BLOCK")
+Check(WM.Glowing(StanceButton2) and WM.Glowing(MultiBarBottomLeftButton6), "Defensive Stance's buttons glow for Revenge")
+Check(not WM.Glowing(StanceButton1) and not WM.Glowing(StanceButton3) and not WM.Glowing(Main1), "only Defensive Stance's")
+local whyOut = PrintedNow(function() WM.Slash("why revenge") end)
+Check(whyOut:find("so the buttons for Defensive Stance glow instead"), "why says so: " .. whyOut)
+WM.SetStance(2)
+Check(WM.Glowing(Main1) and not WM.Glowing(StanceButton2) and not WM.Glowing(MultiBarBottomLeftButton6), "switched: Revenge's own button glows, the stance's don't")
+WM.Advance(6)
+WM.SetStance(1)
+-- Overpower the other way round: lit in Defensive Stance by your target's dodge, with Overpower
+-- only on the Battle Stance page.
+WM.SetStance(2)
+WM.Advance(1)
+WM.Combat("target", "DODGE")
+Check(WM.Glowing(StanceButton1) and not WM.Glowing(StanceButton2), "Battle Stance's button glows for Overpower")
+WM.Advance(6)
+WM.SetStance(1)
+WM.SetAction(66, nil)
+WM.SetAction(61, 11601)
+WM.SetAction(62, REVENGE, "macro")
+ns.Refresh()
+
 -- Diagnostics: /leproc bars, macros and why say what Leproc sees.
 local out = PrintedNow(function() WM.Slash("bars") end)
-Check(out:find("action buttons found") and out:find("MultiBarBottomLeftButton1 %(slot 61%): Revenge"), "bars should list Revenge's button: " .. out)
+Check(out:find("action buttons and 3 stance bar buttons found") and out:find("MultiBarBottomLeftButton1 %(slot 61%): Revenge"), "bars should list Revenge's button: " .. out)
 Check(not out:find("MacroRev") and out:find("and %d+ hidden buttons hold one"), "bars should count hidden buttons, not list them: " .. out)
 out = PrintedNow(function() WM.Slash("rescan") end)
-Check(out:find("action buttons found"), "rescan scans and reports: " .. out)
+Check(out:find("stance bar buttons found"), "rescan scans and reports: " .. out)
 mbar:Show()
 out = PrintedNow(function() WM.Slash("macros") end)
-Check(out:find('macro "Rev", text read, counts for Revenge'), "macros should show the stance-dance macro: " .. out)
-Check(out:find('macro "Other", text read, no tracked ability'), "macros should show a macro with none: " .. out)
+Check(out:find('macro "MKR" shows Revenge, counts for Revenge'), "macros: MKR: " .. out)
+Check(out:find('macro "MKSB" shows Shield Block, no tracked ability'), "macros: MKSB: " .. out)
+Check(out:find('macro "RevDance" shows Defensive Stance, a stance%-dance for Revenge'), "macros: a stance-dance: " .. out)
 mbar:Hide()
 WM.Combat("player", "BLOCK")
 out = PrintedNow(function() WM.Slash("why revenge") end)

@@ -15,6 +15,7 @@ Profiles.lua
 Glow.lua
 Log.lua
 Track.lua
+Macros.lua
 Bars.lua
 
 UI\Theme.lua

@@ -90,14 +90,25 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     combat, `Track.Update()` (lit set -> `Bars.Update`), `Track.Soon()` (one
     update next frame, for busy events: cooldowns, targets, highlights),
     `Track.State(e)` (`/leproc why`), `Track.Test()`.
-  - `Bars.lua`: 0.x's, without Also glow or proc buffs: finds action buttons
-    from any bar addon (`Bars.Scan`: every frame via `EnumerateFrames` that's a
-    Button/CheckButton holding a slot, out of combat), `Bars.LATE` and
-    `Bars.CheckLate()` for bars built late, a button's slot (`_state_action`,
-    `action`, the "action" attribute), what it holds (`EntriesOn`: the spell,
-    and for a macro every tracked ability its text names), `Bars.Update(lit)`,
-    `Bars.OnScreen(e)`, `Bars.CurrentForm()`, and the diagnostics
-    (`Bars.Report`, `Bars.MacroReport`, `Bars.Where`, `Bars.Slots`).
+  - `Macros.lua`: which ability a macro button is. A macro is the spell its
+    icon shows, as the game reports it for the slot (`GetActionInfo`: "macro",
+    spellID, "spell"; its `#showtooltip`, else the first `/cast` that applies;
+    the owner's dumps, 2026-11-18). For a macro showing one of your stances,
+    `Macros.Dance(slot, id)` reads its text (the macros with the button's name
+    whose `GetMacroSpell` is that stance; several: only what they agree on) and
+    `Macros.Shows(body, stance)` works out what it shows in each stance (stance
+    conditions decided; a press without modifiers, in combat, with a target).
+  - `Bars.lua`: finds action buttons from any bar addon (`Bars.Scan`: every
+    frame via `EnumerateFrames` that's a Button/CheckButton holding a slot, out
+    of combat) and stance bar buttons (by name: `Stance...Button<n>`),
+    `Bars.LATE` and `Bars.CheckLate()` for bars built late, a button's slot
+    (`_state_action`, `action`, the "action" attribute), what it holds
+    (`EntriesOn`: the spell it shows, or a macro's stance-dance abilities),
+    `Bars.Update(lit)`: lit abilities' buttons glow; a lit ability with no
+    button on screen while you're out of its stance glows its stance's buttons
+    instead (`Bars.Pointing(e)`). `Bars.OnScreen(e)`, `Bars.CurrentForm()`, and
+    the diagnostics (`Bars.Report`, `Bars.MacroReport`, `Bars.Where`,
+    `Bars.Slots`).
   - `Log.lua`: `/leproc log`, as 0.x's: triggers, glows, casts, stance and
     target changes, deaths, cleared windows, the game's usable answers (by
     spell and by button; only changes), Blizzard's proc highlights and the
@@ -223,6 +234,10 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
 - **A partial block is a `WOUND` flagged `BLOCK_REDUCED`** (most Classic blocks
   are partial); a full block is `BLOCK`, or a `WOUND` flagged `BLOCK`
   (CombatFeedback.lua).
+- **No sacrifices to the player's setup** (the owner, 2026-11-18): their bars,
+  stance pages and macros stay as they are. A button is the ability it shows
+  (Macros.lua), never every ability a macro's text names; a lit ability with no
+  button on screen points at its stance's buttons.
 - **Find buttons by what they hold, not by name**, so any bar addon works:
   any button with an action slot counts, and hidden ones (Blizzard's under
   EllesmereUI) never glow because they aren't visible. The tests check every

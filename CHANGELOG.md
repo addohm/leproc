@@ -13,7 +13,12 @@ Steps 1 and 2a of 10 are in: the version is 1.0.0-dev until 1.0.0.
 
 - Rebuild step 2a (2026-11-18): the glows are back, with ProcGlow's order for each ability: dark during its cooldown (from your cast, or the game's own where it shows it; not the global cooldown), Blizzard's own proc highlight lights it, Exorcism only on an undead or demon target, then the game's usable answer in the ability's stance, and outside it Leproc's own trigger windows as in 0.x (shortened by the measured report delay; a target's dodge only in combat).
 - New abilities from ProcGlow's list: Execute (Battle or Berserker Stance), Victory Rush, Hammer of Wrath and Exorcism, by the game's answer. Proc buffs (Shadow Trance, Bloodthrill...) come back in step 4.
-- Every bar addon's buttons and macros as in 0.x; `/leproc test`, `why`, `bars`, `macros`, `log` back, and `/leproc rescan` (ProcGlow's) looks for buttons again.
+- Every bar addon's buttons as in 0.x; `/leproc test`, `why`, `bars`, `macros`, `log` back, and `/leproc rescan` (ProcGlow's) looks for buttons again.
+- No sacrifices to your setup (2026-11-18): an ability that's lit with no button of it on screen (it's on another stance's bar page) glows the buttons that switch you to its stance instead: the stance bar's, and any button showing that stance. `/leproc why` says so.
+
+### Fixed
+
+- Macros lit for abilities they don't show (2026-11-18, the owner's screenshot: Shield Block and Shield Bash macros glowing with Revenge). A macro now counts as the spell its icon shows, as the game reports it for the slot (its `#showtooltip`, else the first `/cast` that applies), not every ability its text names; and Leproc no longer reads a macro's text by name, which mixed up two macros with the same name. Stance-dance macros still count: one showing a stance counts for the ability it would show in that ability's stance, worked out from its own text. `/leproc macros` shows what each macro shows and counts for.
 
 - Rebuild step 1 (2026-11-18): the options window with ProcGlow's pages as tabs (General, Procs & Buffs, Glow, Timer & Stacks, Text Alerts, Profiles; the middle four say which step brings them), and the window in your class colour as an option. The build number is in chat only (the login line, `/leproc help`), not in the window.
 - General: Enable Leproc (the minimap button greys out while it's off), a login reminder in chat (a welcome the first time), and Reset all settings (every profile and character, after asking; the interface reloads).

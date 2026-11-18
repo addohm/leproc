@@ -2,22 +2,25 @@
 -- (EnumerateFrames) for buttons that hold an action slot, out of combat, and gives each Leproc's
 -- own overlay frame; the glow is drawn on that, never on the button itself (no fields or scripts
 -- set on a button, nothing protected called). That finds every bar on ProcGlow's list
--- (Blizzard's, Bartender's, Dominos', ElvUI's, EllesmereUI's, the gamepad bars) and any other. A
--- button only glows while it's on screen, so bars an addon hides (Blizzard's, under EllesmereUI)
--- never do, and an ability on a bar page that changes with stance (a warrior's main bar) can't
--- light in the other stances.
+-- (Blizzard's, Bartender's, Dominos', ElvUI's, EllesmereUI's, the gamepad bars) and any other, and
+-- the stance bars (by name: StanceButton1, BT4StanceButton1...). A button only glows while it's on
+-- screen, so bars an addon hides (Blizzard's, under EllesmereUI) never do.
 --
--- What a button holds: GetActionInfo(slot) gives a spell, or the spell a macro would cast right
--- now. A macro also counts for every tracked ability its text names, so a stance-dance macro
--- (/cast [nostance:2] Defensive Stance; Revenge) is Revenge's button even in Battle Stance, when
--- it would cast Defensive Stance.
+-- What a button holds is the spell it shows (Macros.lua): a spell, or the spell the game reports
+-- for a macro (its icon), plus, for a macro showing a stance, the abilities it's a stance-dance for.
+--
+-- The player keeps their bars as they are. When an ability is lit but no button you can see holds
+-- it (it's on a bar page of another stance: a warrior's main bar swaps with stance), the buttons
+-- that take you to its stance glow instead: the stance bar's, and any button showing the stance.
 local _, ns = ...
 
 local Bars = {}
 ns.Bars = Bars
 
 local buttons = {}   -- action buttons found, in the order found
+local stances = {}   -- stance bar buttons found: { button, the stance's number }
 local overlays = {}  -- button -> Leproc's overlay frame
+local pointing = {}  -- key -> the stances whose buttons glow for it (at the last Update)
 local pending = false -- a scan was asked for in combat
 
 -- The first button of each bar addon that may build its bars after login (ProcGlow's list):
@@ -50,79 +53,30 @@ local function Slot(button)
 	return ok and Number(attr) or nil
 end
 
--- Tracked abilities by lower-case name: the English names, and the game's own (localized).
-local byName = {}
-local function Names()
-	for _, e in ipairs(ns.Catalogue) do
-		for _, name in ipairs(e.names) do byName[name:lower()] = e end
-		for _, id in ipairs(e.idList) do
-			local ok, name = pcall(C_Spell.GetSpellName, id)
-			if ok and Text(name) then byName[name:lower()] = e end
-		end
-	end
+-- The spell a button shows, and what kind of action it is: a spell, or a macro's icon (the game
+-- reports it for the slot).
+local function Shown(button)
+	local slot = Slot(button)
+	if not slot then return nil end
+	local ok, kind, id, sub = pcall(GetActionInfo, slot)
+	if not ok or Secret(kind) or Secret(id) or Secret(sub) then return nil end
+	if kind == "spell" or (kind == "macro" and sub == "spell") then return Number(id), kind, slot end
+	return nil, kind, slot
 end
 
--- The tracked abilities a macro's text names, on #show(tooltip), /cast, /castsequence,
--- /castrandom and /use lines, in any clause: "[stance:1] Overpower; [stance:2] Revenge" names
--- both. Conditions, reset=, "!" and "(Rank 3)" are ignored. Cached by text.
-local parsed = {}
-local function MacroEntries(body)
-	if parsed[body] then return parsed[body] end
-	local list, seen = {}, {}
-	for line in body:lower():gmatch("[^\n]+") do
-		local args = line:match("^%s*#show%a*%s+(.+)") or line:match("^%s*/cast%a*%s+(.+)")
-			or line:match("^%s*/use%s+(.+)")
-		if args then
-			args = args:gsub("%b[]", ""):gsub("reset=%S+", "")
-			for part in args:gmatch("[^;,]+") do
-				local name = part:gsub("%(.-%)", ""):gsub("^[%s!]+", ""):gsub("%s+$", "")
-				local e = byName[name]
-				if e and not seen[e] then
-					seen[e] = true
-					list[#list + 1] = e
-				end
-			end
-		end
-	end
-	parsed[body] = list
-	return list
-end
-
--- A macro's text: by the name the button shows (when the slot reports the spell the macro
--- casts, its ID isn't the macro's), else by the macro's index.
-local function MacroBody(slot, id, sub)
-	local getText = (C_ActionBar and C_ActionBar.GetActionText) or GetActionText
-	local ok, name = pcall(getText, slot)
-	local body
-	if ok and Text(name) then
-		local okInfo, _, _, b = pcall(GetMacroInfo, name)
-		if okInfo then body = Text(b) end
-	end
-	if not body and sub ~= "spell" and Number(id) then
-		local okInfo, _, _, b = pcall(GetMacroInfo, id)
-		if okInfo then body = Text(b) end
-	end
-	return body
-end
-
--- The tracked abilities (catalogue entries) a button holds: none, one, or a macro's several.
+-- The tracked abilities (catalogue entries) a button holds: the one it shows, or the ones a macro
+-- showing a stance dances to.
 local NONE = {}
 local function EntriesOn(button)
-	local slot = Slot(button)
-	if not slot then return NONE end
-	local ok, kind, id, sub = pcall(GetActionInfo, slot)
-	if not ok or Secret(kind) or Secret(id) or Secret(sub) then return NONE end
-	local direct = (kind == "spell" or (kind == "macro" and sub == "spell")) and ns.bySpell[id] or nil
-	if kind ~= "macro" then return direct and { direct } or NONE end
-	local body = MacroBody(slot, id, sub)
-	local list = body and MacroEntries(body) or NONE
-	if not direct then return list end
-	for _, e in ipairs(list) do
-		if e == direct then return list end
+	local id, kind, slot = Shown(button)
+	if not id then return NONE end
+	local e = ns.bySpell[id]
+	if e then return { e } end
+	if kind == "macro" then
+		local list = ns.Macros.Dance(slot, id)
+		if #list > 0 then return list end
 	end
-	local all = { direct }
-	for _, e in ipairs(list) do all[#all + 1] = e end
-	return all
+	return NONE
 end
 
 local function IsActionButton(f)
@@ -138,6 +92,24 @@ local function SpellName(id)
 	if not Number(id) then return nil end
 	local ok, name = pcall(C_Spell.GetSpellName, id)
 	return ok and Text(name) or nil
+end
+
+-- A stance bar button's stance number, or nil: a button holding no action slot, named
+-- "...Stance...Button<n>".
+local function StanceIndex(f)
+	local ok, index = pcall(function()
+		if f:IsForbidden() then return nil end
+		if not (f:IsObjectType("CheckButton") or f:IsObjectType("Button")) or Slot(f) then return nil end
+		local name = Text(f:GetName())
+		return name and tonumber(name:match("Stance.-Button(%d+)$"))
+	end)
+	return ok and index or nil
+end
+
+-- The spell of stance number i.
+local function FormSpell(i)
+	local ok, _, _, _, id = pcall(GetShapeshiftFormInfo, i)
+	return ok and Number(id) or nil
 end
 
 -- The stance you're in, by name (for the log and /leproc why).
@@ -158,12 +130,19 @@ function Bars.Scan()
 	pending = false
 	local f = EnumerateFrames()
 	while f do
-		if not overlays[f] and IsActionButton(f) then
-			local overlay = CreateFrame("Frame", nil, f)
-			overlay:SetAllPoints(f)
-			overlay:SetFrameLevel(f:GetFrameLevel() + 10)
-			overlays[f] = overlay
-			buttons[#buttons + 1] = f
+		if not overlays[f] then
+			local index = not IsActionButton(f) and StanceIndex(f)
+			if index or IsActionButton(f) then
+				local overlay = CreateFrame("Frame", nil, f)
+				overlay:SetAllPoints(f)
+				overlay:SetFrameLevel(f:GetFrameLevel() + 10)
+				overlays[f] = overlay
+				if index then
+					stances[#stances + 1] = { f, index }
+				else
+					buttons[#buttons + 1] = f
+				end
+			end
 		end
 		f = EnumerateFrames(f)
 	end
@@ -184,7 +163,7 @@ function Bars.CheckLate()
 end
 
 function Bars.Init()
-	Names()
+	ns.Macros.Names()
 	Bars.Scan()
 end
 
@@ -194,17 +173,62 @@ local function Size(button)
 end
 
 -- Glows every button you can see that holds a lit ability (lit: key -> true, from Track.Update).
+-- A lit ability that no button you can see holds, while you're not in its stance, glows the
+-- buttons that switch to its stance instead.
 function Bars.Update(lit)
 	Bars.CheckLate()
+	local glow, held = {}, {}
 	for _, button in ipairs(buttons) do
-		local on = false
 		if button:IsVisible() then
 			for _, e in ipairs(EntriesOn(button)) do
-				if lit[e.key] then on = true end
+				held[e.key] = true
+				if lit[e.key] then glow[button] = true end
 			end
 		end
-		ns.Glow.Show(overlays[button], on and ns.db.glow or "none", ns.db.color, Size(button))
 	end
+	wipe(pointing)
+	local want = {}
+	for _, e in ipairs(ns.Catalogue) do
+		if lit[e.key] and not held[e.key] and e.stanceIds and not ns.Track.InStance(e) then
+			for id in pairs(e.stanceIds) do want[id] = e end
+		end
+	end
+	if next(want) then
+		local function Point(id)
+			local e = want[id]
+			local name = SpellName(id) or "its stance"
+			pointing[e.key] = pointing[e.key] or {}
+			for _, n in ipairs(pointing[e.key]) do
+				if n == name then return end
+			end
+			table.insert(pointing[e.key], name)
+		end
+		for _, s in ipairs(stances) do
+			local id = s[1]:IsVisible() and FormSpell(s[2])
+			if id and want[id] then
+				glow[s[1]] = true
+				Point(id)
+			end
+		end
+		for _, button in ipairs(buttons) do
+			local id = button:IsVisible() and Shown(button)
+			if id and want[id] then
+				glow[button] = true
+				Point(id)
+			end
+		end
+	end
+	for _, button in ipairs(buttons) do
+		ns.Glow.Show(overlays[button], glow[button] and ns.db.glow or "none", ns.db.color, Size(button))
+	end
+	for _, s in ipairs(stances) do
+		ns.Glow.Show(overlays[s[1]], glow[s[1]] and ns.db.glow or "none", ns.db.color, Size(s[1]))
+	end
+end
+
+-- The stances whose buttons glow for an ability now (it's lit, but on no button you can see).
+function Bars.Pointing(e)
+	return pointing[e.key] or NONE
 end
 
 -- True if the ability is on a button you can see right now.
@@ -277,31 +301,29 @@ function Bars.Report()
 			hidden = hidden + 1
 		end
 	end
-	table.insert(lines, 1, #buttons .. " action buttons found, " .. shown
+	table.insert(lines, 1, #buttons .. " action buttons and " .. #stances .. " stance bar buttons found, " .. shown
 		.. " action buttons on screen. On screen holding a tracked ability:"
 		.. (#lines == 0 and " none." or ""))
 	if hidden > 0 then lines[#lines + 1] = "and " .. hidden .. " hidden buttons hold one (they can't glow)." end
 	return lines
 end
 
--- Every macro on a button you can see: its name, whether its text could be read, and the tracked
--- abilities it names.
+-- Every macro on a button you can see: its name, the spell it shows (the game's answer), and the
+-- tracked abilities it counts for.
 function Bars.MacroReport()
 	local lines, seen = {}, {}
 	for _, button in ipairs(buttons) do
-		local slot = Slot(button)
-		if button:IsVisible() and slot and not seen[slot] then
-			local ok, kind, id, sub = pcall(GetActionInfo, slot)
-			if ok and kind == "macro" and not Secret(id) then
-				seen[slot] = true
-				local getText = (C_ActionBar and C_ActionBar.GetActionText) or GetActionText
-				local okName, name = pcall(getText, slot)
-				local body = MacroBody(slot, id, sub)
-				local held = EntriesOn(button)
-				lines[#lines + 1] = Name(button) .. " (slot " .. slot .. "): macro \"" .. tostring(okName and Text(name) or "?")
-					.. "\", " .. (body and "text read" or "|cffff8040text not readable|r")
-					.. ", " .. (#held > 0 and ("counts for " .. Labels(held)) or "no tracked ability")
-			end
+		local id, kind, slot = Shown(button)
+		if button:IsVisible() and kind == "macro" and slot and not seen[slot] then
+			seen[slot] = true
+			local getText = (C_ActionBar and C_ActionBar.GetActionText) or GetActionText
+			local okName, name = pcall(getText, slot)
+			local held = EntriesOn(button)
+			local dance = id and not ns.bySpell[id] and #held > 0
+			lines[#lines + 1] = Name(button) .. " (slot " .. slot .. "): macro \"" .. tostring(okName and Text(name) or "?")
+				.. "\" shows " .. (SpellName(id) or "nothing the game names")
+				.. ", " .. (#held == 0 and "no tracked ability"
+					or ((dance and "a stance-dance for " or "counts for ") .. Labels(held)))
 		end
 	end
 	table.insert(lines, 1, #lines .. " macros on buttons you can see" .. (#lines > 0 and ":" or "."))

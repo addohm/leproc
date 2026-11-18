@@ -212,44 +212,70 @@ function M.Button(name, parent, how, slot)
 end
 
 -- Action slots: WM.SetAction(slot, spellID) or WM.SetAction(slot, spellID, "macro") (a macro
--- whose text isn't known). WM.SetMacro(slot, index, name, body, castsNow) puts macro `index`
--- on the slot; castsNow is the spell it would cast right now (nil: none). As on Forever, the
--- slot then reports that spell's ID, not the macro's index.
+-- whose text isn't known). WM.SetMacro(slot, index, name, body, shows) puts macro `index` on the
+-- slot; `shows` is the spell its icon shows right now (its #showtooltip, or the first /cast that
+-- applies; nil: none). As on Forever (the owner's dumps), the slot then reports that spell's ID,
+-- not the macro's index, and so does GetMacroSpell. A test changes what a macro shows with
+-- WM.macros[index].shows. Account macros are 1-120, character macros 121 on.
 M.macros = {}
+MAX_ACCOUNT_MACROS = 120
 function M.SetAction(slot, spellID, kind)
 	M.actions[slot] = spellID and { kind or "spell", spellID } or nil
 end
-function M.SetMacro(slot, index, name, body, castsNow)
-	M.macros[index] = { name = name, body = body }
-	M.actions[slot] = { "macro", castsNow or index, castsNow and "spell" or nil, name = name }
+function M.SetMacro(slot, index, name, body, shows)
+	M.macros[index] = { name = name, body = body, shows = shows }
+	M.actions[slot] = { "macro", index, macro = true }
 end
 function GetActionInfo(slot)
 	local a = M.actions[slot]
 	if not a then return nil end
-	if a[1] == "macro" then
-		if a.name then return "macro", a[2], a[3] end
-		return "macro", a[2], "spell"
+	if a.macro then
+		local m = M.macros[a[2]]
+		if m and m.shows then return "macro", m.shows, "spell" end
+		return "macro", a[2], ""
 	end
+	if a[1] == "macro" then return "macro", a[2], "spell" end
 	return "spell", a[2]
 end
 C_ActionBar = {
 	GetActionText = function(slot)
 		local a = M.actions[slot]
-		return a and a.name or nil
+		local m = a and a.macro and M.macros[a[2]]
+		return m and m.name or nil
 	end,
 	IsUsableAction = function(slot)
 		if M.slotUsable[slot] ~= nil then return M.slotUsable[slot], false end
-		local a = M.actions[slot]
-		local name = a and C_Spell.GetSpellName(a[2])
+		local _, id = GetActionInfo(slot)
+		local name = id and C_Spell.GetSpellName(id)
 		if name then return M.GameUsable(name) end
 		return false, false
 	end,
 }
--- GetMacroInfo(index or name): name, icon, body.
+local function MacroIndexes()
+	local list = {}
+	for index in pairs(M.macros) do list[#list + 1] = index end
+	table.sort(list)
+	return list
+end
+-- GetMacroInfo(index or name): name, icon, body (by name: the first, as the game does).
 function GetMacroInfo(which)
-	for index, m in pairs(M.macros) do
+	for _, index in ipairs(MacroIndexes()) do
+		local m = M.macros[index]
 		if index == which or m.name == which then return m.name, 134400, m.body end
 	end
+end
+function GetMacroSpell(which)
+	for _, index in ipairs(MacroIndexes()) do
+		local m = M.macros[index]
+		if index == which or m.name == which then return m.shows end
+	end
+end
+function GetNumMacros()
+	local account, character = 0, 0
+	for index in pairs(M.macros) do
+		if index > MAX_ACCOUNT_MACROS then character = character + 1 else account = account + 1 end
+	end
+	return account, character
 end
 
 -- Stances: index 1 Battle (2457), 2 Defensive (71), 3 Berserker (2458). WM.SetStance(1 to 3,

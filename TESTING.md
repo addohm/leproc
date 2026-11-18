@@ -74,9 +74,20 @@ testing (the session section below).
 7. A rogue's Riposte after a parry; a hunter's Counterattack (parry) and
    Mongoose Bite (your own dodge).
 8. EllesmereUI's bars: glows on its buttons, never on Blizzard's hidden ones,
-   right after login and after `/reload`. A stance-dance macro
-   (`/cast [nostance:2] Defensive Stance; Revenge`) glows for Revenge in Battle
-   Stance.
+   right after login and after `/reload`.
+8a. **Your macros, as they are** (the fix for the screenshot): `/leproc test`
+   lights MKR (shows Revenge), MKOP (Overpower) and Victory Rush, and **not**
+   either MKSB, MKSS or MKH. `/leproc macros` says what each shows, e.g.
+   `macro "MKR" shows Revenge, counts for Revenge` and `macro "MKSB" shows
+   Shield Block, no tracked ability`. After a block in Battle Stance, MKR glows
+   wherever it's on screen.
+8b. **When Revenge has no button on screen** (it's only on the Defensive Stance
+   page): after a block in Battle Stance the Defensive Stance button glows
+   instead (the stance bar's, if yours is shown, and any button showing
+   Defensive Stance), and `/leproc why revenge` says "so the buttons for
+   Defensive Stance glow instead". Switch: Revenge's own button glows. Does
+   `/leproc bars` count your stance bar buttons ("... stance bar buttons
+   found")? If it says 0 with EllesmereUI's stance bar showing, tell me.
 9. `/leproc test` lights your abilities for 5 s. `/leproc why revenge` right
    after a block: lit, the window's seconds, the stance, Blizzard's highlight,
    the buttons. `/leproc bars`, `macros`, `rescan`.

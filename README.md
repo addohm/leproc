@@ -51,15 +51,27 @@ ProcGlow's reactive abilities:
    combat, it was someone else's attack). Dying or leaving combat ends every
    window.
 
-**Put the abilities on a bar that doesn't change with stance**, to see them
-light in every stance: a warrior's main bar swaps with stance. Bars 2 to 8 stay
-put. **Bar addons work too:** every bar ProcGlow knows (Blizzard's,
-EllesmereUI, Bartender, Dominos, ElvUI, the gamepad bars) and any other, also
-when built a while after login. **Macros count by their text:** a macro naming
-a tracked ability on a `/cast`, `/castsequence`, `/use` or `#showtooltip` line,
-in any clause, is that ability's button, so a stance-dance macro
-(`/cast [nostance:2] Defensive Stance; Revenge`) glows for Revenge in Battle
-Stance.
+**Your bars and macros stay as they are.**
+
+- **Any bar addon:** every bar ProcGlow knows (Blizzard's, EllesmereUI,
+  Bartender, Dominos, ElvUI, the gamepad bars) and any other, also when built
+  a while after login, and the stance bars.
+- **A button is the ability it shows:** a spell, or for a macro the spell on
+  its icon, as the game shows it (its `#showtooltip`, else the first `/cast`
+  that applies). So a Shield Block macro with a `/cast [stance:2] Revenge` line
+  is still Shield Block's button, and two macros with the same name don't get
+  mixed up. A macro showing Revenge in every stance (`#showtooltip Revenge`,
+  `/cast [stance:1/3] Defensive Stance; Revenge`) glows for Revenge in every
+  stance.
+- **Stance-dance macros without that `#showtooltip`**
+  (`/cast [nostance:2] Defensive Stance; Revenge`) show the stance until you
+  switch: Leproc works out what they'd show in the stance the ability needs, so
+  they glow for it too. (Only if two such macros share a name and show the same
+  stance can't it tell them apart; then neither glows.)
+- **On another stance's bar page:** a warrior's main bar swaps with stance, so
+  in Battle Stance you may have no button for Revenge on screen. Then the
+  buttons that switch you to its stance glow instead (the stance bar's, and
+  any button showing Defensive Stance): switch, and Revenge is there, lit.
 
 ## Getting started
 

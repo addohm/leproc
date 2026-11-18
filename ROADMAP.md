@@ -103,8 +103,11 @@ in TESTING.md.
    (`Abilities.lua`, `Data.lua` and `Glow.lua` stay, unused, for step 2).
 2. **Buttons and the glow rule.** In two parts. 2a, done 2026-11-18: the
    buttons, macros, the glow rule and the abilities below, the log and the
-   diagnostics (`why`, `bars`, `macros`, `rescan`, `test`). 2b: the class
-   pages. Every bar ProcGlow knows (Blizzard's,
+   diagnostics (`why`, `bars`, `macros`, `rescan`, `test`); then, after the
+   owner's screenshot, no sacrifices to the player's setup: a macro is the
+   spell its icon shows (stance-dance macros worked out from their own text),
+   and an ability with no button on screen glows its stance's buttons. 2b:
+   the class pages. Every bar ProcGlow knows (Blizzard's,
    Bartender, Dominos, ElvUI, EllesmereUI, the gamepad bars, the stance bars)
    plus our scan for any other; slots and macros. Per button, ProcGlow's
    order: Blizzard's proc highlight; the target's type (Exorcism); the game's
@@ -142,7 +145,8 @@ in TESTING.md.
    game still answers (as ProcGlow does), or Leboof's container method where
    that works better.
 8. **Redirects.** A proc shown on another button or slot, only in the stances
-   you pick; replaces 0.x's Also glow.
+   you pick; replaces 0.x's Also glow. (Its automatic case, the stance's
+   buttons when the ability has none on screen, is in since 2a.)
 9. **Diagnostics.** `/leproc why`, `bars`, `macros`, `auras`, `procs`, `bg`,
    `icon`, `mouse`, `debug`, and the log.
 10. **1.0.0** with the release kit (DEPLOY.md).
