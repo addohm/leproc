@@ -101,7 +101,10 @@ in TESTING.md.
    from Forever's talent trees (the group with the most points spent); not
    seen in game yet (TESTING.md). 0.x's glow code is gone until step 2
    (`Abilities.lua`, `Data.lua` and `Glow.lua` stay, unused, for step 2).
-2. **Buttons and the glow rule.** Every bar ProcGlow knows (Blizzard's,
+2. **Buttons and the glow rule.** In two parts. 2a, done 2026-11-18: the
+   buttons, macros, the glow rule and the abilities below, the log and the
+   diagnostics (`why`, `bars`, `macros`, `rescan`, `test`). 2b: the class
+   pages. Every bar ProcGlow knows (Blizzard's,
    Bartender, Dominos, ElvUI, EllesmereUI, the gamepad bars, the stance bars)
    plus our scan for any other; slots and macros. Per button, ProcGlow's
    order: Blizzard's proc highlight; the target's type (Exorcism); the game's

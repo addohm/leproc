@@ -1,7 +1,7 @@
 -- A small fake WoW client for Leproc's tests. Frames accept any method call. Blizzard's action
 -- buttons exist (ActionButton1-12, MultiBarBottomLeftButton1-12), each with an `action` slot; the
 -- test puts spells on slots (WM.SetAction), flips stance, and fires combat events.
-local M = { printed = {}, combat = false, class = "WARRIOR", known = {}, frames = {}, actions = {} }
+local M = { printed = {}, combat = false, class = "WARRIOR", known = {}, frames = {}, actions = {}, made = {} }
 
 -- Unknown methods (capitalised names) do nothing; unknown fields are nil, as on a real frame.
 local function Permissive(t)
@@ -192,6 +192,7 @@ function M.AddonBar(name, slots, how)
 		b:SetSize(38, 38)
 		if how == "attribute" then b:SetAttribute("action", slot) else b._state_action = slot end
 		_G[name .. "Button" .. i] = b
+		M.made[name .. "Button" .. i] = true
 		bar.buttons[i] = b
 	end
 	return bar
@@ -206,6 +207,7 @@ function M.Button(name, parent, how, slot)
 	elseif how == "state" then b._state_action = slot
 	else b.action = slot end
 	_G[name] = b
+	M.made[name] = true
 	return b
 end
 
@@ -425,7 +427,15 @@ end
 
 -- Spell names: the stances, and every ID in the addon's Data.lua by its name.
 M.spellNames = { [2458] = "Berserker Stance" }
+-- Cooldowns the game shows: WM.cooldowns[name] = { startTime, duration } (or "SECRET").
+M.cooldowns = {}
 C_Spell = {
+	GetSpellCooldown = function(spell)
+		local c = M.cooldowns[spell]
+		if c == "SECRET" then return { startTime = "SECRET", duration = "SECRET", isEnabled = true } end
+		if c then return { startTime = c[1], duration = c[2], isEnabled = true, modRate = 1 } end
+		return { startTime = 0, duration = 0, isEnabled = true, modRate = 1 }
+	end,
 	GetSpellTexture = function(id) return 100000 + id end,
 	IsSpellUsable = function(spell) return M.GameUsable(spell) end,
 	GetSpellName = function(id)
@@ -436,6 +446,16 @@ C_Spell = {
 	end,
 }
 function UnitClass() return "Class", M.class end
+-- Your target: WM.target = { type = creature type ID (6 undead, 3 demon, 7 humanoid...), dead,
+-- friend } or nil for none.
+M.target = nil
+function UnitExists(unit) return unit == "target" and M.target ~= nil end
+function UnitIsDead(unit) return unit == "target" and M.target ~= nil and M.target.dead == true end
+function UnitCanAttack(_, unit) return unit == "target" and M.target ~= nil and not M.target.friend end
+function UnitCreatureType(unit)
+	if unit ~= "target" or not M.target then return nil end
+	return "Type", M.target.type
+end
 function InCombatLockdown() return M.combat end
 -- In combat as far as the unit is concerned (fighting, not the UI lockdown): WM.fighting, true
 -- unless a test says otherwise, so the scenarios' triggers count.

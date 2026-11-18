@@ -1,9 +1,10 @@
-"""Generate Leproc/Data.lua: the spell IDs for every ability and stance name in Leproc/Abilities.lua.
+"""Generate Leproc/Data.lua: the spell IDs for every ability and stance name in Leproc/Abilities.lua
+(`names` and `stances`).
 
 Run it with no arguments: python3 tools/gen_data.py
 
 It downloads WoW: Forever's SpellName table from wago.tools (product wowf) into .scratch/ (reused
-for a day), then lists every spell ID whose name matches one of the `names` or a `stance` in
+for a day), then lists every spell ID whose name matches one of the `names` or `stances` in
 Abilities.lua. Matching by name picks up all ranks. Names with no IDs are reported, so a typo or a
 spell Forever doesn't have shows up here rather than as an icon that never lights.
 """
@@ -26,7 +27,9 @@ def spell_names():
     if not CACHE.exists() or time.time() - CACHE.stat().st_mtime > 86400:
         CACHE.parent.mkdir(exist_ok=True)
         print(f"Downloading {URL}")
-        with urllib.request.urlopen(URL, timeout=120) as response:
+        # wago.tools refuses Python's default user agent (403 since 2026-11).
+        request = urllib.request.Request(URL, headers={"User-Agent": "leproc-gen-data (+https://github.com/addohm/leproc)"})
+        with urllib.request.urlopen(request, timeout=120) as response:
             CACHE.write_bytes(response.read())
     with CACHE.open(encoding="utf-8", newline="") as f:
         return [(int(row["ID"]), row["Name_lang"]) for row in csv.DictReader(f)]
@@ -35,7 +38,7 @@ def spell_names():
 def wanted_names():
     source = ABILITIES.read_text(encoding="utf-8")
     names = []
-    found = re.findall(r"names\s*=\s*\{([^}]*)\}", source) + re.findall(r'stance\s*=\s*("[^"]*")', source)
+    found = re.findall(r"(?:names|stances)\s*=\s*\{([^}]*)\}", source)
     for block in found:
         for name in re.findall(r'"((?:[^"\\]|\\.)*)"', block):
             if name not in names:

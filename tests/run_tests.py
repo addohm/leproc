@@ -14,7 +14,7 @@ except ImportError:
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ADDON = ROOT / "Leproc"
 TESTS = ROOT / "tests"
-ALLOWED_GLOBALS = {"LeprocDB", "LeprocFrame", "LeprocMinimapButton", "SLASH_LEPROC1", "SLASH_LEPROC2",
+ALLOWED_GLOBALS = {"LeprocDB", "LeprocFrame", "LeprocLog", "LeprocMinimapButton", "SLASH_LEPROC1", "SLASH_LEPROC2",
                    "Leproc_OnAddonCompartmentClick"}
 
 failed = False
@@ -72,7 +72,8 @@ if not failed:
         fail(f"smoke.lua: {e}")
     # Named frames made while playing (the window, its popups) are globals too.
     later = set(lua.eval("function() local t = {} for k in pairs(_G) do t[#t+1] = k end return t end")().values())
-    for g in sorted(later - after - ALLOWED_GLOBALS - {"ns"}):
+    made = set(lua.eval("function() local t = {} for k in pairs(WM.made) do t[#t+1] = k end return t end")().values())
+    for g in sorted(later - after - ALLOWED_GLOBALS - made - {"ns"}):
         fail(f"unexpected global {g} (made while the scenarios ran)")
 
 # tools/compare_logs.py on the fixtures: made-up logs in the real formats (a combat log with

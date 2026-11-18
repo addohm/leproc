@@ -7,9 +7,13 @@ All notable changes to leproc. The format follows
 ## [Unreleased]
 
 Leproc is being rebuilt with ProcGlow's feature set as its base (ROADMAP.md, "The rebuild").
-This is step 1 of 10: the version is 1.0.0-dev until 1.0.0.
+Steps 1 and 2a of 10 are in: the version is 1.0.0-dev until 1.0.0.
 
 ### Added
+
+- Rebuild step 2a (2026-11-18): the glows are back, with ProcGlow's order for each ability: dark during its cooldown (from your cast, or the game's own where it shows it; not the global cooldown), Blizzard's own proc highlight lights it, Exorcism only on an undead or demon target, then the game's usable answer in the ability's stance, and outside it Leproc's own trigger windows as in 0.x (shortened by the measured report delay; a target's dodge only in combat).
+- New abilities from ProcGlow's list: Execute (Battle or Berserker Stance), Victory Rush, Hammer of Wrath and Exorcism, by the game's answer. Proc buffs (Shadow Trance, Bloodthrill...) come back in step 4.
+- Every bar addon's buttons and macros as in 0.x; `/leproc test`, `why`, `bars`, `macros`, `log` back, and `/leproc rescan` (ProcGlow's) looks for buttons again.
 
 - Rebuild step 1 (2026-11-18): the options window with ProcGlow's pages as tabs (General, Procs & Buffs, Glow, Timer & Stacks, Text Alerts, Profiles; the middle four say which step brings them), and the window in your class colour as an option. The build number is in chat only (the login line, `/leproc help`), not in the window.
 - General: Enable Leproc (the minimap button greys out while it's off), a login reminder in chat (a welcome the first time), and Reset all settings (every profile and character, after asking; the interface reloads).
@@ -20,7 +24,7 @@ This is step 1 of 10: the version is 1.0.0-dev until 1.0.0.
 
 ### Removed
 
-- For now, everything that glowed: the trigger windows, proc buffs, bar scanning, the Abilities and Glow tabs, `/leproc log`, `list`, `test`, `bars`, `macros`, `why` and `reset`. They come back, rebuilt, from step 2. The minimap button's right-click no longer runs the test.
+- For now: proc buffs (step 4), the Abilities and Glow tabs (steps 2b and 3), the sound and the countdown (step 3), Also glow (redirects, step 8), `/leproc list`, `reset` and `<ability> any|stance|off` (the Procs & Buffs tab, 2b). The minimap button's right-click no longer runs the test.
 
 ### Added (0.9.0-beta's log, before the rebuild)
 

@@ -13,6 +13,9 @@ Abilities.lua
 Core.lua
 Profiles.lua
 Glow.lua
+Log.lua
+Track.lua
+Bars.lua
 
 UI\Theme.lua
 UI\Widgets.lua

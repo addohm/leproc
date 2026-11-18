@@ -11,10 +11,55 @@ proc buffs, buff reminders, text popups, floating icons, redirects and a glow
 designer, keeping Leproc's any-stance glow. The plan, in ten steps, is in
 [ROADMAP.md](ROADMAP.md) ("The rebuild").
 
-**Step 1 is in:** the options window, profiles (with switching by talents or
-group role), the minimap button and the Options > AddOns entry. **Nothing
-glows yet**: that's step 2. For the glows as they were, play the last release,
-`release/Leproc-0.9.0-beta.zip` (its README is at the tag `v0.9.0-beta`).
+**In so far:** the options window, profiles (with switching by talents or
+group role), the minimap button and the Options > AddOns entry (step 1), and
+the glows for reactive abilities (step 2a). The tab to choose what glows is
+next (2b); until then every reactive ability of your class glows, in any
+stance. Proc buffs (Shadow Trance, Hot Streak...) come in step 4: for those,
+play the last release, `release/Leproc-0.9.0-beta.zip` (its README is at the
+tag `v0.9.0-beta`).
+
+## What glows
+
+ProcGlow's reactive abilities:
+
+- **Warrior:** Overpower (after your target dodges), Revenge (after you block,
+  dodge or parry), Execute (your target below 20% health), Victory Rush (after
+  a kill).
+- **Rogue:** Riposte (after you parry).
+- **Hunter:** Counterattack (after you parry), Mongoose Bite (after you dodge).
+- **Paladin:** Hammer of Wrath (your target below 20% health), Exorcism (while
+  your target is undead or a demon and it's ready).
+
+**When a button glows**, in ProcGlow's order:
+
+1. Never while it's on cooldown after you use it (timed from your cast, or the
+   game's own cooldown where it shows it).
+2. Blizzard's own proc highlight on it: lit.
+3. Exorcism: only on an undead or demon target. In dungeons the game hides
+   what your target is, so it can't light there.
+4. **In the ability's own stance** (Revenge in Defensive Stance, Overpower in
+   Battle Stance, Execute in Battle or Berserker; always for abilities that
+   need none), the game decides: lit the moment it says the ability is
+   usable, dark the moment it says it isn't. "Short of rage" still glows.
+5. **In other stances** the game says no regardless, so Leproc keeps its own
+   window for the abilities that follow a block, dodge or parry: about 5 s
+   from the trigger, ended a little early to allow for how late the game
+   reports it to addons (measured while you're in the stance; `/leproc why`
+   shows it). Execute can't do this: addons can't see the target's health.
+   Your target's dodges only count while you're in combat (in a group, out of
+   combat, it was someone else's attack). Dying or leaving combat ends every
+   window.
+
+**Put the abilities on a bar that doesn't change with stance**, to see them
+light in every stance: a warrior's main bar swaps with stance. Bars 2 to 8 stay
+put. **Bar addons work too:** every bar ProcGlow knows (Blizzard's,
+EllesmereUI, Bartender, Dominos, ElvUI, the gamepad bars) and any other, also
+when built a while after login. **Macros count by their text:** a macro naming
+a tracked ability on a `/cast`, `/castsequence`, `/use` or `#showtooltip` line,
+in any clause, is that ability's button, so a stance-dance macro
+(`/cast [nostance:2] Defensive Stance; Revenge`) glows for Revenge in Battle
+Stance.
 
 ## Getting started
 
@@ -64,6 +109,19 @@ window.
   profile switching sees them.
 - `/leproc minimap`: show or hide the minimap button.
 - `/leproc on`, `/leproc off`: turn every glow on or off.
+- `/leproc test`: light your abilities' buttons for 5 s.
+- `/leproc why <ability>`: why it is or isn't glowing right now (its
+  cooldown, Blizzard's highlight, the game's answer, its window, the stance,
+  the buttons holding it).
+- `/leproc bars`: the action buttons Leproc found and which hold your
+  abilities; `/leproc rescan` looks for buttons again.
+- `/leproc macros`: what Leproc read from each macro on your bars.
+- `/leproc log`: logs, with timestamps, every trigger, glow and cast, stance
+  and target changes, deaths, what the game says about your abilities being
+  usable, Blizzard's proc highlights and the game's reactive alerts.
+  `/leproc log show` opens it to copy (Ctrl+C), `/leproc log off` stops it,
+  `/leproc log clear` empties it. It keeps the last 10000 lines; all are in
+  `WTF\Account\<account>\SavedVariables\Leproc.lua` after a `/reload`.
 
 ## Docs
 

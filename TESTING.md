@@ -44,7 +44,46 @@ install script, don't just `/reload`.
 11. Reset all settings (General): asks first, then reloads with everything
     back to the defaults (the welcome shows again).
 
-## Capturing a session for comparison (0.9.0-beta; the log comes back in step 2)
+## To check: rebuild step 2a (1.0.0-dev)
+
+The glows are back for reactive abilities. The file list changed again:
+**restart the game** after the install script. Every reactive ability of your
+class is on, in any stance (the tab to choose is 2b). Put them on a bar that
+doesn't change with stance (bar 2, say), and keep `/leproc log` on while
+testing (the session section below).
+
+1. Revenge: block, dodge or parry in Battle Stance: it glows for about 4.5 s
+   (5 s less the measured delay). In Defensive Stance it follows the game
+   exactly. Use it: dark for its 5 s cooldown, even if you block again.
+2. Overpower: your target dodges your attack: it glows in Battle Stance (the
+   game) and in Defensive and Berserker Stance (Leproc's window). In a group,
+   a target's dodge while you're out of combat doesn't light it.
+3. **Execute** (new, ProcGlow's rule, first time in game): put it on a bar,
+   fight something down past 20% in Battle Stance, then Berserker Stance. Does
+   it stay dark above 20% and light below (the game's usable answer)? In
+   Defensive Stance it can't light (expected). Short of rage it still glows.
+4. **Victory Rush** (new): after a kill that gives experience or honour it
+   glows, in any stance, until you use it or it runs out.
+5. Blizzard's own highlight: does Forever ever highlight any of these itself?
+   The log says "game: button highlight ON for ...". Where it does, the glow
+   follows it.
+6. A paladin, if you have one: **Hammer of Wrath** below 20%; **Exorcism** on
+   undead and demons in the open world, not on anything else, and dark for 15 s
+   after you use it. In a dungeon it can't light (the game hides what your
+   target is): check that it stays dark there rather than lighting wrongly.
+7. A rogue's Riposte after a parry; a hunter's Counterattack (parry) and
+   Mongoose Bite (your own dodge).
+8. EllesmereUI's bars: glows on its buttons, never on Blizzard's hidden ones,
+   right after login and after `/reload`. A stance-dance macro
+   (`/cast [nostance:2] Defensive Stance; Revenge`) glows for Revenge in Battle
+   Stance.
+9. `/leproc test` lights your abilities for 5 s. `/leproc why revenge` right
+   after a block: lit, the window's seconds, the stance, Blizzard's highlight,
+   the buttons. `/leproc bars`, `macros`, `rescan`.
+10. General > Enable Leproc off: nothing glows, and `/leproc test` says it's off.
+11. The glow is 0.x's gold pixel glow until the Glow tab (step 3).
+
+## Capturing a session for comparison (the log is back since step 2a)
 
 Leproc's log says what Leproc saw and did; the game's combat log says what
 really happened (whose attack was dodged). Together, `tools/compare_logs.py`

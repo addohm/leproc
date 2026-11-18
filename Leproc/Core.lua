@@ -6,6 +6,8 @@ ns.ICON = "Interface\\AddOns\\Leproc\\Media\\Icon" -- art/make_logo.py
 
 local DEFAULTS = {
 	enabled = true,                     -- off: nothing glows, the addon stays loaded
+	modes = {},                         -- ability key -> "any" / "stance" / "off", only where changed
+	glow = "pixel", color = "gold",     -- the glow on a lit button (Glow.STYLES, Glow.COLORS) until step 3
 	loginMessage = true,                -- a one-line reminder of /leproc in chat at login
 	classColour = false,                -- the options window in your class colour
 	window = {},                        -- the options window: pos, size, tab
@@ -56,8 +58,69 @@ function ns.SetEnabled(on)
 	ns.Refresh()
 end
 
+-- Spell IDs (from Data.lua) as a set and a list.
+local function IDs(names)
+	local set, list = {}, {}
+	for _, name in ipairs(names) do
+		for _, id in ipairs(ns.SpellIDs[name] or {}) do
+			if not set[id] then
+				set[id] = true
+				list[#list + 1] = id
+			end
+		end
+	end
+	return set, list
+end
+
+-- The catalogue by key and by spell ID (every rank).
+ns.byKey, ns.bySpell = {}, {}
+for _, e in ipairs(ns.Catalogue) do
+	ns.byKey[e.key] = e
+	e.label = e.label or e.names[1]
+	e.ids, e.idList = IDs(e.names)
+	for _, id in ipairs(e.idList) do ns.bySpell[id] = e end
+	if e.stances then e.stanceIds = IDs(e.stances) end
+	e.triggers = {}
+	for _, t in ipairs(e.after) do e.triggers[t] = true end
+	if e.targetTypes then
+		e.types = {}
+		for _, t in ipairs(e.targetTypes) do e.types[t] = true end
+	end
+end
+
+-- Your class's abilities, in catalogue order.
+function ns.ClassEntries()
+	local _, class = UnitClass("player")
+	local list = {}
+	for _, e in ipairs(ns.Catalogue) do
+		if e.class == class then list[#list + 1] = e end
+	end
+	return list
+end
+
+-- An ability's mode: "any" (lights in any stance, from its trigger), "stance" (only in the stance
+-- the game needs) or "off". Your class's are "any" by default, other classes' "off".
+function ns.DefaultMode(e)
+	local _, class = UnitClass("player")
+	return e.class == class and "any" or "off"
+end
+
+function ns.Mode(e)
+	local mode = ns.db.modes[e.key] or ns.DefaultMode(e)
+	if mode == "stance" and not e.stances then mode = "any" end
+	return mode
+end
+
+-- Saves a mode; only modes that differ from the default are kept.
+function ns.SetMode(e, mode)
+	if mode == "default" then mode = nil end
+	ns.db.modes[e.key] = (mode and mode ~= ns.DefaultMode(e)) and mode or nil
+	ns.Refresh()
+end
+
 -- After any setting changes, and when the profile changes: everything shown follows ns.db.
 function ns.Refresh()
+	if ns.Track then ns.Track.Update() end
 	if ns.Theme then ns.Theme.Apply() end
 	if ns.Minimap then ns.Minimap.Apply() end
 	if ns.Window then ns.Window.Apply() end
@@ -104,6 +167,7 @@ events:SetScript("OnEvent", function(_, event, arg)
 		ns.Profiles.Init()
 	elseif event == "PLAYER_LOGIN" then
 		ns.Profiles.Init() -- again: the surname may only be known now
+		ns.Bars.Init()
 		ns.Minimap.Init()
 		ns.Window.Register()
 		ns.Refresh()
@@ -132,6 +196,51 @@ local function Help()
 	ns.Print("/leproc spec - your talent trees and group role, as profile switching sees them")
 	ns.Print("/leproc minimap - show or hide the minimap button")
 	ns.Print("/leproc on | off - turn every glow on or off")
+	ns.Print("/leproc test - light your abilities' buttons for " .. ns.WINDOW .. " s")
+	ns.Print("/leproc why <ability> - why it is or isn't glowing right now")
+	ns.Print("/leproc bars - the action buttons Leproc found, and which hold your abilities; /leproc rescan looks again")
+	ns.Print("/leproc macros - the macros on your bars, and the abilities each counts for")
+	ns.Print("/leproc log [off | show | clear] - log every trigger, glow and cast, and what the game says about your abilities")
+end
+
+local MODE_WORDS = { any = "any stance", stance = "only in its stance", off = "off" }
+
+local function Lines(lines)
+	for _, line in ipairs(lines) do ns.Print(line) end
+end
+
+-- /leproc why <ability>: everything that decides whether it glows right now.
+local function Why(e)
+	local s = ns.Track.State(e)
+	local _, class = UnitClass("player")
+	local lines = { e.label .. ": " .. MODE_WORDS[ns.Mode(e)] .. (ns.db.modes[e.key] and " (changed)" or " (default)")
+		.. (e.class ~= class and (", not your class (" .. e.class:lower() .. ")") or "")
+		.. (ns.Enabled() and "" or ", |cffff8040Leproc is off|r") }
+	lines[#lines + 1] = "lit now: " .. (ns.Track.IsLit(e) and "yes" or "no") .. (s.test and " (the test is on)" or "")
+	lines[#lines + 1] = "cooldown: " .. (s.cooldown and string.format("%.1f s left", s.cooldown) or "ready")
+		.. (s.gameCooldown == nil and " (the game hides its own cooldown now: timed from your cast)" or "")
+	lines[#lines + 1] = "Blizzard's highlight: " .. (s.overlay and "on (it lights)" or "off")
+	if e.types then
+		lines[#lines + 1] = "target: " .. (s.target == nil and "the game hides what it is (or none)" or (s.target and "undead or a demon" or "not undead or a demon"))
+	end
+	local GAME = { yes = "usable", short = "usable, short of power", no = "not usable" }
+	lines[#lines + 1] = "game: " .. (s.game and (GAME[s.game] .. " (it decides here)")
+		or (#e.after > 0 and "can't say here (not in its stance): Leproc's window decides" or "can't say here (not in its stance)"))
+	if #e.after > 0 then
+		local after = {}
+		for _, t in ipairs(e.after) do after[#after + 1] = ns.Track.TRIGGERS[t] end
+		lines[#lines + 1] = "window: " .. (s.window and string.format("open, %.1f s left", s.window)
+			or ("closed (opens " .. ns.WINDOW .. " s after " .. table.concat(after, ", ") .. ")"))
+		local kind = e.after[1] == "targetdodge" and "target" or "player"
+		lines[#lines + 1] = string.format("delay: the game's reports of %s come about %.1f s late; Leproc's own window ends that much sooner",
+			kind == "target" and "your target's dodges" or "your blocks, dodges and parries", ns.Track.Delay(kind))
+	end
+	if e.stances then
+		lines[#lines + 1] = "stance: needs " .. table.concat(e.stances, " or ") .. ", you're " .. (s.inStance and "in it" or "not in it")
+	end
+	local where = ns.Bars.Where(e)
+	lines[#lines + 1] = "on screen: " .. (#where > 0 and table.concat(where, ", ") or "|cffff8040no button you can see holds it|r")
+	Lines(lines)
 end
 
 local function Spec()
@@ -167,6 +276,31 @@ SlashCmdList.LEPROC = function(msg)
 		Spec()
 	elseif cmd == "minimap" then
 		ns.Minimap.SetShown(ns.db.minimap.hide)
+	elseif cmd == "test" then
+		ns.Track.Test()
+	elseif cmd == "why" then
+		local e = ns.byKey[(arg or ""):lower():gsub("%s", "")]
+		if not e then
+			local keys = {}
+			for _, c in ipairs(ns.ClassEntries()) do keys[#keys + 1] = c.key end
+			ns.Print("why which? " .. (#keys > 0 and table.concat(keys, ", ") or "your class has no abilities Leproc tracks yet"))
+			return
+		end
+		Why(e)
+	elseif cmd == "bars" then
+		Lines(ns.Bars.Report())
+	elseif cmd == "rescan" then
+		ns.Bars.Scan()
+		ns.Refresh()
+		Lines(ns.Bars.Report())
+	elseif cmd == "macros" then
+		Lines(ns.Bars.MacroReport())
+	elseif cmd == "log" then
+		arg = (arg or ""):lower()
+		if arg == "off" then ns.Log.SetOn(false)
+		elseif arg == "show" then ns.Log.Show()
+		elseif arg == "clear" then ns.Log.Clear()
+		else ns.Log.SetOn(true) end
 	elseif cmd == "on" or cmd == "off" then
 		ns.SetEnabled(cmd == "on")
 		ns.Print(cmd == "on" and "on." or "off: nothing glows until you turn it on again.")

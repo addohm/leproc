@@ -16,8 +16,9 @@ ns.Window.Page({
 			.. "glow its action button, show a text popup, or show an icon with a timer.\n"
 			.. GOLD .. "Glow|r, " .. GOLD .. "Timer & Stacks|r and " .. GOLD .. "Text Alerts|r: how they look.\n"
 			.. GOLD .. "Profiles|r: separate setups (tank and damage, say), switched by hand or by your talents or group role.\n"
-			.. "|cffff8040A development build of the rebuild:|r so far only this window, the profiles and the minimap "
-			.. "button work. The glows come back in the next step.", 96))
+			.. "|cffff8040A development build of the rebuild:|r your class's reactive abilities glow (Overpower, Revenge, "
+			.. "Execute, Riposte, Hammer of Wrath, Exorcism...), all on, in any stance; the tab to choose comes next. "
+			.. "|cffffd100/leproc test|r lights them to see.", 96))
 
 		stack:Add(UI.OptionHeading(stack.inner, "General"))
 		stack:Add(UI.OptionCheck(stack.inner, "Enable Leproc",
