@@ -26,10 +26,8 @@ game. To install straight from this repo on Windows, see
 
 **The options window** opens with `/leproc` (or `/lpr`), the minimap button,
 the game's addon menu by the minimap, or Options > AddOns > Leproc. It's
-dragged by its title bar and resized from its corner; **Scale** in the title
-bar makes it bigger or smaller (70% to 140%), **-** folds it to its title bar
-(and **+** brings it back), and Escape closes it. The Defaults button resets
-the tab shown. The tabs:
+dragged by its title bar and resized from its corner, and Escape closes it.
+The Defaults button resets the tab shown. The tabs:
 
 - **General:** turn Leproc on or off (the minimap button greys out while it's
   off), show or hide the minimap button, a reminder in chat at login, the
@@ -37,9 +35,10 @@ the tab shown. The tabs:
   every character, after asking; the interface reloads).
 - **Procs & Buffs**, **Glow**, **Timer & Stacks**, **Text Alerts:** not built
   yet; each says which step brings it.
-- **Profiles:** each character starts with its own profile (by first and last
-  name). Pick another to share it between characters; new, copy, rename,
-  delete, reset.
+- **Profiles:** where profiles are managed (nowhere else). Each character
+  starts with its own profile (by first and last name), and that's all most
+  players need. Pick another to share it between characters, or keep two
+  setups on one (tank and damage, say); new, copy, rename, delete, reset.
   - **Switch automatically:** pick a profile for each of your talent trees
     (the one with the most points counts) and for each group role (tank,
     healer, damage dealer). A role rule wins while you're in a group with that
@@ -47,10 +46,9 @@ the tab shown. The tabs:
     combat; the rules are each character's own. The tab shows your trees'
     points and your role as Leproc sees them.
 
-**The minimap button:** click for the window, right-click for a menu of your
-profiles (click one to switch, or "New profile..."), drag to move it around the
-minimap (square minimaps too). The addon compartment by the minimap does the
-same.
+**The minimap button:** click (either button) to open or close the window,
+drag to move it around the minimap (square minimaps too). The addon
+compartment by the minimap does the same.
 
 **Options > AddOns > Leproc:** an Enable box and a button that opens the
 window.
@@ -60,7 +58,8 @@ window.
 - `/leproc`: open or close the window.
 - `/leproc general`, `abilities`, `glow`, `timer`, `text`, `profiles`: open
   that tab.
-- `/leproc profile`: list the profiles; `/leproc profile <name>` switches.
+- `/leproc profile`: says which profile you're using and opens the Profiles
+  tab.
 - `/leproc spec`: your talent trees, their points and your group role, as
   profile switching sees them.
 - `/leproc minimap`: show or hide the minimap button.

@@ -1,7 +1,6 @@
 -- Leproc: the options window, in the style of Leboof's and Nothing Wasted's: tabs across the top, a
--- Defaults button for the page shown, a resize grip; and from ProcGlow, a Scale button (70% to
--- 140%) and a minimise button that folds the window to its title bar. Pages register with
--- Window.AddPage (or Window.Page, for a page of option rows); `order` sets their place.
+-- Defaults button for the page shown, a resize grip. Pages register with Window.AddPage (or
+-- Window.Page, for a page of option rows); `order` sets their place.
 local _, ns = ...
 local UI = ns.UI
 
@@ -10,18 +9,13 @@ ns.Window = Window
 
 local WIDTH, HEIGHT = 700, 520
 local MIN_W, MIN_H, MAX_W, MAX_H = 680, 360, 1300, 1000 -- six tabs and Defaults fit at 680
-local TITLE_H = 32
 local TABS_Y = -36
 local TAB_HEIGHT = 24
-local FOLDED_W = 360 -- room for the title, the version and the three buttons
-Window.SCALES = { 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4 }
 
-local frame, content, defaultsButton, scaleButton, foldButton, scalePopup
+local frame, content, defaultsButton
 local tabButtons = {}
 local pages, pageOrder = {}, {}
 local current
-local folded -- { w, h } while folded to the title bar
-local body = {} -- what folding hides: tabs, the rule, Defaults, the pages, the grip
 
 -- def: { id, label, order, build(panel), refresh(panel), defaults() (optional) }.
 function Window.AddPage(def)
@@ -110,7 +104,7 @@ function Window.Select(id)
 			def.panel:Hide()
 		end
 	end
-	defaultsButton:SetShown(pages[id].defaults ~= nil and not folded)
+	defaultsButton:SetShown(pages[id].defaults ~= nil)
 	Window.Refresh()
 end
 
@@ -121,7 +115,6 @@ function Window.Refresh()
 end
 
 local function SavePosition()
-	if folded then return end
 	local point, _, relPoint, x, y = frame:GetPoint()
 	ns.db.window.pos = { point, relPoint, x, y }
 end
@@ -130,7 +123,7 @@ local function SaveSize()
 	ns.db.window.size = { math.floor(frame:GetWidth() + 0.5), math.floor(frame:GetHeight() + 0.5) }
 end
 
--- Size, place and scale from the profile (when it's built, and when the profile changes).
+-- Size and place from the profile (when it's built, and when the profile changes).
 local function Place()
 	local w = ns.db.window
 	local size = w.size
@@ -146,18 +139,12 @@ local function Place()
 	else
 		frame:SetPoint("CENTER")
 	end
-	frame:SetScale(w.scale or 1)
-end
-
-function Window.SetScale(scale)
-	ns.db.window.scale = scale
-	if frame then frame:SetScale(scale) end
 end
 
 -- The resize grip in the bottom-right corner, like the chat windows'.
 local function AddResizeGrip()
 	frame:SetResizable(true)
-	frame:SetResizeBounds(MIN_W, MIN_H, MAX_W, MAX_H) -- for the grip only: folding sets the size itself
+	frame:SetResizeBounds(MIN_W, MIN_H, MAX_W, MAX_H)
 	local grip = CreateFrame("Button", nil, frame)
 	grip:SetSize(16, 16)
 	grip:SetPoint("BOTTOMRIGHT", -4, 4)
@@ -170,104 +157,6 @@ local function AddResizeGrip()
 		SaveSize()
 		SavePosition()
 	end)
-	body[#body + 1] = grip
-end
-
--- A small button in the title bar.
-local function TitleButton(text, width, tooltip)
-	local b = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-	b:SetSize(width, 20)
-	b:SetText(text)
-	b:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
-		local lines = type(tooltip) == "function" and tooltip() or tooltip
-		for i, line in ipairs(lines) do
-			if i == 1 then GameTooltip:AddLine(line) else GameTooltip:AddLine(line, 1, 1, 1, true) end
-		end
-		GameTooltip:Show()
-	end)
-	b:SetScript("OnLeave", GameTooltip_Hide)
-	return b
-end
-
--- Folding: the window shrinks to its title bar where it is, so you can see the screen behind it.
-function Window.Fold(on)
-	if not frame or (on and folded) or (not on and not folded) then return end
-	if on then
-		local left, top = frame:GetLeft(), frame:GetTop()
-		folded = { frame:GetWidth(), frame:GetHeight() }
-		if left and top then
-			frame:ClearAllPoints()
-			frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", left, top)
-		end
-		for _, f in ipairs(body) do f:Hide() end
-		defaultsButton:Hide()
-		if scalePopup then scalePopup:Hide() end
-		frame:SetSize(FOLDED_W, TITLE_H)
-		foldButton:SetText("+")
-	else
-		frame:SetSize(folded[1], folded[2])
-		folded = nil
-		for _, f in ipairs(body) do f:Show() end
-		foldButton:SetText("-")
-		SavePosition()
-		Window.Select(current)
-	end
-end
-
-function Window.IsFolded()
-	return folded ~= nil
-end
-
--- The Scale popup: the window's size, 70% to 140%, kept in the profile.
-local function ScalePopup()
-	if scalePopup then return scalePopup end
-	local p = CreateFrame("Frame", "LeprocScale", frame, "BackdropTemplate")
-	p:SetSize(300, 44)
-	p:SetFrameStrata("DIALOG")
-	p:SetBackdrop({
-		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-		tile = true, tileSize = 16, edgeSize = 14,
-		insets = { left = 3, right = 3, top = 3, bottom = 3 },
-	})
-	local bg = ns.Theme.BACKGROUND
-	p:SetBackdropColor(bg[1], bg[2], bg[3], 1)
-	ns.Theme.Paint(function(T) p:SetBackdropBorderColor(T.Edge()) end)
-	p:EnableMouse(true)
-	local choices = {}
-	for i, s in ipairs(Window.SCALES) do choices[i] = { s, math.floor(s * 100 + 0.5) .. "%" } end
-	local row = UI.OptionSelect(p, "Scale", choices,
-		function() return ns.db.window.scale or 1 end,
-		function(v) Window.SetScale(v) end,
-		{ controlX = 64, boxWidth = 80 })
-	row:SetPoint("TOPLEFT", 0, -6)
-	row:SetPoint("RIGHT", p, "RIGHT")
-	local reset = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
-	reset:SetSize(70, 22)
-	reset:SetPoint("LEFT", row.right + 4, 0)
-	reset:SetText("Reset")
-	reset:SetScript("OnClick", function()
-		Window.SetScale(1)
-		row.Sync()
-	end)
-	p.row, p.reset = row, reset
-	p:SetScript("OnShow", function() row.Sync() end)
-	p:Hide()
-	tinsert(UISpecialFrames, "LeprocScale")
-	scalePopup = p
-	return p
-end
-
-function Window.ToggleScale()
-	local p = ScalePopup()
-	if p:IsShown() then
-		p:Hide()
-	else
-		p:ClearAllPoints()
-		p:SetPoint("TOPRIGHT", scaleButton, "BOTTOMRIGHT", 0, -4)
-		p:Show()
-	end
 end
 
 local function Build()
@@ -294,7 +183,7 @@ local function Build()
 	frame:Hide()
 	tinsert(UISpecialFrames, "LeprocFrame") -- Escape closes the window
 
-	-- Title bar: icon, name, version; Scale, fold and close on the right.
+	-- Title bar: icon, name, version and close.
 	local icon = frame:CreateTexture(nil, "ARTWORK")
 	icon:SetSize(18, 18)
 	icon:SetPoint("TOPLEFT", 14, -10)
@@ -309,16 +198,6 @@ local function Build()
 
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", -2, -2)
-	foldButton = TitleButton("-", 24, function()
-		return folded and { "Restore", "Brings the whole window back." }
-			or { "Minimise", "Folds the window to its title bar, so you can see the screen behind it." }
-	end)
-	foldButton:SetPoint("RIGHT", close, "LEFT", -2, 0)
-	foldButton:SetScript("OnClick", function() Window.Fold(not folded) end)
-	scaleButton = TitleButton("Scale", 56, { "Window scale", "Makes this window bigger or smaller. Kept in your profile." })
-	scaleButton:SetPoint("RIGHT", foldButton, "LEFT", -4, 0)
-	scaleButton:SetScript("OnClick", Window.ToggleScale)
-
 	-- Tabs, then a rule under them, with the Defaults button at the right of the tab row.
 	local x = 12
 	for _, def in ipairs(pageOrder) do
@@ -326,14 +205,12 @@ local function Build()
 		b:SetPoint("TOPLEFT", x, TABS_Y)
 		b:SetScript("OnClick", function() Window.Select(def.id) end)
 		tabButtons[def.id] = b
-		body[#body + 1] = b
 		x = x + b:GetWidth() + 2
 	end
 	local rule = frame:CreateTexture(nil, "BORDER")
 	rule:SetPoint("TOPLEFT", 12, TABS_Y - TAB_HEIGHT - 2)
 	rule:SetPoint("TOPRIGHT", -12, TABS_Y - TAB_HEIGHT - 2)
 	rule:SetHeight(1)
-	body[#body + 1] = rule
 
 	defaultsButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 	defaultsButton:SetSize(90, 20)
@@ -344,7 +221,6 @@ local function Build()
 	content = CreateFrame("Frame", nil, frame)
 	content:SetPoint("TOPLEFT", 14, TABS_Y - TAB_HEIGHT - 10)
 	content:SetPoint("BOTTOMRIGHT", -14, 14)
-	body[#body + 1] = content
 	for _, def in ipairs(pageOrder) do
 		local panel = CreateFrame("Frame", nil, content)
 		panel:SetAllPoints()
@@ -362,15 +238,11 @@ local function Build()
 	end)
 
 	frame:SetScript("OnShow", function() Window.Select(current or ns.db.window.tab) end)
-	frame:SetScript("OnHide", function()
-		if scalePopup then scalePopup:Hide() end
-	end)
 end
 
--- When the profile changes: the window takes that profile's size, place, scale and tab.
+-- When the profile changes: the window takes that profile's size, place and tab.
 function Window.Apply()
 	if not frame then return end
-	if folded then Window.Fold(false) end
 	Place()
 	if frame:IsShown() then
 		Window.Select(ns.db.window.tab or current)
@@ -446,7 +318,6 @@ end
 function Window.Show(page)
 	if not frame then Build() end
 	frame:Show()
-	if folded then Window.Fold(false) end
 	if page then Window.Select(page) end
 end
 

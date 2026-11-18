@@ -530,22 +530,6 @@ C_Traits = {
 		return out
 	end,
 }
--- Blizzard's menus: WM.contextMenu holds the last one opened; WM.MenuItems runs its generator and
--- lists what it made ({ kind, text, isSelected, select }).
-function M.MenuItems()
-	local items = {}
-	local root = {}
-	function root:CreateTitle(text) table.insert(items, { kind = "title", text = text }) end
-	function root:CreateDivider() table.insert(items, { kind = "divider" }) end
-	function root:CreateButton(text, fn) table.insert(items, { kind = "button", text = text, select = fn }) end
-	function root:CreateRadio(text, isSelected, setSelected, data)
-		table.insert(items, { kind = "radio", text = text, isSelected = function() return isSelected(data) end,
-			select = function() setSelected(data) end })
-	end
-	M.contextMenu.generator(M.contextMenu.owner, root)
-	return items
-end
-
 function M.Slash(msg) SlashCmdList.LEPROC(msg) end
 
 return M

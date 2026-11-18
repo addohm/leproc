@@ -11,16 +11,12 @@ This is step 1 of 10: the version is 1.0.0-dev until 1.0.0.
 
 ### Added
 
-- Rebuild step 1 (2026-11-18): the options window with ProcGlow's pages as tabs (General, Procs & Buffs, Glow, Timer & Stacks, Text Alerts, Profiles; the middle four say which step brings them), a Scale button (70% to 140%) and a minimise button in its title bar, and the window in your class colour as an option.
+- Rebuild step 1 (2026-11-18): the options window with ProcGlow's pages as tabs (General, Procs & Buffs, Glow, Timer & Stacks, Text Alerts, Profiles; the middle four say which step brings them), and the window in your class colour as an option. The build number is in chat only (the login line, `/leproc help`), not in the window.
 - General: Enable Leproc (the minimap button greys out while it's off), a login reminder in chat (a welcome the first time), and Reset all settings (every profile and character, after asking; the interface reloads).
 - Profiles switch by your talents or group role: a profile for each talent tree (the one with the most points counts, read from Forever's talent trees) and for each role; a role wins while you're in a group. They wait for the end of combat, and each character has its own rules. `/leproc spec` shows what Leproc sees.
-- The minimap button's right-click is a menu of your profiles (the game's own menus); the addon compartment too.
+- Profiles are managed on their tab only: the minimap button and the addon compartment open the window with either click.
 - Options > AddOns > Leproc has an Enable box.
-- `/leproc general`, `abilities`, `glow`, `timer`, `text`, `profiles` open a tab; `/leproc profile <name>` switches; `/leproc on`, `off`.
-
-### Changed
-
-- The window's title and the Options > AddOns entry show the version without the build number; the build is in chat only (the login line, `/leproc help`) (2026-11-18).
+- `/leproc general`, `abilities`, `glow`, `timer`, `text`, `profiles` open a tab; `/leproc profile` names the profile in use and opens the Profiles tab; `/leproc on`, `off`.
 
 ### Removed
 

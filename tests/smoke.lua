@@ -1,6 +1,6 @@
 -- Scenarios run by tests/run_tests.py. WM is the mock (wowmock.lua), ns the addon namespace.
--- Step 1 of the rebuild: the window, profiles (with switching by talents or role), the minimap
--- button and the Options > AddOns entry.
+-- Step 1 of the rebuild: the window, profiles (managed on their tab, with switching by talents or
+-- role), the minimap button and the Options > AddOns entry.
 local function Check(cond, msg) if not cond then error(msg, 2) end end
 local function Printed(pattern)
 	for _, line in ipairs(WM.printed) do if line:find(pattern, 1, true) then return true end end
@@ -16,7 +16,7 @@ WM.Fire("PLAYER_LOGIN")
 WM.Fire("PLAYER_ENTERING_WORLD")
 Check(P.Current() == "Tester Smith", "the character's profile isn't in use")
 Check(ns.db == LeprocDB.profiles["Tester Smith"], "ns.db isn't the profile")
-Check(ns.db.enabled and ns.db.loginMessage and not ns.db.classColour and ns.db.window.scale == 1, "defaults")
+Check(ns.db.enabled and ns.db.loginMessage and not ns.db.classColour, "defaults")
 Check(Printed("thanks for installing") and LeprocDB.welcomed, "the first login should welcome you")
 WM.printed = {}
 WM.Fire("PLAYER_ENTERING_WORLD")
@@ -65,37 +65,17 @@ ns.Window.Select("general")
 ns.Window.RunDefaults()
 Check(not ns.db.classColour and Near(frame.border[1], 0.6), "General's Defaults: gold again")
 
--- Scale: the popup's arrows step 5% at a time, Reset is 100%; kept in the profile.
-ns.Window.ToggleScale()
-local pop = LeprocScale
-Check(pop:IsShown(), "the Scale popup opens")
-pop.row.next.scripts.OnClick(pop.row.next)
-Check(Near(frame:GetScale(), 1.05) and Near(ns.db.window.scale, 1.05), "one step up: 105%")
-pop.row.prev.scripts.OnClick(pop.row.prev)
-pop.row.prev.scripts.OnClick(pop.row.prev)
-Check(Near(frame:GetScale(), 0.95), "two steps down: 95%")
-pop.reset.scripts.OnClick(pop.reset)
-Check(frame:GetScale() == 1 and ns.db.window.scale == 1, "Reset: 100%")
-ns.Window.ToggleScale()
-Check(not pop:IsShown(), "the Scale button closes it again")
-
--- Minimise: folds to the title bar where it is, and back.
-ns.Window.Fold(true)
-Check(ns.Window.IsFolded() and frame.w == 360 and frame.h == 32, "folded to the title bar")
-Check(not ns.Window.CurrentPanel():IsVisible(), "the page is hidden while folded")
-ns.Window.Fold(false)
-Check(not ns.Window.IsFolded() and frame.w == 700 and frame.h == 520, "restored to its size")
-Check(ns.Window.CurrentPanel():IsVisible(), "and the page is back")
-ns.Window.Fold(true)
-ns.Window.Show("profiles")
-Check(not ns.Window.IsFolded(), "opening a tab unfolds the window")
+-- No Scale or minimise in the title bar (the owner: unnecessary; the window resizes from its corner).
+Check(LeprocScale == nil and ns.Window.Fold == nil and ns.Window.ToggleScale == nil, "no Scale or minimise")
 
 -- Profiles: a new one starts with the defaults; settings follow the profile.
 Check(P.New("Tank"), "a new profile")
-Check(P.Current() == "Tank" and ns.db.window.scale == 1, "switched to it, with the defaults")
-ns.Window.SetScale(1.2)
-Check(P.Switch("Tester Smith") and frame:GetScale() == 1, "the window takes the profile's scale")
-Check(P.Switch("Tank") and Near(frame:GetScale(), 1.2), "and back")
+Check(P.Current() == "Tank" and ns.db.window.size == nil, "switched to it, with the defaults")
+ns.db.window.size = { 800, 600 }
+ns.Window.Apply()
+Check(frame.w == 800, "the window takes the profile's size")
+Check(P.Switch("Tester Smith") and frame.w == 700, "another profile, its own size")
+Check(P.Switch("Tank") and frame.w == 800, "and back")
 P.Switch("Tester Smith")
 
 -- Switching by talents: the tree with the most points picks the profile; nothing without a rule.
@@ -151,37 +131,28 @@ for _, row in ipairs(ns.Window.CurrentPanel().stack.rows) do
 end
 Check(found, "a rule row for Fury")
 
--- The minimap button: right-click is a menu of profiles (the one in use first), left-click the
--- window; the addon compartment does the same.
-mm.scripts.OnClick(mm, "RightButton")
-local items = WM.MenuItems()
-Check(items[1].kind == "title" and items[2].kind == "radio" and items[2].text == "Spare" and items[2].isSelected(), "the profile in use comes first")
-local other
-for _, item in ipairs(items) do
-	if item.kind == "radio" and item.text == "Tester Smith" then other = item end
-end
-other.select()
-Check(P.Current() == "Tester Smith", "picking one switches to it")
+-- The minimap button: either click opens or closes the window (profiles are managed on their tab);
+-- the addon compartment does the same.
 ns.Window.Hide()
-items[#items].select()
-Check(items[#items].text == "New profile..." and ns.Window.IsShown() and ns.db.window.tab == "profiles", "New profile... opens the Profiles tab")
-mm.scripts.OnClick(mm, "LeftButton")
-Check(not ns.Window.IsShown(), "left-click closes the window")
 WM.contextMenu = nil
+mm.scripts.OnClick(mm, "RightButton")
+Check(ns.Window.IsShown() and WM.contextMenu == nil, "right-click opens the window, no menu")
+mm.scripts.OnClick(mm, "LeftButton")
+Check(not ns.Window.IsShown(), "a click closes it")
 Leproc_OnAddonCompartmentClick("Leproc", "RightButton")
-Check(WM.contextMenu ~= nil, "the addon compartment opens the menu too")
+Check(ns.Window.IsShown(), "the addon compartment opens it too")
 
 -- Slash commands.
 WM.printed = {}
 WM.Slash("help")
-Check(Printed("/leproc profile [name]") and Printed("/leproc on | off"), "help")
+Check(Printed("/leproc profile -") and Printed("/leproc on | off"), "help")
 Check(Printed("v0.0.0 build abc1234"), "help gives the build")
 WM.Slash("glow")
 Check(ns.Window.IsShown() and ns.db.window.tab == "glow", "/leproc glow opens that tab")
-WM.Slash("profile Spare")
-Check(P.Current() == "Spare", "/leproc profile <name>")
-WM.Slash("profile Nope")
-Check(Printed("there's no profile called Nope"), "an unknown profile")
+ns.Window.Hide()
+WM.Slash("profile Tester Smith")
+Check(P.Current() == "Spare" and Printed("profile: Spare") and ns.db.window.tab == "profiles" and ns.Window.IsShown(),
+	"/leproc profile names the one in use and opens the tab; it doesn't switch")
 WM.Slash("minimap")
 Check(not mm:IsShown() and ns.db.minimap.hide, "/leproc minimap hides it")
 WM.Slash("minimap")

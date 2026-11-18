@@ -8,7 +8,7 @@ local DEFAULTS = {
 	enabled = true,                     -- off: nothing glows, the addon stays loaded
 	loginMessage = true,                -- a one-line reminder of /leproc in chat at login
 	classColour = false,                -- the options window in your class colour
-	window = { scale = 1 },             -- the options window: pos, size, tab, scale
+	window = {},                        -- the options window: pos, size, tab
 	minimap = { angle = 275, hide = false }, -- clear of Nothing Wasted (200), Ticky (225), Leboof (250)
 }
 ns.DEFAULTS = DEFAULTS
@@ -128,7 +128,7 @@ local function Help()
 	ns.Print(ns.Version(true))
 	ns.Print("/leproc - open or close the options window")
 	ns.Print("/leproc general | abilities | glow | timer | text | profiles - open that tab")
-	ns.Print("/leproc profile [name] - list the profiles, or switch to one")
+	ns.Print("/leproc profile - the profile in use, and the Profiles tab (where they're managed)")
 	ns.Print("/leproc spec - your talent trees and group role, as profile switching sees them")
 	ns.Print("/leproc minimap - show or hide the minimap button")
 	ns.Print("/leproc on | off - turn every glow on or off")
@@ -160,12 +160,9 @@ SlashCmdList.LEPROC = function(msg)
 	elseif cmd == "help" then
 		Help()
 	elseif cmd == "profile" then
-		if arg and strtrim(arg) ~= "" then
-			local ok, err = ns.Profiles.Switch(strtrim(arg))
-			ns.Print(ok and ("profile: " .. ns.Profiles.Current() .. ".") or err)
-		else
-			ns.Print("profile: " .. ns.Profiles.Current() .. ". All: " .. table.concat(ns.Profiles.Names(), ", "))
-		end
+		-- profiles are managed on their tab, nowhere else
+		ns.Print("profile: " .. ns.Profiles.Current() .. ". They're managed on the Profiles tab.")
+		ns.Window.Show("profiles")
 	elseif cmd == "spec" then
 		Spec()
 	elseif cmd == "minimap" then

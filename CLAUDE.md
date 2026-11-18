@@ -83,13 +83,12 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
     Leboof's and Nothing Wasted's style.
   - `UI/Window.lua`: the options window: tabs (`Window.AddPage`, or
     `Window.Page` for a page of rows; `order` sets the place), Defaults
-    (`Window.RunDefaults`), the resize grip, the Scale popup (`LeprocScale`,
-    `Window.SCALES`, `ns.db.window.scale`), folding to the title bar
-    (`Window.Fold`), `Window.Apply()` when the profile changes, and
+    (`Window.RunDefaults`), the resize grip, `Window.Apply()` when the
+    profile changes, and
     `Window.Register()` (Options > AddOns, with an Enable box).
-  - `UI/Minimap.lua`: the minimap button (grey while Leproc is off; square
-    minimaps), right-click a profile menu through Blizzard's menus
-    (`MenuUtil.CreateContextMenu`), and the addon compartment entry.
+  - `UI/Minimap.lua`: the minimap button (either click opens the window; grey
+    while Leproc is off; square minimaps), and the addon compartment entry.
+    Profiles are managed on their tab only (the owner, 2026-11-18).
   - `UI/Pages/General.lua`, `UI/Pages/Profiles.lua`: those tabs.
     `UI/Pages/Soon.lua`: the tabs not built yet (Procs & Buffs, Glow, Timer &
     Stacks, Text Alerts); each moves to its own file with its step.
@@ -123,8 +122,7 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
 - `tools/make_release.py`: builds `release/Leproc-<version>.zip` from the
   committed `Leproc/` folder
 - `tests/`: `wowmock.lua` (a fake client: Forever's talent trees (`WM.trees`),
-  groups and roles (`WM.group`, `WM.role`), Blizzard's menus
-  (`WM.MenuItems()` runs the last menu's generator), class colours, and from
+  groups and roles (`WM.group`, `WM.role`), class colours, and from
   0.x, for step 2: action buttons with stance pages,
   bar addons' buttons (`WM.AddonBar`, `WM.Button`), macros with text
   (`WM.SetMacro`), aura containers (`WM.SetAura`, `WM.ProcGlowing`), the
@@ -213,7 +211,7 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   run `tools/gen_data.py`; it reports names with no IDs.
 - **Keep it simple:** a button glows or it doesn't. Nothing else animates.
 - Lua 5.1, no libraries (Ace, LibStub). Every file starts `local _, ns = ...`;
-  shared state goes on `ns`. Globals: `LeprocDB`, `LeprocFrame`, `LeprocScale`,
+  shared state goes on `ns`. Globals: `LeprocDB`, `LeprocFrame`,
   `LeprocMinimapButton`, `SLASH_LEPROC1/2`, `Leproc_OnAddonCompartmentClick`
   (the tests enforce this; `LeprocLog` comes back with the log in step 2).
 - **Use the game's own pieces where Blizzard offers them**: its menus

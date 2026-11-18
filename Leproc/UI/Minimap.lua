@@ -1,6 +1,6 @@
--- Leproc: a draggable minimap button (no libraries), and the game's addon compartment entry.
--- Left-click opens the options window; right-click opens a menu of your profiles (Blizzard's own
--- menus, MenuUtil). The icon greys out while Leproc is turned off.
+-- Leproc: a draggable minimap button (no libraries), and the game's addon compartment entry. A
+-- click opens or closes the options window (profiles are managed on their tab). The icon greys out
+-- while Leproc is turned off.
 local _, ns = ...
 
 local M = {}
@@ -29,39 +29,8 @@ local function FollowCursor()
 	UpdatePosition()
 end
 
--- The profiles menu: the one in use first, the others to switch to, then a way to make a new one.
-local function ProfileMenu(owner, root)
-	local P = ns.Profiles
-	root:CreateTitle("Leproc profiles")
-	local names = { P.Current() }
-	for _, name in ipairs(P.Names()) do
-		if name ~= P.Current() then names[#names + 1] = name end
-	end
-	for _, name in ipairs(names) do
-		root:CreateRadio(name, function(n) return n == P.Current() end, function(n)
-			local ok, err = P.Switch(n)
-			ns.Print(ok and ("profile: " .. P.Current() .. ".") or err)
-		end, name)
-	end
-	root:CreateDivider()
-	root:CreateButton("New profile...", function() ns.Window.Show("profiles") end)
-end
-
-function M.OpenMenu(owner)
-	if MenuUtil and MenuUtil.CreateContextMenu then
-		GameTooltip:Hide()
-		MenuUtil.CreateContextMenu(owner, ProfileMenu)
-	else
-		ns.Window.Show("profiles")
-	end
-end
-
-local function OnClick(mouseButton, owner)
-	if mouseButton == "RightButton" then
-		M.OpenMenu(owner)
-	else
-		ns.Window.Toggle()
-	end
+local function OnClick()
+	ns.Window.Toggle()
 end
 
 local function Build()
@@ -90,7 +59,7 @@ local function Build()
 	border:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
 	border:SetPoint("TOPLEFT")
 
-	button:SetScript("OnClick", function(self, mouseButton) OnClick(mouseButton, self) end)
+	button:SetScript("OnClick", OnClick)
 	button:SetScript("OnDragStart", function(self)
 		self.dragging = true
 		GameTooltip:Hide()
@@ -105,7 +74,6 @@ local function Build()
 		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
 		GameTooltip:AddLine("Leproc" .. (ns.Enabled() and "" or " |cff999999(off)|r"))
 		GameTooltip:AddLine("Click for options.", 1, 1, 1)
-		GameTooltip:AddLine("Right-click to switch profile.", 1, 1, 1)
 		GameTooltip:AddLine("Profile: " .. ns.Profiles.Current(), 1, 0.82, 0)
 		GameTooltip:AddLine("Drag to move this button.", 0.7, 0.7, 0.7)
 		GameTooltip:Show()
@@ -114,8 +82,8 @@ local function Build()
 end
 
 -- The game's addon menu by the minimap (AddonCompartmentFunc in the .toc).
-function Leproc_OnAddonCompartmentClick(_, mouseButton)
-	OnClick(mouseButton)
+function Leproc_OnAddonCompartmentClick()
+	OnClick()
 end
 
 function M.SetShown(shown)

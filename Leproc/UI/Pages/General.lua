@@ -50,7 +50,7 @@ ns.Window.Page({
 			GOLD .. "/leproc|r opens or closes this window (" .. GOLD .. "/lpr|r for short).\n"
 			.. GOLD .. "/leproc general|r, " .. GOLD .. "abilities|r, " .. GOLD .. "glow|r, " .. GOLD .. "timer|r, "
 			.. GOLD .. "text|r, " .. GOLD .. "profiles|r open a tab.\n"
-			.. GOLD .. "/leproc profile <name>|r switches profile. " .. GOLD .. "/leproc spec|r shows your talents and role as profile switching sees them.\n"
+			.. GOLD .. "/leproc spec|r shows your talents and role as profile switching sees them.\n"
 			.. GOLD .. "/leproc minimap|r shows or hides the minimap button; " .. GOLD .. "/leproc on|r and " .. GOLD .. "off|r turn every glow on or off.\n"
 			.. GOLD .. "/leproc help|r lists them all.", 92))
 

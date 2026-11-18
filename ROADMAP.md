@@ -45,7 +45,9 @@ addon.
 - All of ProcGlow, including what 0.x left out: buff reminders, text popups
   with their animations, floating icons and "Track a buff or cooldown",
   redirects, the glow designer, timer and stack numbers, profiles that switch
-  by spec or group role, the class-coloured window, window scale and minimise.
+  by spec or group role, the class-coloured window. (Window scale, minimise
+  and the minimap's profile menu were built, then dropped at the owner's word
+  on 2026-11-18: the window resizes, and profiles are managed on their tab.)
 - Leproc's any-stance glow stays: in an ability's own stance the game decides
   (as in ProcGlow); outside it, the block, dodge and parry windows.
 - Our look: Leboof's options window, widgets and colours, with ProcGlow's
@@ -92,9 +94,8 @@ in TESTING.md.
    profiles, switching by talents or group role; the options window in our
    theme with ProcGlow's pages as tabs (General, Procs & Buffs, Glow, Timer &
    Stacks, Text Alerts, Profiles; the middle four are placeholders until their
-   steps); scale, minimise, class colour; the minimap button (profiles on
-   right-click, through the game's own menus); Options > AddOns with an Enable
-   box; the login message. Profiles stay Leproc's: account-wide and shareable
+   steps); class colour; the minimap button; Options > AddOns with an Enable
+   box; the login message. Profiles are managed on their tab only. Profiles stay Leproc's: account-wide and shareable
    between characters, with no limit, rather than ProcGlow's 8 per character;
    the switching rules are per character, as in ProcGlow. Talents are read
    from Forever's talent trees (the group with the most points spent); not
