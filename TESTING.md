@@ -231,6 +231,24 @@ shows every false glow and miss and which signals came with each dodge.
 
 ## Problems
 
+- 2026-11-18 group session (24d56e2, Kam Pf, 53 min open world in a party,
+  nearly all in Defensive Stance; `tools/compare_logs.py` after its fix for
+  Forever's 19-field advanced block):
+  - **Revenge: right.** 160 windows; the one "miss" was the out-of-stance
+    report delay (lit 0.9 s after a dodge in Berserker Stance), and the 20
+    "false" were 0.3-0.5 s overlaps in Defensive Stance where the game
+    decides (clock noise between the two logs). Its cooldown is honoured: the
+    game says usable during it, Leproc stays dark until it ends.
+  - **Overpower in Defensive Stance: half wrong in a group.** Your target
+    dodged 50 times: 25 your attacks, 25 Noraz's (a party druid). Neither
+    probe tells them apart: the reactive alert came with 8 of yours and 6 of
+    his (its spell is secret, and it fires for Revenge too), Blizzard's
+    highlight with none. So 24 false Overpower glows. The 17 "misses" were the
+    report's lateness (0.4 s) or the target dying right after your dodged
+    swing. Decision pending (ROADMAP).
+  - The log is spammed with "screen proc alert off for everything" lines
+    (`SPELL_ACTIVATION_OVERLAY_HIDE` with no spell).
+
 - 0ddf9ba / 118bbe5: Overpower glows when it isn't usable, on the spell and on
   a macro. No Bloodthrill talent, so it's the "your target dodged" window.
   The e4280bc log (party PvP, open world) showed: target dodged, the game said

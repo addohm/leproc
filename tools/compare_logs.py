@@ -174,10 +174,25 @@ def miss_type(fields, start):
     return None
 
 
+FLOAT = re.compile(r"^-?\d+\.\d+$")
+
+
+def suffix_start(event, fields):
+    """Where a damage event's suffix starts: after the base 9 fields, the spell's 3 for SPELL_ and
+    RANGE_, and the advanced block if there is one. The advanced block ends with posX, posY,
+    uiMapID, facing, level; its length differs by client (17 fields in the old fixtures, 19 in
+    Forever 1.60.1, the owner's first real log, 2026-11-18), so it's found by those decimals."""
+    start = 9 + (3 if event.startswith(("SPELL_", "RANGE_")) else 0)
+    for i in range(start + 2, min(len(fields) - 4, start + 30)):
+        if FLOAT.match(fields[i]) and FLOAT.match(fields[i + 1]) and FLOAT.match(fields[i + 3]):
+            return i + 5
+    return start
+
+
 def blocked_amount(event, fields):
     """The amount blocked on a damage event: the 6th suffix param (amount, baseAmount, overkill,
-    school, resisted, blocked), after the base 8, the spell's 3 for SPELL_, and 17 advanced."""
-    start = 9 + (3 if event.startswith(("SPELL_", "RANGE_")) else 0) + 17
+    school, resisted, blocked)."""
+    start = suffix_start(event, fields)
     try:
         return float(fields[start + 5])
     except (IndexError, ValueError):

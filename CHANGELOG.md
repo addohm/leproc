@@ -18,6 +18,7 @@ Steps 1 and 2a of 10 are in: the version is 1.0.0-dev until 1.0.0.
 
 ### Fixed
 
+- `tools/compare_logs.py` read partial blocks from the wrong column on Forever's combat log (19 advanced fields, not 17), inventing Revenge windows; it now finds the damage suffix after the position fields (2026-11-18, the owner's first real log).
 - Macros lit for abilities they don't show (2026-11-18, the owner's screenshot: Shield Block and Shield Bash macros glowing with Revenge). A macro now counts as the spell its icon shows, as the game reports it for the slot (its `#showtooltip`, else the first `/cast` that applies), not every ability its text names; and Leproc no longer reads a macro's text by name, which mixed up two macros with the same name. Stance-dance macros still count: one showing a stance counts for the ability it would show in that ability's stance, worked out from its own text. `/leproc macros` shows what each macro shows and counts for.
 
 - Rebuild step 1 (2026-11-18): the options window with ProcGlow's pages as tabs (General, Procs & Buffs, Glow, Timer & Stacks, Text Alerts, Profiles; the middle four say which step brings them), and the window in your class colour as an option. The build number is in chat only (the login line, `/leproc help`), not in the window.

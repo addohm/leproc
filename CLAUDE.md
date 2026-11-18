@@ -152,9 +152,10 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   Overpower and Revenge should have been lit, false glows and misses with
   the stance and the trigger, and for every "your target dodged" whose attack
   it was and whether the probes came with it. Tested on
-  `tests/fixtures/` (made-up logs in the real formats) by `run_tests.py`.
-  Check its parsing against the first real combat log (the damage suffix's
-  "blocked" position, the 17 advanced params).
+  `tests/fixtures/` (made-up logs) by `run_tests.py`, and checked against the
+  owner's first real combat log (2026-11-18): Forever 1.60.1 writes 19
+  advanced fields, not 17, so the damage suffix is found after posX, posY,
+  uiMapID, facing, level (`suffix_start`).
 - `tools/forever_tooltips.py <names>`: Wowhead's Forever tooltip for every ID
   with each name, to check a spell or proc buff before adding it.
 - `tools/install_forever.cmd`: Windows; pulls, mirrors `Leproc/` into the
