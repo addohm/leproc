@@ -26,7 +26,12 @@ icons of its own), "Any stance" by default with "Only in its stance" as an
 option. The first chunk is the block/dodge/parry abilities; next are buff procs,
 and a health probe for Execute (ROADMAP.md).
 
-`ProcGlow/` (by Troy) is the owner's design example: read it for ideas, don't
+**Rebuild planned 2026-11-18** (ROADMAP.md, "The rebuild"): Leproc starts
+over with ProcGlow as its base, all of its features rebuilt in our own code and
+look, keeping the any-stance glow. Until each step lands, this file describes
+0.x; it's rewritten with the new layout and conventions in step 1.
+
+`ProcGlow/` (by Troy) is the base for the rebuild: rebuild what it does, never
 copy its code. It's git-ignored; never commit it.
 The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
 
@@ -144,7 +149,9 @@ The remote is `addohm/leproc` on GitHub (`origin`, branch `main`).
   combat events, a clock), `smoke.lua` (scenarios), `run_tests.py` (also runs
   `tools/compare_logs.py` on `tests/fixtures/`).
 - `ProcGlow/`: someone else's addon, a design example only (git-ignored, local)
-- `.scratch/`: git-ignored downloads (Blizzard UI source, the wago.tools CSV).
+- `.scratch/`: git-ignored downloads (Blizzard UI source, the wago.tools CSV),
+  and `procglow-inventory.md`: everything ProcGlow does, area by area, with its
+  defaults and edge cases (2026-11-18; local to this workspace).
 
 ## Workflow
 
